@@ -192,4 +192,16 @@
 </script>
 @stack('scripts')
 </body>
+<body class="bg-white text-black dark:bg-gray-900 dark:text-gray-200 transition-colors duration-300 min-h-screen">
+
+    <nav class="p-4 border-b border-gray-300 dark:border-gray-700 flex justify-between items-center">
+        <h1 class="font-semibold text-lg">🌟 Aplikasi Peminjaman Aset</h1>
+        @include('components.theme-toggle')
+    </nav>
+
+    <main class="p-6">
+        @yield('content')
+    </main>
+
+</body>
 </html>

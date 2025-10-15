@@ -362,4 +362,11 @@
       </div>
     </div>
   </div>
+  @extends('layouts.app')
+
+@section('content')
+<div class="small text-truncate text-black dark:text-gray-300">
+    Tripod , Mounting Tripod
+</div>
+@endsections
 @endif
