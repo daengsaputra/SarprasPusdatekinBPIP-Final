@@ -20,6 +20,35 @@
             --text-primary: #e2e8f0;
             --text-secondary: rgba(226, 232, 240, 0.72);
             --text-muted: rgba(148, 163, 184, 0.75);
+            --bs-body-bg: transparent;
+            --bs-body-color: var(--text-primary);
+            --bs-heading-color: var(--text-primary);
+            --bs-link-color: var(--brand-cyan);
+            --bs-link-hover-color: #7dd3fc;
+            --bs-emphasis-color: var(--text-primary);
+            --bs-border-color: var(--border-soft);
+            --bs-secondary-color: rgba(203, 213, 225, 0.7);
+            --bs-body-secondary-color: rgba(203, 213, 225, 0.7);
+            --bs-body-tertiary-color: rgba(148, 163, 184, 0.55);
+            --bs-body-secondary-bg: rgba(15, 23, 42, 0.55);
+            --bs-body-tertiary-bg: rgba(15, 23, 42, 0.45);
+            --bs-card-bg: var(--surface-2);
+            --bs-card-border-color: var(--border-soft);
+            --bs-primary: #2563eb;
+            --bs-primary-rgb: 37, 99, 235;
+            --bs-success: #22c55e;
+            --bs-success-rgb: 34, 197, 94;
+            --bs-warning: #f59e0b;
+            --bs-warning-rgb: 245, 158, 11;
+            --bs-primary-bg-subtle: rgba(59, 130, 246, 0.18);
+            --bs-primary-border-subtle: rgba(59, 130, 246, 0.35);
+            --bs-primary-text-emphasis: rgba(191, 219, 254, 0.95);
+            --bs-success-bg-subtle: rgba(34, 197, 94, 0.15);
+            --bs-success-border-subtle: rgba(34, 197, 94, 0.3);
+            --bs-success-text-emphasis: #bbf7d0;
+            --bs-warning-bg-subtle: rgba(250, 204, 21, 0.18);
+            --bs-warning-border-subtle: rgba(250, 204, 21, 0.35);
+            --bs-warning-text-emphasis: #facc15;
         }
         [data-theme="light"] {
             --surface-1: linear-gradient(160deg, #ffffff 0%, #eef2ff 40%, #e2e8f0 100%);
@@ -29,6 +58,35 @@
             --text-primary: #0f172a;
             --text-secondary: rgba(30, 41, 59, 0.78);
             --text-muted: rgba(71, 85, 105, 0.68);
+            --bs-body-bg: transparent;
+            --bs-body-color: var(--text-primary);
+            --bs-heading-color: var(--text-primary);
+            --bs-link-color: var(--brand-blue);
+            --bs-link-hover-color: #1d4ed8;
+            --bs-emphasis-color: var(--text-primary);
+            --bs-border-color: rgba(15, 23, 42, 0.08);
+            --bs-secondary-color: rgba(71, 85, 105, 0.7);
+            --bs-body-secondary-color: rgba(71, 85, 105, 0.7);
+            --bs-body-tertiary-color: rgba(100, 116, 139, 0.6);
+            --bs-body-secondary-bg: rgba(241, 245, 249, 0.92);
+            --bs-body-tertiary-bg: rgba(226, 232, 240, 0.78);
+            --bs-card-bg: var(--surface-2);
+            --bs-card-border-color: var(--border-soft);
+            --bs-primary: #2563eb;
+            --bs-primary-rgb: 37, 99, 235;
+            --bs-success: #22c55e;
+            --bs-success-rgb: 34, 197, 94;
+            --bs-warning: #f59e0b;
+            --bs-warning-rgb: 245, 158, 11;
+            --bs-primary-bg-subtle: rgba(59, 130, 246, 0.18);
+            --bs-primary-border-subtle: rgba(59, 130, 246, 0.25);
+            --bs-primary-text-emphasis: #1e3a8a;
+            --bs-success-bg-subtle: rgba(34, 197, 94, 0.12);
+            --bs-success-border-subtle: rgba(34, 197, 94, 0.25);
+            --bs-success-text-emphasis: #166534;
+            --bs-warning-bg-subtle: rgba(250, 204, 21, 0.16);
+            --bs-warning-border-subtle: rgba(250, 204, 21, 0.28);
+            --bs-warning-text-emphasis: #92400e;
         }
         body {
             min-height: 100vh;
@@ -36,16 +94,33 @@
             color: var(--text-primary);
             transition: background .35s ease, color .35s ease;
         }
+        .text-muted {
+            color: var(--text-muted) !important;
+        }
         a { color: var(--brand-cyan); }
         a:hover { color: #7dd3fc; }
-        .navbar {
+        .landing-navbar {
             background: rgba(2, 6, 23, 0.82);
             backdrop-filter: blur(6px);
             border-bottom: 1px solid rgba(59, 130, 246, 0.25);
+            position: sticky;
+            top: 0;
+            z-index: 1200;
+            transition: background .3s ease, border-color .3s ease, box-shadow .3s ease;
         }
-        [data-theme="light"] .navbar {
+        .landing-navbar.is-scrolled {
+            background: rgba(2, 6, 23, 0.95);
+            border-bottom-color: rgba(59, 130, 246, 0.4);
+            box-shadow: 0 12px 32px rgba(2, 6, 23, 0.4);
+        }
+        [data-theme="light"] .landing-navbar {
             background: rgba(248, 250, 252, 0.9);
             border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+        }
+        [data-theme="light"] .landing-navbar.is-scrolled {
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom-color: rgba(15, 23, 42, 0.14);
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
         }
         .navbar-brand {
             color: var(--text-primary) !important;
@@ -74,7 +149,7 @@
             position: fixed;
             top: 1.2rem;
             right: 1.5rem;
-            z-index: 1100;
+            z-index: 1500;
             transition: background-color .2s ease;
         }
         .theme-toggle-slider input { display: none; }
@@ -125,7 +200,7 @@
     @stack('styles')
 </head>
 <body data-theme="dark">
-<nav class="navbar navbar-expand-lg py-3">
+<nav class="navbar landing-navbar navbar-expand-lg py-3">
     <div class="container">
         <a class="navbar-brand fw-semibold text-uppercase" href="{{ url('/') }}">SARPRAS PUSDATEKIN</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#landingNav" aria-controls="landingNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -163,6 +238,7 @@
     const bodyEl = document.body;
     const toggleInput = document.getElementById('themeToggleInput');
     const storedTheme = localStorage.getItem('landingTheme');
+    const landingNav = document.querySelector('.landing-navbar');
 
     const applyTheme = (theme) => {
         bodyEl.dataset.theme = theme;
@@ -182,6 +258,15 @@
             applyTheme(newTheme);
         });
     }
+
+    const handleScroll = () => {
+        if (!landingNav) {
+            return;
+        }
+        landingNav.classList.toggle('is-scrolled', window.scrollY > 12);
+    };
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
 </script>
 @stack('scripts')
 </body>

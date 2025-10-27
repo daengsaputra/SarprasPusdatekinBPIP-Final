@@ -4,10 +4,12 @@
 
   @push('styles')
   <style>
-    .marquee-wrapper {
-      position: relative;
+  .marquee-wrapper {
+      position: sticky;
+      bottom: 0;
+      z-index:100 ;
       overflow: hidden;
-      background: var(--surface-3);
+      background: rgba(255, 255, 255, 1);
       border: 1px solid var(--border-soft);
       border-radius: 999px;
       padding: .75rem 0;

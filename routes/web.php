@@ -67,8 +67,8 @@ Route::get('/assets', [AssetController::class, 'index'])->name('assets.index');
 
 // Dashboard (protected)
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', function () {
-        $counts = [
+    Route::get('/dashboard', function () {        
+        $rawCounts = [
             'assets' => (int) Asset::where('kind', Asset::KIND_INVENTORY)->sum('quantity_total'),
             'assets_active' => (int) Asset::where('status', 'active')->where('kind', Asset::KIND_INVENTORY)->sum('quantity_total'),
             'assets_loanable' => (int) Asset::where('kind', Asset::KIND_LOANABLE)->sum('quantity_total'),
@@ -76,6 +76,15 @@ Route::middleware('auth')->group(function () {
             'loans_returned' => Loan::where('status', 'returned')->count(),
             'users' => User::count(),
         ];
+
+        $dashboardCounts = [
+            'assets_loanable' => (int) data_get($rawCounts, 'assets_loanable', 0),
+            'assets' => (int) data_get($rawCounts, 'assets', 0),
+            'users' => (int) data_get($rawCounts, 'users', 0),
+            'loans_active' => (int) data_get($rawCounts, 'loans_active', 0),
+            'loans_returned' => (int) data_get($rawCounts, 'loans_returned', 0),
+        ];
+
         // Chart data: total jumlah dipinjam per unit kerja (sum of quantity)
         $units = config('bpip.units');
         $sumByUnit = Loan::selectRaw('unit, COALESCE(SUM(quantity),0) as total_qty')
@@ -98,7 +107,7 @@ Route::middleware('auth')->group(function () {
         ];
         $latestUsers = User::latest()->take(6)->get();
         $activeLoans = Loan::with('asset')->where('status', 'borrowed')->orderBy('return_date_planned')->get();
-        return view('dashboard', compact('counts', 'chart', 'latestUsers', 'activeLoans'));
+        return view('dashboard', compact('dashboardCounts', 'chart', 'latestUsers', 'activeLoans'));
     })->name('dashboard');
 
     Route::resource('assets', AssetController::class)->except(['index'])->middleware('role:admin');
@@ -136,8 +145,3 @@ Route::middleware('auth')->group(function () {
         Route::delete('/users/{user}/photo', [\App\Http\Controllers\UserController::class, 'destroyPhoto'])->name('users.photo.destroy');
     });
 });
-
-
-
-
-

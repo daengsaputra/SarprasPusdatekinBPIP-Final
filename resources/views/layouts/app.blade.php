@@ -6,17 +6,243 @@
     <title>{{ $title ?? 'SARPRAS PUSDATEKIN – Sarana Prasarana Aset Pusdatekin' }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { padding-top: 4.5rem; padding-bottom: 3.25rem; }
+        :root {
+            --brand-blue: #2563eb;
+            --brand-blue-dark: #1d4ed8;
+            --brand-cyan: #38bdf8;
+            --app-bg: linear-gradient(140deg, #0b1220 0%, #05060a 55%, #020205 100%);
+            --app-surface: rgba(15, 23, 42, 0.85);
+            --app-surface-soft: rgba(15, 23, 42, 0.7);
+            --app-border: rgba(148, 163, 184, 0.2);
+            --app-border-strong: rgba(59, 130, 246, 0.35);
+            --app-text: #e2e8f0;
+            --app-text-muted: rgba(148, 163, 184, 0.72);
+            --app-shadow: 0 24px 50px rgba(2, 6, 23, 0.45);
+            --app-card-shadow: 0 22px 48px rgba(2, 6, 23, 0.45);
+            --app-nav-bg: rgba(2, 6, 23, 0.9);
+            --app-nav-border: rgba(59, 130, 246, 0.28);
+            --app-input-bg: rgba(15, 23, 42, 0.65);
+            --app-input-border: rgba(148, 163, 184, 0.22);
+            --app-input-focus: rgba(59, 130, 246, 0.5);
+            --app-scroll-thumb: rgba(59, 130, 246, 0.45);
+            --app-highlight: rgba(59, 130, 246, 0.18);
+        }
+        [data-theme="light"] {
+            --app-bg: linear-gradient(160deg, #ffffff 0%, #eef2ff 40%, #e2e8f0 100%);
+            --app-surface: rgba(255, 255, 255, 0.96);
+            --app-surface-soft: rgba(241, 245, 249, 0.92);
+            --app-border: rgba(15, 23, 42, 0.08);
+            --app-border-strong: rgba(148, 163, 184, 0.25);
+            --app-text: #0f172a;
+            --app-text-muted: rgba(71, 85, 105, 0.72);
+            --app-shadow: 0 22px 40px rgba(15, 23, 42, 0.14);
+            --app-card-shadow: 0 18px 32px rgba(148, 163, 184, 0.16);
+            --app-nav-bg: rgba(255, 255, 255, 0.95);
+            --app-nav-border: rgba(15, 23, 42, 0.12);
+            --app-input-bg: rgba(255, 255, 255, 0.95);
+            --app-input-border: rgba(148, 163, 184, 0.35);
+            --app-input-focus: rgba(37, 99, 235, 0.45);
+            --app-scroll-thumb: rgba(37, 99, 235, 0.35);
+            --app-highlight: rgba(37, 99, 235, 0.12);
+        }
+        body {
+            padding-top: 4.5rem;
+            padding-bottom: 3.25rem;
+            min-height: 100vh;
+            background: var(--app-bg);
+            color: var(--app-text);
+            transition: background .3s ease, color .3s ease;
+        }
+        a {
+            color: var(--brand-cyan);
+            transition: color .2s ease;
+        }
+        a:hover,
+        a:focus {
+            color: #7dd3fc;
+        }
+        .navbar {
+            background: var(--app-nav-bg) !important;
+            border-bottom: 1px solid var(--app-nav-border);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--app-shadow);
+        }
+        .navbar .navbar-brand {
+            color: var(--app-text) !important;
+            letter-spacing: 0.12em;
+        }
+        .navbar .nav-link {
+            color: var(--app-text-muted) !important;
+        }
+        .navbar .nav-link:hover,
+        .navbar .nav-link:focus {
+            color: var(--app-text) !important;
+        }
+        .navbar .btn-outline-light {
+            border-color: var(--app-border);
+            color: var(--app-text);
+        }
+        .navbar .btn-outline-light:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--app-text);
+        }
+        .navbar .btn-outline-primary {
+            border-color: var(--brand-blue);
+            color: var(--brand-cyan);
+        }
+        .navbar .btn-outline-primary:hover {
+            background: var(--brand-blue);
+            color: #fff;
+        }
+        .theme-toggle-slot {
+            display: flex;
+            align-items: center;
+        }
+        .app-theme-toggle__switch {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 62px;
+            height: 30px;
+            border-radius: 999px;
+            padding: 0 10px;
+            background: var(--app-surface-soft);
+            border: 1px solid var(--app-border);
+            cursor: pointer;
+            transition: background .3s ease, border-color .3s ease;
+        }
+        .app-theme-toggle__icon {
+            font-size: 0.95rem;
+            line-height: 1;
+            color: var(--app-text-muted);
+            transition: opacity .25s ease, color .25s ease;
+            display: flex;
+        }
+        .app-theme-toggle__icon svg {
+            width: 16px;
+            height: 16px;
+            display: block;
+            pointer-events: none;
+        }
+        .app-theme-toggle__icon--sun {
+            opacity: 0;
+        }
+        .app-theme-toggle__thumb {
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            top: 50%;
+            left: 4px;
+            transform: translateY(-50%);
+            background: var(--brand-cyan);
+            box-shadow: 0 10px 22px rgba(56, 189, 248, 0.4);
+            transition: transform .3s cubic-bezier(0.22, 1, 0.36, 1), background .3s ease, box-shadow .3s ease;
+        }
+        .app-theme-toggle__input:checked + .app-theme-toggle__switch .app-theme-toggle__thumb {
+            transform: translate(28px, -50%);
+            background: #fbbf24;
+            box-shadow: 0 10px 20px rgba(251, 191, 36, 0.35);
+        }
+        .app-theme-toggle__input:checked + .app-theme-toggle__switch .app-theme-toggle__icon--sun {
+            opacity: 1;
+            color: #fbbf24;
+        }
+        .app-theme-toggle__input:checked + .app-theme-toggle__switch .app-theme-toggle__icon--moon {
+            opacity: 0;
+        }
+        .card {
+            background: var(--app-surface);
+            border: 1px solid var(--app-border);
+            box-shadow: var(--app-card-shadow);
+            color: var(--app-text);
+        }
+        .card .form-label,
+        .card .form-text {
+            color: var(--app-text-muted);
+        }
+        .form-control {
+            background: var(--app-input-bg);
+            border-color: var(--app-input-border);
+            color: var(--app-text);
+        }
+        .form-control::placeholder {
+            color: rgba(148, 163, 184, 0.55);
+        }
+        .form-control:focus {
+            border-color: var(--app-input-focus);
+            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+            background: var(--app-input-bg);
+            color: var(--app-text);
+        }
+        .form-check-label {
+            color: var(--app-text-muted);
+        }
+        .form-check-input {
+            background: var(--app-input-bg);
+            border-color: var(--app-input-border);
+        }
+        .form-check-input:checked {
+            background-color: var(--brand-blue);
+            border-color: var(--brand-blue);
+        }
+        .btn-primary {
+            background: linear-gradient(120deg, var(--brand-blue), var(--brand-blue-dark));
+            border: none;
+            box-shadow: 0 14px 30px rgba(37, 99, 235, 0.35);
+        }
+        .btn-primary:hover,
+        .btn-primary:focus {
+            background: linear-gradient(120deg, var(--brand-blue-dark), var(--brand-blue));
+            box-shadow: 0 18px 35px rgba(30, 64, 175, 0.35);
+        }
+        .btn-outline-light {
+            border-color: var(--app-border);
+            color: var(--app-text);
+        }
+        .btn-outline-light:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--app-text);
+        }
+        .bg-dark {
+            background: var(--app-surface) !important;
+        }
+        .text-white-50 {
+            color: var(--app-text-muted) !important;
+        }
+        aside.bg-dark {
+            border-right: 1px solid var(--app-border);
+            box-shadow: inset -1px 0 0 rgba(148, 163, 184, 0.08);
+        }
+        aside .nav-link {
+            color: var(--app-text-muted) !important;
+        }
+        aside .nav-link.bg-secondary {
+            background: var(--app-highlight) !important;
+            color: var(--app-text) !important;
+        }
+        aside .nav-link:hover {
+            color: var(--app-text) !important;
+            background: rgba(148, 163, 184, 0.12);
+        }
+        main.container {
+            color: inherit;
+        }
         .running-info {
             position: fixed;
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(90deg,#0f172a,#1e293b);
-            color: #f8fafc;
+            background: linear-gradient(90deg, rgba(37, 99, 235, 0.3) 0%, rgba(15, 23, 42, 0.88) 45%, rgba(10, 12, 24, 0.95) 100%);
+            color: rgba(241, 245, 249, 0.92);
             z-index: 1035;
             overflow: hidden;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            border-top: 1px solid var(--app-border-strong);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 -12px 30px rgba(2, 6, 23, 0.42);
+            text-shadow: 0 1px 2px rgba(2, 6, 23, 0.6);
         }
         .running-info::before,
         .running-info::after {
@@ -27,24 +253,51 @@
             width: 80px;
             pointer-events: none;
         }
-        .running-info::before { left: 0; background: linear-gradient(90deg,#0f172a,transparent); }
-        .running-info::after { right: 0; background: linear-gradient(270deg,#0f172a,transparent); }
+        .running-info::before {
+            left: 0;
+            background: linear-gradient(90deg, rgba(15, 23, 42, 0.95), transparent);
+        }
+        .running-info::after {
+            right: 0;
+            background: linear-gradient(270deg, rgba(15, 23, 42, 0.95), transparent);
+        }
         .running-track {
             display: inline-flex;
             white-space: nowrap;
             gap: 3rem;
             padding: 0.6rem 0;
             animation: ticker 20s linear infinite;
+            align-items: center;
         }
-        .running-track span { font-weight: 600; letter-spacing: .02em; }
+        .running-track span {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.65rem;
+            font-weight: 600;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: rgba(241, 245, 249, 0.92);
+        }
+        .running-track span::before {
+            content: '•';
+            font-size: 1.1rem;
+            color: rgba(56, 189, 248, 0.75);
+        }
         @keyframes ticker {
             0% { transform: translateX(0); }
             100% { transform: translateX(-50%); }
         }
+        body::-webkit-scrollbar {
+            width: 10px;
+        }
+        body::-webkit-scrollbar-thumb {
+            background: var(--app-scroll-thumb);
+            border-radius: 999px;
+        }
     </style>
     @stack('styles')
 </head>
-<body>
+<body data-theme="dark">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
   <div class="container-fluid">
     <a class="navbar-brand fw-bold" href="{{ route('landing') }}">SARPRAS PUSDATEKIN</a>
@@ -62,6 +315,9 @@
       </ul>
       <div class="ms-auto d-flex align-items-center gap-3 text-white-50">
         <span class="d-none d-md-inline">{{ now()->format('Y-m-d') }}</span>
+        <div class="theme-toggle-slot d-flex align-items-center">
+          @include('components.theme-toggle')
+        </div>
         @guest
           <a href="{{ route('assets.loanable') }}" class="btn btn-outline-primary px-4">Data Barang</a>
           <a href="{{ route('login') }}" class="btn btn-outline-light px-4">Login</a>
@@ -192,16 +448,5 @@
 </script>
 @stack('scripts')
 </body>
-<body class="bg-white text-black dark:bg-gray-900 dark:text-gray-200 transition-colors duration-300 min-h-screen">
-
-    <nav class="p-4 border-b border-gray-300 dark:border-gray-700 flex justify-between items-center">
-        <h1 class="font-semibold text-lg">🌟 Aplikasi Peminjaman Aset</h1>
-        @include('components.theme-toggle')
-    </nav>
-
-    <main class="p-6">
-        @yield('content')
-    </main>
-
-</body>
 </html>
+

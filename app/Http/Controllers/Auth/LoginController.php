@@ -3,18 +3,23 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 class LoginController extends Controller
 {
+    /**
+     * Menampilkan form login.
+     */
     public function showLoginForm()
     {
         return view('auth.login');
     }
 
+    /**
+     * Menangani permintaan login.
+     */
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -22,29 +27,35 @@ class LoginController extends Controller
             'password' => 'required|string',
         ]);
 
-        // Allow login by name or email using identifier field
-        $identifier = trim($credentials['identifier']);
-        $user = str_contains($identifier, '@')
-            ? User::whereRaw('lower(email) = ?', [strtolower($identifier)])->first()
-            : User::whereRaw('lower(name) = ?', [strtolower($identifier)])->first();
+        // Tentukan field untuk login (bisa email atau name)
+        $loginField = filter_var($credentials['identifier'], FILTER_VALIDATE_EMAIL) ? 'email' : 'name';
 
-        if (!$user || !Hash::check($credentials['password'], $user->password)) {
-            return back()
-                ->withInput($request->only('identifier'))
-                ->withErrors(['identifier' => 'Kredensial tidak valid.']);
+        $authData = [
+            $loginField => $credentials['identifier'],
+            'password' => $credentials['password'],
+        ];
+
+        // Coba untuk autentikasi
+        if (Auth::attempt($authData, $request->boolean('remember'))) {
+            $request->session()->regenerate();
+
+            return redirect()->intended(route('dashboard'));
         }
 
-        Auth::login($user, $request->boolean('remember'));
-        $request->session()->regenerate();
-
-        return redirect()->intended(route('dashboard'));
+        // Jika gagal, kembali dengan pesan error
+        return back()->withErrors([
+            'identifier' => 'Kredensial yang diberikan tidak cocok dengan data kami.',
+        ])->onlyInput('identifier');
     }
 
+    /**
+     * Menangani proses logout.
+     */
     public function logout(Request $request)
     {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('landing');
+        return redirect('/login')->with('success', 'Anda telah berhasil keluar.');
     }
 }
