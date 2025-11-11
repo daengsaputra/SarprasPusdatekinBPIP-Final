@@ -108,7 +108,7 @@
   }
   @media (max-width: 992px) {
     .report-hero { flex-direction: column; }
-    body[data-theme="light"] main.container { margin-left: 0 !important; }
+    body[data-theme="light"] .app-main { margin-left: 0 !important; }
   }
 </style>
 @endpush
@@ -116,6 +116,7 @@
 @section('content')
 @php($rangeActive = $range ?? request('range','week'))
 <div class="report-shell">
+  @include('reports.partials.subnav')
   <section class="report-hero">
     <div>
       <p class="text-uppercase text-muted small mb-1" style="letter-spacing:0.25em;">Laporan</p>

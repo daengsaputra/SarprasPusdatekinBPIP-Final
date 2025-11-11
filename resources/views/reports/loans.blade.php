@@ -33,7 +33,7 @@
   .report-table-card table tbody td { vertical-align:middle; }
   .report-download { border-radius:999px; padding:0.35rem 1rem; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:0.4rem; }
   .report-download span { background:rgba(255,255,255,0.35); width:1.4rem; height:1.4rem; border-radius:999px; display:inline-flex; align-items:center; justify-content:center; }
-  @media (max-width: 992px) { body[data-theme="light"] main.container { margin-left:0!important; } .report-hero { flex-direction:column; } }
+  @media (max-width: 992px) { body[data-theme="light"] .app-main { margin-left:0!important; } .report-hero { flex-direction:column; } }
 </style>
 @endpush
 
@@ -41,6 +41,7 @@
 
 @section('content')
 <div class="report-shell">
+  @include('reports.partials.subnav')
   <section class="report-hero">
     <div>
       <p class="text-uppercase text-muted small mb-1" style="letter-spacing:0.25em;">Barang Peminjaman</p>
@@ -134,7 +135,6 @@
             <td>
               {{ $row->quantity }}
               @if($row->quantity_remaining > 0 && $row->status !== 'returned')
-                <span class="text-muted small d-block">Sisa {{ $row->quantity_remaining }}</span>
               @endif
             </td>
             @php($statusLabel = match($row->status) {

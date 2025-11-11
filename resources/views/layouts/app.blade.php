@@ -117,7 +117,67 @@
     }
     .app-main {
         margin-left: 260px;
+        width: calc(100% - 260px);
+        max-width: 100%;
+        padding: 2.5rem clamp(1.25rem, 3vw, 2.75rem);
         color: var(--app-text);
+        background: var(--app-surface, #f8fafc);
+        min-height: 100vh;
+    }
+    .app-main--guest {
+        margin-left: 0;
+        width: 100%;
+    }
+    .report-subnav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        padding: 1rem 1.25rem;
+        border-radius: 24px;
+        background: var(--app-surface, #fff);
+        border: 1px solid var(--app-border-strong, rgba(148,163,184,0.25));
+        box-shadow: 0 16px 32px rgba(15,23,42,0.08);
+    }
+    .report-subnav__link {
+        flex: 1 1 180px;
+        min-width: 180px;
+        text-decoration: none;
+        border-radius: 18px;
+        border: 1px solid rgba(148,163,184,0.3);
+        padding: 0.8rem 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        color: var(--app-text, #0f172a);
+        font-weight: 600;
+        transition: all 0.2s ease;
+        background: var(--app-surface-soft, #fff);
+    }
+    .report-subnav__link small {
+        font-weight: 500;
+        color: #64748b;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        font-size: 0.7rem;
+    }
+    .report-subnav__link.is-active {
+        background: linear-gradient(125deg,#f59e0b,#fef3c7);
+        border-color: #f59e0b;
+        color: #92400e;
+        box-shadow: 0 12px 28px rgba(245,158,11,0.35);
+    }
+    @media (max-width: 992px) {
+        .app-main {
+            margin-left: 0;
+            width: 100%;
+            padding: 1.5rem;
+        }
+        .report-subnav {
+            flex-direction: column;
+        }
+        .report-subnav__link {
+            width: 100%;
+        }
     }
     .pill-btn {
         border-radius: 999px;
@@ -224,55 +284,56 @@
             --brand-blue: #2563eb;
             --brand-blue-dark: #1d4ed8;
             --brand-cyan: #38bdf8;
-            --app-bg: linear-gradient(140deg, #0b1220 0%, #05060a 55%, #020205 100%);
-            --app-surface: rgba(15, 23, 42, 0.85);
-            --app-surface-soft: rgba(15, 23, 42, 0.7);
-            --app-border: rgba(148, 163, 184, 0.2);
-            --app-border-strong: rgba(59, 130, 246, 0.35);
+            --font-sans: 'Instrument Sans', 'Inter', 'Segoe UI', 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            --app-bg: linear-gradient(145deg, #050b18 0%, #070d1f 55%, #0b1124 100%);
+            --app-surface: rgba(12, 19, 33, 0.92);
+            --app-surface-soft: rgba(15, 23, 42, 0.78);
+            --app-border: rgba(148, 163, 184, 0.25);
+            --app-border-strong: rgba(59, 130, 246, 0.4);
             --app-text: #e2e8f0;
-            --app-text-muted: rgba(148, 163, 184, 0.72);
-            --app-shadow: 0 24px 50px rgba(2, 6, 23, 0.45);
-            --app-card-shadow: 0 22px 48px rgba(2, 6, 23, 0.45);
-            --app-nav-bg: rgba(2, 6, 23, 0.9);
-            --app-nav-border: rgba(59, 130, 246, 0.28);
-            --app-input-bg: rgba(15, 23, 42, 0.65);
-            --app-input-border: rgba(148, 163, 184, 0.22);
-            --app-input-focus: rgba(59, 130, 246, 0.5);
-            --app-scroll-thumb: rgba(59, 130, 246, 0.45);
-            --app-highlight: rgba(59, 130, 246, 0.18);
-            --sidebar-bg: rgba(15,23,42,0.9);
-            --sidebar-border: rgba(59,130,246,0.35);
-            --sidebar-text: #e2e8f0;
-            --sidebar-muted: rgba(148,163,184,0.75);
-            --sidebar-active-bg: rgba(59,130,246,0.2);
+            --app-text-muted: rgba(148, 163, 184, 0.78);
+            --app-shadow: 0 30px 60px rgba(2, 6, 23, 0.55);
+            --app-card-shadow: 0 26px 60px rgba(2, 6, 23, 0.5);
+            --app-nav-bg: rgba(8, 13, 25, 0.92);
+            --app-nav-border: rgba(59, 130, 246, 0.32);
+            --app-input-bg: rgba(15, 23, 42, 0.75);
+            --app-input-border: rgba(148, 163, 184, 0.3);
+            --app-input-focus: rgba(59, 130, 246, 0.6);
+            --app-scroll-thumb: rgba(59, 130, 246, 0.5);
+            --app-highlight: rgba(59, 130, 246, 0.22);
+            --sidebar-bg: rgba(10,16,32,0.95);
+            --sidebar-border: rgba(59,130,246,0.4);
+            --sidebar-text: #f1f5f9;
+            --sidebar-muted: rgba(148,163,184,0.78);
+            --sidebar-active-bg: rgba(59,130,246,0.22);
             --bs-body-color: #e2e8f0;
             --bs-body-bg: transparent;
-            --bs-border-color: rgba(148,163,184,0.25);
+            --bs-border-color: rgba(148,163,184,0.3);
         }
         [data-theme="light"] {
-            --app-bg: linear-gradient(160deg, #ffffff 0%, #eef2ff 40%, #e2e8f0 100%);
-            --app-surface: rgba(255, 255, 255, 0.96);
-            --app-surface-soft: rgba(241, 245, 249, 0.92);
+            --app-bg: linear-gradient(165deg, #ffffff 0%, #f5f7ff 38%, #e7efff 100%);
+            --app-surface: rgba(255, 255, 255, 0.97);
+            --app-surface-soft: rgba(247, 249, 255, 0.94);
             --app-border: rgba(15, 23, 42, 0.08);
-            --app-border-strong: rgba(148, 163, 184, 0.25);
+            --app-border-strong: rgba(148, 163, 184, 0.28);
             --app-text: #0f172a;
-            --app-text-muted: rgba(71, 85, 105, 0.72);
-            --app-shadow: 0 22px 40px rgba(15, 23, 42, 0.14);
-            --app-card-shadow: 0 18px 32px rgba(148, 163, 184, 0.16);
-            --app-nav-bg: rgba(255, 255, 255, 0.95);
-            --app-nav-border: rgba(15, 23, 42, 0.12);
-            --app-input-bg: rgba(255, 255, 255, 0.95);
+            --app-text-muted: rgba(71, 85, 105, 0.78);
+            --app-shadow: 0 25px 45px rgba(15, 23, 42, 0.12);
+            --app-card-shadow: 0 20px 36px rgba(148, 163, 184, 0.18);
+            --app-nav-bg: rgba(255, 255, 255, 0.96);
+            --app-nav-border: rgba(15, 23, 42, 0.1);
+            --app-input-bg: rgba(255, 255, 255, 0.98);
             --app-input-border: rgba(148, 163, 184, 0.35);
             --app-input-focus: rgba(37, 99, 235, 0.45);
-            --app-scroll-thumb: rgba(37, 99, 235, 0.35);
-            --app-highlight: rgba(37, 99, 235, 0.12);
+            --app-scroll-thumb: rgba(37, 99, 235, 0.3);
+            --app-highlight: rgba(37, 99, 235, 0.1);
             --sidebar-bg: #ffffff;
-            --sidebar-border: rgba(148,163,184,0.3);
-            --sidebar-text: #1e293b;
-            --sidebar-muted: #94a3b8;
-            --sidebar-active-bg: rgba(37,99,235,0.15);
+            --sidebar-border: rgba(148,163,184,0.22);
+            --sidebar-text: #0f172a;
+            --sidebar-muted: rgba(71,85,105,0.8);
+            --sidebar-active-bg: rgba(37,99,235,0.12);
             --bs-body-color: #0f172a;
-            --bs-border-color: rgba(15,23,42,0.12);
+            --bs-border-color: rgba(15,23,42,0.1);
         }
         body {
             padding-top: 4.5rem;
@@ -280,15 +341,28 @@
             min-height: 100vh;
             background: var(--app-bg);
             color: var(--app-text);
+            font-family: var(--font-sans);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
             transition: background .3s ease, color .3s ease;
         }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-sans);
+            letter-spacing: -0.01em;
+            color: var(--app-text);
+        }
+        .app-sidebar__brand-title,
+        .navbar .navbar-brand {
+            font-family: var(--font-sans);
+        }
         a {
-            color: var(--brand-cyan);
+            color: var(--brand-blue);
             transition: color .2s ease;
         }
         a:hover,
         a:focus {
-            color: #7dd3fc;
+            color: var(--brand-blue-dark);
         }
         .navbar {
             background: var(--app-nav-bg) !important;
@@ -299,6 +373,14 @@
         .navbar .navbar-brand {
             color: var(--app-text) !important;
             letter-spacing: 0.12em;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .navbar .navbar-brand img {
+            height: 38px;
+            width: auto;
+            display: block;
         }
         .navbar .nav-link {
             color: var(--app-text-muted) !important;
@@ -458,7 +540,7 @@
             color: var(--app-text) !important;
             background: rgba(148, 163, 184, 0.12);
         }
-    main.container {
+    .app-main {
         color: inherit;
     }
     .text-muted {
@@ -469,15 +551,13 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(90deg, rgba(37, 99, 235, 0.3) 0%, rgba(15, 23, 42, 0.88) 45%, rgba(10, 12, 24, 0.95) 100%);
-            color: rgba(241, 245, 249, 0.92);
+            background: #ffffff;
+            color: #0f172a;
             z-index: 1035;
             overflow: hidden;
             font-size: 0.85rem;
-            border-top: 1px solid var(--app-border-strong);
-            backdrop-filter: blur(8px);
-            box-shadow: 0 -12px 30px rgba(2, 6, 23, 0.42);
-            text-shadow: 0 1px 2px rgba(2, 6, 23, 0.6);
+            border-top: 1px solid rgba(148, 163, 184, 0.35);
+            box-shadow: 0 -8px 20px rgba(15, 23, 42, 0.1);
         }
         .running-info::before,
         .running-info::after {
@@ -491,24 +571,40 @@
         .running-track {
             display: inline-flex;
             white-space: nowrap;
-            gap: 3rem;
+            gap: 4rem;
             padding: 0.6rem 0;
-            animation: ticker 20s linear infinite;
+            animation: ticker 55s linear infinite;
             align-items: center;
         }
-        .running-track span {
+        .running-track > span {
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .marquee-entry {
             display: inline-flex;
             align-items: center;
             gap: 0.65rem;
+            text-transform: uppercase;
             font-weight: 600;
             letter-spacing: .08em;
-            text-transform: uppercase;
-            color: rgba(241, 245, 249, 0.92);
+            color: #0f172a;
         }
-        .running-track span::before {
-            content: 'â€¢';
-            font-size: 1.1rem;
-            color: rgba(56, 189, 248, 0.75);
+        .marquee-label {
+            color: rgba(30, 64, 175, 0.9);
+            letter-spacing: 0.16em;
+            font-size: 0.78rem;
+        }
+        .marquee-borrower {
+            color: #0ea5e9;
+            letter-spacing: 0.2em;
+        }
+        .marquee-dot {
+            color: rgba(234, 179, 8, 0.9);
+            font-size: 1.2rem;
+        }
+        .marquee-sep {
+            color: rgba(71, 85, 105, 0.85);
         }
         @keyframes ticker {
             0% { transform: translateX(0); }
@@ -527,7 +623,13 @@
 <body data-theme="dark">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
   <div class="container-fluid">
-    <a class="navbar-brand fw-semibold text-uppercase" href="{{ route('landing') }}">SARPRAS PUSDATEKIN</a>
+    <a class="navbar-brand fw-semibold text-uppercase" href="{{ route('landing') }}">
+      @auth
+        <img src="{{ asset('images/logo-pusdatekin.svg') }}" alt="SARPRAS PUSDATEKIN">
+      @else
+        <span>SARPRAS PUSDATEKIN</span>
+      @endauth
+    </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -605,6 +707,7 @@
             ['route' => 'loans.index', 'label' => 'Peminjaman', 'active' => request()->routeIs('loans.*'), 'icon' => '&#128221;'],
             ['route' => 'reports.returns', 'label' => 'Pengembalian', 'active' => request()->routeIs('reports.returns'), 'icon' => '&#128259;'],
             ['route' => 'reports.loans', 'label' => 'Laporan', 'active' => request()->routeIs('reports.loans'), 'icon' => '&#128209;'],
+            ['route' => 'reports.losses', 'label' => 'Laporan Kehilangan', 'active' => request()->routeIs('reports.losses'), 'icon' => '&#9888;'],
           ],
         ];
         if(auth()->user() && auth()->user()->role==='admin') {
@@ -637,11 +740,8 @@
           </button>
         </form>
       </div>
-      <div class="app-sidebar__footer">
-        <img src="{{ asset($logo ?? 'images/logo-sarpras.svg') }}" alt="Pusdatin">
-      </div>
     </aside>
-    <main class="container app-main">
+    <main class="app-main">
       @if(session('success'))
           <div class="alert alert-success alert-auto" data-autohide="5000">{{ session('success') }}</div>
       @endif
@@ -656,7 +756,7 @@
     </main>
   </div>
 @else
-<main class="container">
+<main class="app-main app-main--guest">
     @if(session('success'))
         <div class="alert alert-success alert-auto" data-autohide="5000">{{ session('success') }}</div>
     @endif
@@ -670,32 +770,63 @@
     {{ $slot ?? '' }}
     @yield('content')
  </main>
- @php
-   $logoCandidates = ['images/pusdatin-logo.png','images/pusdatin-logo.webp','images/pusdatin-logo.jpg','images/pusdatin-logo.jpeg','images/logo-sarpras.svg'];
-   $logo = null;
-   foreach ($logoCandidates as $candidate) {
-       if (file_exists(public_path($candidate))) {
-           $logo = $candidate;
-           break;
-       }
-   }
- @endphp
- <div class="d-none d-md-block" style="position:fixed; left:12px; bottom:12px; z-index:1030;">
-   <img src="{{ asset($logo ?? 'images/logo-sarpras.svg') }}" alt="Pusdatin" style="height:32px;width:auto;opacity:1;">
- </div>
 @endauth
 
 @php
-  $loanableTotals = [
-    'total' => \App\Models\Asset::where('kind', \App\Models\Asset::KIND_LOANABLE)->sum('quantity_total'),
-    'available' => \App\Models\Asset::where('kind', \App\Models\Asset::KIND_LOANABLE)->sum('quantity_available'),
-    'borrowed' => \App\Models\Loan::where('status','borrowed')->sum('quantity')
-  ];
+  $activeLoansTicker = \App\Models\Loan::with('asset')
+      ->whereIn('status', ['borrowed', 'partial'])
+      ->orderByDesc('loan_date')
+      ->get()
+      ->groupBy(function ($loan) {
+          return $loan->batch_code ?: ('loan-' . $loan->id);
+      })
+      ->map(function ($group) {
+          $first = $group->first();
+          $loanDate = $group->min('loan_date');
+          $plannedReturn = $group->filter(fn($loan) => $loan->return_date_planned)->min('return_date_planned');
+          $activity = trim((string) ($first->activity_name ?? ''));
+          if ($activity === '') {
+              $activity = trim((string) ($first->notes ?? ''));
+          }
+          $assetsLabels = $group->map(function ($loan) {
+              $name = $loan->asset->name ?? 'Sarana tidak ditemukan';
+              $code = $loan->asset->code ?? null;
+              $quantity = (int) ($loan->quantity ?? 0);
+              $label = trim($name . ($code ? " ({$code})" : ''));
+              if ($quantity > 1) {
+                  $label .= ' x' . $quantity;
+              }
+              return $label;
+          })->filter();
+
+          return (object) [
+              'borrower_name' => $first->borrower_name,
+              'activity' => $activity !== '' ? $activity : 'Tidak ada keterangan kegiatan',
+              'total_quantity' => (int) $group->sum('quantity'),
+              'return_date_planned' => $plannedReturn,
+              'assets_preview' => $assetsLabels->take(2)->implode(' • '),
+          ];
+      })
+      ->values();
+
+  $tickerEntries = [];
+  foreach ($activeLoansTicker as $loan) {
+      $borrower = e($loan->borrower_name ?? 'Peminjam');
+      $activity = e(\Illuminate\Support\Str::limit($loan->activity ?? 'Tidak ada keterangan kegiatan', 80));
+      $assets = e($loan->assets_preview ?: 'Sarana tidak ditemukan');
+      $quantity = e((int) ($loan->total_quantity ?? 0));
+      $dueDate = e(optional($loan->return_date_planned)->format('d M Y') ?: 'Tanpa batas');
+      $tickerEntries[] = "<span class=\"marquee-entry\"><span class=\"marquee-label\">Nama Peminjam:</span> <span class=\"marquee-borrower\">{$borrower}</span> <span class=\"marquee-sep\">|</span> <span class=\"marquee-label\">Nama Kegiatan:</span> {$activity} <span class=\"marquee-sep\">|</span> <span class=\"marquee-label\">Alat:</span> {$assets} ({$quantity} unit) <span class=\"marquee-sep\">|</span> <span class=\"marquee-label\">Target Kembali:</span> {$dueDate}</span>";
+  }
+  if (empty($tickerEntries)) {
+      $tickerEntries[] = '<span class="marquee-entry">Belum ada peminjaman aktif.</span>';
+  }
+  $tickerHtml = '<span class="marquee-entry"><span class="marquee-label">Monitoring SARPRAS PUSDATEKIN :</span></span> ' . implode('<span class="marquee-dot">&bull;</span>', $tickerEntries);
 @endphp
-<div class="running-info">
+<div class="running-info" aria-live="polite">
   <div class="running-track">
-    <span>Info persediaan: Total barang peminjaman {{ number_format($loanableTotals['total']) }} unit &bull; Sedang dipinjam {{ number_format($loanableTotals['borrowed']) }} unit &bull; Tersedia {{ number_format(max($loanableTotals['available'], 0)) }} unit</span>
-    <span>Info persediaan: Total barang peminjaman {{ number_format($loanableTotals['total']) }} unit &bull; Sedang dipinjam {{ number_format($loanableTotals['borrowed']) }} unit &bull; Tersedia {{ number_format(max($loanableTotals['available'], 0)) }} unit</span>
+    <span>{!! $tickerHtml !!}</span>
+    <span>{!! $tickerHtml !!}</span>
   </div>
 </div>
 

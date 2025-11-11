@@ -23,6 +23,70 @@
   .asset-table-card table thead th { text-transform:uppercase; letter-spacing:0.08em; font-size:0.78rem; color:#64748b; }
   .asset-table-card table tbody td { vertical-align:middle; }
   .asset-actions { display:flex; flex-wrap:wrap; gap:0.35rem; }
+  .asset-actions .btn {
+    border-radius: 12px;
+    transition: transform 0.25s cubic-bezier(.17,.67,.45,1.32), box-shadow 0.2s ease;
+  }
+  .asset-actions .btn.is-animating {
+    animation: assetActionPulse 0.35s cubic-bezier(.17,.67,.45,1.32);
+  }
+  @keyframes assetActionPulse {
+    0% { transform: scale(0.9); }
+    60% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  .asset-photo-modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(2,6,23,0.6);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+    z-index: 1400;
+    padding: 1.5rem;
+  }
+  .asset-photo-modal.is-visible {
+    opacity: 1;
+    visibility: visible;
+  }
+  .asset-photo-panel {
+    position: relative;
+    background: #fff;
+    border-radius: 24px;
+    padding: 1rem;
+    box-shadow: 0 40px 90px rgba(15,23,42,0.45);
+    transform: scale(0.85);
+    transition: transform 0.32s cubic-bezier(.17,.67,.45,1.32);
+    max-width: min(480px, 90vw);
+  }
+  .asset-photo-modal.is-visible .asset-photo-panel {
+    transform: scale(1);
+  }
+  .asset-photo-panel img {
+    width: 100%;
+    border-radius: 18px;
+    object-fit: cover;
+    max-height: 70vh;
+  }
+  .asset-photo-close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    border: none;
+    border-radius: 999px;
+    width: 34px;
+    height: 34px;
+    background: rgba(15,23,42,0.1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
   .letter-wide { letter-spacing:0.12em; }
   @media (max-width: 992px) { .asset-hero{flex-direction:column;} body[data-theme="light"] main.container{margin-left:0!important;} }
 </style>
@@ -39,7 +103,6 @@
       <p class="text-muted mb-0">Kelola data sarpras dengan filter cepat, ekspor/impor Excel, serta aksi edit langsung di tabel.</p>
     </div>
     <div class="d-flex flex-wrap gap-2">
-      <a href="{{ $exportUrl }}" class="pill-btn pill-btn--outline pill-btn--outline-green">Export Excel <span>&rsaquo;</span></a>
       @auth
         <a href="{{ $importUrl }}" class="pill-btn pill-btn--outline">Import Excel <span>&rsaquo;</span></a>
         <a href="{{ $createUrl }}" class="pill-btn pill-btn--primary">+ Tambah {{ $isLoanable ? 'Barang Peminjaman' : 'Aset' }} <span>&rsaquo;</span></a>
@@ -110,7 +173,6 @@
             @php($s=request('sort'))
             @php($d=request('dir','asc'))
             @php($next=function($key){ return (request('sort')===$key && request('dir','asc')==='asc')?'desc':'asc'; })
-            <th>Foto</th>
             <th>
               @php($q=array_merge(request()->all(),['sort'=>'code','dir'=>$next('code')]))
               @php($arrow=$s==='code' ? ($d==='asc'?'▲':'▼') : '•')
@@ -142,13 +204,6 @@
         <tbody>
           @forelse($assets as $asset)
             <tr>
-              <td>
-                @if($asset->photo)
-                  <img src="{{ asset('storage/'.$asset->photo) }}" alt="Foto" style="width:48px;height:48px;object-fit:cover;border-radius:12px;border:1px solid #e2e8f0;">
-                @else
-                  <span class="text-muted">-</span>
-                @endif
-              </td>
               <td>{{ $asset->code }}</td>
               <td>{{ $asset->name }}</td>
               <td>{{ $asset->category ?? '-' }}</td>
@@ -166,15 +221,16 @@
                       @method('DELETE')
                       <button class="btn btn-sm btn-outline-danger" type="submit">Hapus</button>
                     </form>
-                  @else
-                    <span class="text-muted small">Login untuk mengelola</span>
+                    @if($asset->photo)
+                      <button type="button" class="btn btn-sm btn-outline-secondary" data-photo-view="{{ asset('storage/'.$asset->photo) }}">Foto</button>
+                    @endif
                   @endauth
                 </div>
               </td>
             </tr>
           @empty
             <tr>
-              <td colspan="7" class="text-center text-muted py-4">
+              <td colspan="6" class="text-center text-muted py-4">
                 {{ $isLoanable ? 'Belum ada peralatan peminjaman.' : 'Belum ada data aset.' }}
               </td>
             </tr>
@@ -187,4 +243,68 @@
     </div>
   </section>
 </div>
+<div class="asset-photo-modal" data-photo-modal aria-hidden="true" role="dialog">
+  <div class="asset-photo-panel">
+    <button type="button" class="asset-photo-close" data-photo-close>&times;</button>
+    <img src="" alt="Foto aset">
+  </div>
+</div>
 @endsection
+
+@push('scripts')
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.querySelector('[data-photo-modal]');
+    const closeBtn = modal?.querySelector('[data-photo-close]');
+    const showPhotoModal = (src) => {
+      if (!modal) return;
+      const img = modal.querySelector('img');
+      img.src = src || '';
+      modal.classList.add('is-visible');
+      modal.setAttribute('aria-hidden', 'false');
+    };
+    const hidePhotoModal = () => {
+      if (!modal) return;
+      modal.classList.remove('is-visible');
+      modal.setAttribute('aria-hidden', 'true');
+      const img = modal.querySelector('img');
+      img.src = '';
+    };
+    closeBtn?.addEventListener('click', hidePhotoModal);
+    modal?.addEventListener('click', (event) => {
+      if (event.target === modal) {
+        hidePhotoModal();
+      }
+    });
+    document.addEventListener('keyup', (event) => {
+      if (event.key === 'Escape') {
+        hidePhotoModal();
+      }
+    });
+
+    const tableCard = document.querySelector('.asset-table-card');
+    if (!tableCard) {
+      return;
+    }
+    tableCard.addEventListener('click', (event) => {
+      const btn = event.target.closest('.asset-actions .btn');
+      if (!btn) {
+        return;
+      }
+      const photoTarget = event.target.closest('[data-photo-view]');
+      if (photoTarget) {
+        event.preventDefault();
+        showPhotoModal(photoTarget.getAttribute('data-photo-view'));
+      }
+      btn.classList.remove('is-animating');
+      void btn.offsetWidth;
+      btn.classList.add('is-animating');
+    });
+    tableCard.addEventListener('animationend', (event) => {
+      if (event.target.classList.contains('is-animating')) {
+        event.target.classList.remove('is-animating');
+      }
+    });
+  });
+</script>
+@endpush

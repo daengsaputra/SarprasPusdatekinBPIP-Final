@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" aria-hidden="true">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#73c0ff"/>
+      <stop offset="100%" stop-color="#155fda"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#b4e0ff"/>
+      <stop offset="100%" stop-color="#4ca3ff"/>
+    </linearGradient>
+  </defs>
+  <circle cx="64" cy="64" r="60" fill="url(#bg)" />
+  <g fill="none" stroke="#0a2b70" stroke-opacity=".35" stroke-width="3">
+    <circle cx="64" cy="64" r="56"/>
+  </g>
+  <g fill="none" stroke="#d6ecff" stroke-linecap="round" stroke-width="4">
+    <path d="M34 92h10M50 92h10M66 92h10M82 92h12"/>
+    <path d="M44 84v16M60 78v22M76 70v30M92 58v42"/>
+  </g>
+  <path fill="url(#accent)" d="M78 30h14a6 6 0 0 1 6 6v48h-20V30z"/>
+  <path fill="#0b2c73" fill-opacity=".25" d="M78 52h20v32H78z"/>
+  <path fill="url(#accent)" d="M60 38h14a6 6 0 0 1 6 6v40H60V38z"/>
+  <path fill="#0b2c73" fill-opacity=".2" d="M60 60h20v24H60z"/>
+  <path fill="url(#accent)" d="M38 48h14a6 6 0 0 1 6 6v30H38V48z"/>
+  <path fill="#0b2c73" fill-opacity=".15" d="M38 68h20v16H38z"/>
+  <path fill="#d7edff" d="M52 24a2 2 0 0 1 2-2h20a2 2 0 0 1 2 2v8H52z"/>
+  <g fill="#d6ecff">
+    <circle cx="64" cy="40" r="6"/>
+    <rect x="60" y="46" width="8" height="10" rx="2"/>
+  </g>
+  <path fill="#d6ecff" d="M24 52a16 16 0 0 1 4-11l-4-5 6-6 5 4a16 16 0 0 1 10-4l2-6h8l2 6a16 16 0 0 1 10 4l5-4 6 6-4 5a16 16 0 0 1 4 11l6 2v8l-6 2a16 16 0 0 1-4 10l4 5-6 6-5-4a16 16 0 0 1-10 4l-2 6h-8l-2-6a16 16 0 0 1-10-4l-5 4-6-6 4-5a16 16 0 0 1-4-10l-6-2v-8zm26 16a12 12 0 1 0 0-24 12 12 0 0 0 0 24z"/>
+</svg>

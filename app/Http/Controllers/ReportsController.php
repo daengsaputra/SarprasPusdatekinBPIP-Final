@@ -147,6 +147,70 @@ class ReportsController extends Controller
         return view('reports.returns', compact('returns','summary','range','start','end','units','q','unit','sort','dir'));
     }
 
+    public function losses(Request $request)
+    {
+        [$range, $start, $end, $label] = $this->resolveRange($request);
+
+        $q = $request->query('q');
+        $unit = $request->query('unit');
+
+        $sort = $request->query('sort');
+        $dir = $request->query('dir','desc')==='asc'?'asc':'desc';
+
+        $baseQuery = Loan::query()
+            ->whereColumn('quantity', '>', 'quantity_returned')
+            ->whereBetween('loan_date', [$start->toDateString(), $end->toDateString()])
+            ->whereIn('status', ['borrowed','partial'])
+            ->when($q, function($query) use ($q){
+                $query->where(function($w) use ($q){
+                    $pattern = "%$q%";
+                    $w->where('borrower_name','like',$pattern)
+                      ->orWhereHas('asset', function($a) use ($pattern){
+                        $a->where('name','like',$pattern)
+                          ->orWhere('code','like',$pattern);
+                      });
+                });
+            })
+            ->when($unit, fn($builder) => $builder->where('unit', $unit));
+
+        $tableQuery = (clone $baseQuery)->with('asset');
+
+        if ($sort === 'asset') {
+            $tableQuery->leftJoin('assets as a','a.id','=','loans.asset_id')->select('loans.*');
+        }
+
+        $missingExpr = '(loans.quantity - loans.quantity_returned)';
+
+        if ($sort === 'missing') {
+            $tableQuery->orderByRaw("{$missingExpr} {$dir}");
+        } elseif (in_array($sort, ['loan_date','borrower_name','unit'], true)) {
+            $columns = [
+                'loan_date' => 'loans.loan_date',
+                'borrower_name' => 'loans.borrower_name',
+                'unit' => 'loans.unit',
+            ];
+            $tableQuery->orderBy($columns[$sort], $dir);
+        } elseif ($sort === 'asset') {
+            $tableQuery->orderBy('a.name', $dir);
+        } else {
+            $tableQuery->orderByDesc('loans.loan_date');
+        }
+
+        $losses = $tableQuery->paginate(15)->withQueryString();
+
+        $summary = [
+            'total_transaksi' => (clone $baseQuery)->count(),
+            'total_hilang' => (int) ((clone $baseQuery)->selectRaw("SUM({$missingExpr}) as missing_total")->value('missing_total') ?? 0),
+            'periode' => $label,
+            'start' => $start->toDateString(),
+            'end' => $end->toDateString(),
+        ];
+
+        $units = config('bpip.units');
+
+        return view('reports.losses', compact('losses','summary','range','start','end','units','q','unit','sort','dir'));
+    }
+
     public function loansPdf(Request $request)
     {
         [$range, $start, $end, $label] = $this->resolveRange($request);

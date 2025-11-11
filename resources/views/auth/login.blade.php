@@ -151,6 +151,30 @@
     .auth-divider::after {
         right: 0;
     }
+    .auth-input {
+        position: relative;
+        border-radius: 22px;
+        padding: 0.35rem;
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.18), rgba(15, 23, 42, 0.35));
+        transform: scale(0.985);
+        transition: transform .25s cubic-bezier(.17,.67,.45,1.32), box-shadow .25s ease, background .25s ease;
+    }
+    [data-theme="light"] .auth-input {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(226, 232, 240, 0.9));
+    }
+    .auth-input:focus-within {
+        transform: scale(1);
+        box-shadow: 0 18px 38px rgba(37, 99, 235, 0.2);
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(15, 23, 42, 0.6));
+    }
+    [data-theme="light"] .auth-input:focus-within {
+        box-shadow: 0 18px 32px rgba(37, 99, 235, 0.18);
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(255, 255, 255, 0.98));
+    }
+    .auth-input .form-label {
+        margin-left: 0.35rem;
+        margin-bottom: 0.35rem;
+    }
     .input-icon {
         position: absolute;
         inset-block: 0;
@@ -218,6 +242,45 @@
         letter-spacing: 0.04em;
         box-shadow: 0 18px 38px rgba(37, 99, 235, 0.32);
         transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .auth-submit-btn {
+        position: relative;
+        overflow: hidden;
+        border-radius: 999px;
+        letter-spacing: 0.03em;
+        box-shadow: 0 20px 40px rgba(37, 99, 235, 0.35);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .auth-submit-btn::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at var(--btn-x, 50%) var(--btn-y, 50%), rgba(255,255,255,0.45), transparent 60%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    .auth-submit-btn.is-animating::before {
+        opacity: 1;
+    }
+    .auth-submit-btn.is-loading {
+        pointer-events: none;
+        color: transparent !important;
+    }
+    .auth-submit-btn.is-loading::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 1.35rem;
+        height: 1.35rem;
+        margin: -0.675rem 0 0 -0.675rem;
+        border-radius: 50%;
+        border: 0.18rem solid rgba(255,255,255,0.4);
+        border-top-color: #fff;
+        animation: auth-spinner 0.7s linear infinite;
+    }
+    @keyframes auth-spinner {
+        to { transform: rotate(360deg); }
     }
     .auth-card .btn-primary:focus-visible {
         outline: 2px solid rgba(37, 99, 235, 0.4);
@@ -305,7 +368,7 @@
         <form method="POST" action="{{ route('login.post') }}" class="row gy-3 position-relative">
           @csrf
 
-          <div class="col-12 position-relative">
+          <div class="col-12 position-relative auth-input">
             <label class="form-label fw-semibold">Username atau Email</label>
             <span class="input-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
@@ -316,7 +379,7 @@
             @error('identifier')<div class="invalid-feedback">{{ $message }}</div>@enderror
           </div>
 
-          <div class="col-12 position-relative">
+          <div class="col-12 position-relative auth-input">
             <label class="form-label fw-semibold d-flex justify-content-between">
               <span>Password</span>
               <a href="{{ route('password.request') }}" class="small text-decoration-none">Lupa password?</a>
@@ -345,7 +408,9 @@
           </div>
 
           <div class="col-12 d-grid">
-            <button class="btn btn-primary py-2" type="submit">Masuk ke Dashboard</button>
+            <button class="btn btn-primary py-2 auth-submit-btn" type="submit" data-auth-submit>
+              <span class="auth-submit-label">Masuk ke Dashboard</span>
+            </button>
           </div>
         </form>
       </div>
@@ -358,23 +423,41 @@
   document.addEventListener('DOMContentLoaded', () => {
     const toggleEl = document.querySelector('[data-toggle-password]');
     const passwordInput = document.querySelector('input[name="password"]');
-    if (!toggleEl || !passwordInput) {
-      return;
+    if (toggleEl && passwordInput) {
+      toggleEl.addEventListener('click', () => {
+        const showing = passwordInput.getAttribute('type') === 'text';
+        passwordInput.setAttribute('type', showing ? 'password' : 'text');
+        toggleEl.innerHTML = showing
+          ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+             </svg>`
+          : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a10.049 10.049 0 013.272-4.568M6.223 6.223A10.05 10.05 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.05 10.05 0 01-1.249 2.507"/>
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M3 3l18 18"/>
+             </svg>`;
+      });
     }
-    toggleEl.addEventListener('click', () => {
-      const showing = passwordInput.getAttribute('type') === 'text';
-      passwordInput.setAttribute('type', showing ? 'password' : 'text');
-      toggleEl.innerHTML = showing
-        ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18">
-             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-           </svg>`
-        : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18">
-             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a10.049 10.049 0 013.272-4.568M6.223 6.223A10.05 10.05 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.05 10.05 0 01-1.249 2.507"/>
-             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M3 3l18 18"/>
-           </svg>`;
-    });
+
+    const submitBtn = document.querySelector('[data-auth-submit]');
+    const loginForm = document.querySelector('form[action*="login"]');
+    if (submitBtn && loginForm) {
+      submitBtn.addEventListener('pointerdown', (event) => {
+        const rect = submitBtn.getBoundingClientRect();
+        const x = ((event.clientX - rect.left) / rect.width) * 100;
+        const y = ((event.clientY - rect.top) / rect.height) * 100;
+        submitBtn.style.setProperty('--btn-x', `${x}%`);
+        submitBtn.style.setProperty('--btn-y', `${y}%`);
+        submitBtn.classList.add('is-animating');
+        setTimeout(() => submitBtn.classList.remove('is-animating'), 350);
+      });
+
+      loginForm.addEventListener('submit', () => {
+        submitBtn.classList.add('is-loading');
+        submitBtn.setAttribute('disabled', 'disabled');
+      }, { once: true });
+    }
   });
 </script>
 @endpush

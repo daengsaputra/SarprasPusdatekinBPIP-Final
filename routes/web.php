@@ -112,6 +112,7 @@ Route::middleware('auth')->group(function () {
     // Reports
     Route::get('/reports/loans', [ReportsController::class, 'loans'])->name('reports.loans');
     Route::get('/reports/returns', [ReportsController::class, 'returns'])->name('reports.returns');
+    Route::get('/reports/losses', [ReportsController::class, 'losses'])->name('reports.losses');
     Route::get('/reports/loans/pdf', [ReportsController::class, 'loansPdf'])->name('reports.loans.pdf');
     Route::get('/reports/returns/pdf', [ReportsController::class, 'returnsPdf'])->name('reports.returns.pdf');
 

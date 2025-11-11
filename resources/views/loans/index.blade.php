@@ -109,7 +109,7 @@
   }
   @media (max-width: 992px) {
     .loan-hero { flex-direction: column; }
-    body[data-theme="light"] main.container { margin-left: 0 !important; }
+    body[data-theme="light"] .app-main { margin-left: 0 !important; }
   }
 </style>
 @endpush
@@ -240,7 +240,6 @@
               <td>
                 <strong>{{ $loan->quantity }}</strong>
                 @if($loan->quantity_remaining > 0 && $loan->status !== 'returned')
-                  <span class="text-muted small d-block">Sisa {{ $loan->quantity_remaining }}</span>
                 @endif
               </td>
               <td>
@@ -261,19 +260,21 @@
               <td>{{ $loan->return_date_actual?->format('Y-m-d') ?? '-' }}</td>
               <td>
                 <div class="loan-actions">
-                  @if(in_array($loan->status,['borrowed','partial']))
-                    <a href="{{ route('loans.return.form', $loan) }}" class="btn btn-sm btn-outline-primary">Kembalikan</a>
-                  @endif
-                  @if($loan->batch_code)
-                    <a href="{{ route('loans.receipt', ['batch' => $loan->batch_code, 'preview' => 1]) }}" class="btn btn-sm btn-outline-secondary">Bukti Pinjam</a>
-                  @endif
                   @if($loan->status==='returned')
                     <form method="POST" action="{{ route('loans.destroy', $loan) }}" onsubmit="return confirm('Hapus data peminjaman ini?')" class="d-inline">
                       @csrf
                       @method('DELETE')
                       <button class="btn btn-sm btn-outline-danger" type="submit">Hapus</button>
                     </form>
+                    <a href="{{ route('loans.receipt', ['batch' => $loan->batch_code, 'preview' => 1]) }}" class="btn btn-sm btn-outline-secondary">Bukti Pinjam</a>
                     <a href="{{ route('loans.return.receipt', ['loan' => $loan, 'preview' => 1]) }}" class="btn btn-sm btn-outline-secondary">Bukti Kembali</a>
+                  @else
+                    @if(in_array($loan->status,['borrowed','partial']))
+                      <a href="{{ route('loans.return.form', $loan) }}" class="btn btn-sm btn-outline-primary">Kembalikan</a>
+                    @endif
+                    @if($loan->batch_code)
+                      <a href="{{ route('loans.receipt', ['batch' => $loan->batch_code, 'preview' => 1]) }}" class="btn btn-sm btn-outline-secondary">Bukti Pinjam</a>
+                    @endif
                   @endif
                 </div>
               </td>

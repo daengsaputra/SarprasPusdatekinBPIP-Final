@@ -69,7 +69,7 @@
   .user-card { border:1px solid rgba(226,232,240,0.8); border-radius:20px; padding:1rem; display:flex; gap:0.9rem; align-items:center; background:rgba(248,250,252,0.9); }
   .user-card img, .user-card .user-fallback { width:48px; height:48px; border-radius:16px; object-fit:cover; border:1px solid #e2e8f0; }
   .user-card .user-fallback { background:linear-gradient(135deg,#475569,#1e293b); color:#fff; font-weight:600; display:flex; align-items:center; justify-content:center; }
-  @media (max-width: 992px) { body[data-theme="light"] main.container { margin-left:0!important; } .dash-hero { flex-direction:column; } }
+  @media (max-width: 992px) { body[data-theme="light"] .app-main { margin-left:0!important; } .dash-hero { flex-direction:column; } }
 </style>
 @endpush
 
@@ -96,31 +96,5 @@
     @endforeach
   </section>
 
-  <section class="user-panel">
-    <div class="user-panel__header">
-      <h5 class="mb-0">Data Anggota</h5>
-      <a href="{{ route('users.index') }}" class="text-decoration-none small text-primary">Lihat semua →</a>
-    </div>
-    <div class="user-grid">
-      @forelse($latestUsers as $member)
-        <div class="user-card">
-          @if($member->photo)
-            <img src="{{ asset('storage/'.$member->photo) }}" alt="Foto {{ $member->name }}">
-          @else
-            @php($parts = preg_split('/\s+/', trim($member->name)))
-            @php($initials = strtoupper(mb_substr($parts[0]??'',0,1).mb_substr($parts[1]??'',0,1)))
-            <div class="user-fallback">{{ $initials ?: '?' }}</div>
-          @endif
-          <div>
-            <div class="fw-semibold">{{ $member->name }}</div>
-            <div class="text-muted small">{{ $member->email }}</div>
-            <span class="badge {{ $member->role === 'admin' ? 'bg-primary' : 'bg-secondary' }} text-uppercase">{{ $member->role }}</span>
-          </div>
-        </div>
-      @empty
-        <p class="text-muted mb-0">Belum ada data anggota.</p>
-      @endforelse
-    </div>
-  </section>
 </div>
 @endsection

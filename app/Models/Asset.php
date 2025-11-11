@@ -20,6 +20,8 @@ class Asset extends Model
         'quantity_available',
         'status',
         'photo',
+        'bast_document_path',
+        'bast_photo_path',
     ];
 
     public function loans(): HasMany

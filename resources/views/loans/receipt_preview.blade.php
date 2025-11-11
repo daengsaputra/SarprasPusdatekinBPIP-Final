@@ -15,7 +15,7 @@
   body.receipt-preview-mode aside {
     display: none !important;
   }
-  body.receipt-preview-mode main.container {
+  body.receipt-preview-mode .app-main {
     margin-left: 0 !important;
     max-width: none;
     padding-top: 0;
