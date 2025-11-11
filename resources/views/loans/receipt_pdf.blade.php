@@ -30,6 +30,9 @@
       <tr><td>Kontak</td><td>: {{ $contact }}</td></tr>
     @endif
     <tr><td>Unit Kerja</td><td>: {{ $unit }}</td></tr>
+    @if($activity_name)
+      <tr><td>Nama Kegiatan</td><td>: {{ $activity_name }}</td></tr>
+    @endif
     <tr><td>Tanggal Pinjam</td><td>: {{ \Illuminate\Support\Carbon::parse($loan_date)->format('Y-m-d') }}</td></tr>
     <tr><td>Estimasi Kembali</td><td>: {{ $return_plan?\Illuminate\Support\Carbon::parse($return_plan)->format('Y-m-d'):'-' }}</td></tr>
     <tr><td>Petugas</td><td>: {{ $officer }}</td></tr>
@@ -64,4 +67,3 @@
   <div class="mt-2" style="font-size:10px; color:#666">Dicetak: {{ $printed_at->format('Y-m-d H:i') }}</div>
 </body>
 </html>
-

@@ -8,7 +8,8 @@
   <div class="card-body">
     <div><strong>Aset:</strong> {{ $loan->asset->code }} - {{ $loan->asset->name }}</div>
     <div><strong>Peminjam:</strong> {{ $loan->borrower_name }} ({{ $loan->borrower_contact ?? '-' }})</div>
-    <div><strong>Jumlah:</strong> {{ $loan->quantity }}</div>
+    <div><strong>Jumlah Dipinjam:</strong> {{ $loan->quantity }}</div>
+    <div><strong>Sisa Belum Kembali:</strong> {{ $loan->quantity_remaining }}</div>
     <div><strong>Tanggal Pinjam:</strong> {{ $loan->loan_date?->format('Y-m-d') }}</div>
     <div><strong>Rencana Kembali:</strong> {{ $loan->return_date_planned?->format('Y-m-d') ?? '-' }}</div>
   </div>
@@ -16,6 +17,12 @@
 
 <form method="POST" action="{{ route('loans.return.update', $loan) }}" class="row g-3">
   @csrf
+  <div class="col-md-4">
+    <label class="form-label">Jumlah Dikembalikan</label>
+    <input type="number" name="return_quantity" min="1" max="{{ $loan->quantity_remaining }}" value="{{ old('return_quantity', $loan->quantity_remaining) }}" class="form-control @error('return_quantity') is-invalid @enderror" required>
+    @error('return_quantity')<div class="invalid-feedback">{{ $message }}</div>@enderror
+    <div class="form-text">Maksimal {{ $loan->quantity_remaining }} unit.</div>
+  </div>
   <div class="col-md-4">
     <label class="form-label">Tanggal Kembali</label>
     <input type="date" name="return_date_actual" value="{{ old('return_date_actual', now()->format('Y-m-d')) }}" class="form-control @error('return_date_actual') is-invalid @enderror" required>
@@ -32,4 +39,3 @@
   </div>
 </form>
 @endsection
-

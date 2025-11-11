@@ -115,6 +115,14 @@ class AssetController extends Controller
         }
         $categories = $categoriesQuery->distinct()->orderBy('category')->pluck('category');
 
+        $baseKindQuery = Asset::query();
+        if ($kind) {
+            $baseKindQuery->where('kind', $kind);
+        }
+        $totalAssets = (clone $baseKindQuery)->count();
+        $activeAssets = (clone $baseKindQuery)->where('status', 'active')->count();
+        $availableUnits = (clone $baseKindQuery)->sum('quantity_available');
+
         return view($options['view'] ?? 'assets.index', [
             'assets' => $assets,
             'categories' => $categories,
@@ -126,6 +134,9 @@ class AssetController extends Controller
             'dir' => $dir,
             'context' => $options['context'] ?? 'inventory',
             'kind' => $kind,
+            'totalAssets' => $totalAssets,
+            'activeAssets' => $activeAssets,
+            'availableUnits' => $availableUnits,
         ]);
     }
 
@@ -223,7 +234,7 @@ class AssetController extends Controller
      */
     public function destroy(Asset $asset)
     {
-        if ($asset->loans()->where('status', 'borrowed')->exists()) {
+        if ($asset->loans()->whereIn('status', ['borrowed','partial'])->exists()) {
             return redirect()->back()->with('error', 'Tidak bisa menghapus aset yang masih dipinjam.');
         }
 

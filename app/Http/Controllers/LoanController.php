@@ -34,7 +34,7 @@ class LoanController extends Controller
                   ->orWhere('borrower_name','like',"%$q%");
             });
         }
-        if ($status && in_array($status, ['borrowed','returned'])) {
+        if ($status && in_array($status, ['borrowed','partial','returned'])) {
             $query->where('status',$status);
         }
         if ($unit) {
@@ -68,7 +68,27 @@ class LoanController extends Controller
 
         $loans = $query->paginate(10)->withQueryString();
         $units = config('bpip.units');
-        return view('loans.index', compact('loans','units','q','status','unit','from','to','sort','dir'));
+        $totalLoanCount = Loan::count();
+        $activeLoanCount = Loan::whereIn('status', ['borrowed','partial'])->count();
+        $overdueCount = Loan::whereIn('status', ['borrowed','partial'])
+            ->whereNotNull('return_date_planned')
+            ->whereDate('return_date_planned', '<', now())
+            ->count();
+
+        return view('loans.index', compact(
+            'loans',
+            'units',
+            'q',
+            'status',
+            'unit',
+            'from',
+            'to',
+            'sort',
+            'dir',
+            'totalLoanCount',
+            'activeLoanCount',
+            'overdueCount'
+        ));
     }
 
     /**
@@ -95,24 +115,12 @@ class LoanController extends Controller
             'borrower_name' => 'required|string|max:255',
             'borrower_contact' => 'nullable|string|max:255',
             'unit' => ['required','string', \Illuminate\Validation\Rule::in(config('bpip.units'))],
+            'activity_name' => 'required|string|max:255',
             'quantity' => 'required|integer|min:1',
             'loan_date' => 'required|date',
             'return_date_planned' => 'nullable|date|after_or_equal:loan_date',
             'notes' => 'nullable|string',
         ]);
-        // If items came as JSON string from the cart UI, decode it
-        if (is_string($request->input('items'))) {
-            $decoded = json_decode($request->input('items'), true);
-            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                $data['items'] = array_values(array_map(function($it){
-                    return [
-                        'asset_id' => (int)($it['asset_id'] ?? 0),
-                        'quantity' => max(1, (int)($it['quantity'] ?? 0)),
-                    ];
-                }, $decoded));
-            }
-        }
-
         $asset = Asset::findOrFail($validated['asset_id']);
         if ($asset->kind !== Asset::KIND_LOANABLE) {
             return back()->withInput()->withErrors(['asset_id' => 'Barang yang dipilih bukan data peminjaman.']);
@@ -121,7 +129,10 @@ class LoanController extends Controller
             return back()->withInput()->withErrors(['quantity' => 'Jumlah melebihi stok tersedia.']);
         }
 
-        $loan = Loan::create($validated + ['status' => 'borrowed']);
+        $loan = Loan::create($validated + [
+            'status' => 'borrowed',
+            'quantity_returned' => 0,
+        ]);
 
         $asset->decrement('quantity_available', $validated['quantity']);
 
@@ -135,6 +146,7 @@ class LoanController extends Controller
             'borrower_name' => 'required|string|max:255',
             'borrower_contact' => 'nullable|string|max:255',
             'unit' => ['required','string', \Illuminate\Validation\Rule::in(config('bpip.units'))],
+            'activity_name' => 'required|string|max:255',
             'loan_date' => 'required|date',
             'return_date_planned' => 'nullable|date|after_or_equal:loan_date',
             'notes' => 'nullable|string',
@@ -176,7 +188,9 @@ class LoanController extends Controller
                     'borrower_name' => $data['borrower_name'],
                     'borrower_contact' => $data['borrower_contact'] ?? null,
                     'unit' => $data['unit'],
+                    'activity_name' => $data['activity_name'],
                     'quantity' => $item['quantity'],
+                    'quantity_returned' => 0,
                     'loan_date' => $data['loan_date'],
                     'return_date_planned' => $data['return_date_planned'] ?? null,
                     'status' => 'borrowed',
@@ -220,7 +234,7 @@ class LoanController extends Controller
      */
     public function destroy(Loan $loan)
     {
-        if ($loan->status === 'borrowed') {
+        if (in_array($loan->status, ['borrowed', 'partial'])) {
             return redirect()->route('loans.index')->with('error', 'Tidak bisa menghapus pinjaman yang belum dikembalikan.');
         }
         $loan->delete();
@@ -229,7 +243,7 @@ class LoanController extends Controller
 
     public function returnForm(Loan $loan)
     {
-        if ($loan->status === 'returned') {
+        if ($loan->status === 'returned' || $loan->quantity_remaining <= 0) {
             return redirect()->route('loans.index')->with('info', 'Pinjaman sudah dikembalikan.');
         }
         return view('loans.return', compact('loan'));
@@ -237,26 +251,53 @@ class LoanController extends Controller
 
     public function returnUpdate(Request $request, Loan $loan)
     {
-        if ($loan->status === 'returned') {
+        if ($loan->status === 'returned' || $loan->quantity_remaining <= 0) {
             return redirect()->route('loans.index')->with('info', 'Pinjaman sudah dikembalikan.');
         }
 
+        $maxReturnable = $loan->quantity_remaining;
+
         $validated = $request->validate([
             'return_date_actual' => 'required|date|after_or_equal:' . $loan->loan_date->format('Y-m-d'),
+            'return_quantity' => 'required|integer|min:1|max:' . $maxReturnable,
             'notes' => 'nullable|string',
         ]);
 
-        $loan->update([
-            'return_date_actual' => $validated['return_date_actual'],
-            'notes' => $validated['notes'] ?? $loan->notes,
-            'status' => 'returned',
-        ]);
+        DB::transaction(function () use ($loan, $validated) {
+            $loan->refresh();
+            $outs = $loan->quantity_remaining;
+            if ($outs <= 0) {
+                return;
+            }
 
-        $loan->asset->increment('quantity_available', $loan->quantity);
+            $returnedQty = min($validated['return_quantity'], $outs);
+            $newReturned = $loan->quantity_returned + $returnedQty;
+            $remaining = max($loan->quantity - $newReturned, 0);
 
-        return redirect()->route('loans.index')
-            ->with('success', 'Pengembalian berhasil diproses.')
-            ->with('return_receipt_id', $loan->id);
+            $loan->update([
+                'quantity_returned' => $newReturned,
+                'status' => $remaining === 0 ? 'returned' : 'partial',
+                'return_date_actual' => $remaining === 0 ? $validated['return_date_actual'] : $loan->return_date_actual,
+                'notes' => $validated['notes'] ?? $loan->notes,
+            ]);
+
+            $asset = Asset::whereKey($loan->asset_id)->lockForUpdate()->first();
+            if ($asset) {
+                $restored = $asset->quantity_available + $returnedQty;
+                $asset->update([
+                    'quantity_available' => min($asset->quantity_total, $restored),
+                ]);
+            }
+        });
+
+        $redirect = redirect()->route('loans.index')
+            ->with('success', 'Pengembalian berhasil diproses.');
+
+        if ($loan->fresh()->status === 'returned') {
+            $redirect->with('return_receipt_id', $loan->id);
+        }
+
+        return $redirect;
     }
 
     public function receipt(Request $request, string $batch)
@@ -270,6 +311,7 @@ class LoanController extends Controller
             'borrower' => $first->borrower_name,
             'contact' => $first->borrower_contact,
             'unit' => $first->unit,
+            'activity_name' => $first->activity_name,
             'loan_date' => $first->loan_date,
             'return_plan' => $first->return_date_planned,
             'officer' => auth()->user()->name ?? 'Petugas',

@@ -43,7 +43,7 @@ Route::get('/', function () {
         ->values();
 
     $activeLoans = Loan::with('asset')
-        ->where('status', 'borrowed')
+        ->whereIn('status', ['borrowed', 'partial'])
         ->orderByDesc('loan_date')
         ->get();
 
@@ -72,7 +72,7 @@ Route::middleware('auth')->group(function () {
             'assets' => (int) Asset::where('kind', Asset::KIND_INVENTORY)->sum('quantity_total'),
             'assets_active' => (int) Asset::where('status', 'active')->where('kind', Asset::KIND_INVENTORY)->sum('quantity_total'),
             'assets_loanable' => (int) Asset::where('kind', Asset::KIND_LOANABLE)->sum('quantity_total'),
-            'loans_active' => Loan::where('status', 'borrowed')->count(),
+            'loans_active' => Loan::whereIn('status', ['borrowed','partial'])->count(),
             'loans_returned' => Loan::where('status', 'returned')->count(),
             'users' => User::count(),
         ];
@@ -85,29 +85,11 @@ Route::middleware('auth')->group(function () {
             'loans_returned' => (int) data_get($rawCounts, 'loans_returned', 0),
         ];
 
-        // Chart data: total jumlah dipinjam per unit kerja (sum of quantity)
-        $units = config('bpip.units');
-        $sumByUnit = Loan::selectRaw('unit, COALESCE(SUM(quantity),0) as total_qty')
-            ->whereNotNull('unit')
-            ->groupBy('unit')
-            ->pluck('total_qty', 'unit');
-        $countByUnit = Loan::selectRaw('unit, COUNT(*) as total_tx')
-            ->whereNotNull('unit')
-            ->groupBy('unit')
-            ->pluck('total_tx', 'unit');
-        // Gunakan label singkat sesuai permintaan: SU, D1..D5
-        $labelsAbbrev = [];
-        foreach (array_values($units) as $i => $u) {
-            $labelsAbbrev[] = $i === 0 ? 'SU' : ('D' . $i);
-        }
-        $chart = [
-            'labels' => $labelsAbbrev,
-            'qty' => array_map(fn($u) => (int) ($sumByUnit[$u] ?? 0), $units),
-            'tx' => array_map(fn($u) => (int) ($countByUnit[$u] ?? 0), $units),
-        ];
+        $loanTotalCount = Loan::count();
+        $returnQuantityTotal = Loan::where('status', 'returned')->sum('quantity');
         $latestUsers = User::latest()->take(6)->get();
-        $activeLoans = Loan::with('asset')->where('status', 'borrowed')->orderBy('return_date_planned')->get();
-        return view('dashboard', compact('dashboardCounts', 'chart', 'latestUsers', 'activeLoans'));
+
+        return view('dashboard', compact('dashboardCounts', 'latestUsers', 'loanTotalCount', 'returnQuantityTotal'));
     })->name('dashboard');
 
     Route::resource('assets', AssetController::class)->except(['index'])->middleware('role:admin');

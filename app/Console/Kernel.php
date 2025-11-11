@@ -8,6 +8,8 @@ class Kernel extends ConsoleKernel
 {
     protected $commands = [
         \App\Console\Commands\CustomDbCommand::class,
+
+        
     ];
 
     protected function schedule(\Illuminate\Console\Scheduling\Schedule $schedule)

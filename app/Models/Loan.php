@@ -13,7 +13,9 @@ class Loan extends Model
         'borrower_name',
         'borrower_contact',
         'unit',
+        'activity_name',
         'quantity',
+        'quantity_returned',
         'loan_date',
         'return_date_planned',
         'return_date_actual',
@@ -25,10 +27,21 @@ class Loan extends Model
         'loan_date' => 'date',
         'return_date_planned' => 'date',
         'return_date_actual' => 'date',
+        'quantity' => 'integer',
+        'quantity_returned' => 'integer',
     ];
+
+    protected $appends = ['quantity_remaining'];
 
     public function asset(): BelongsTo
     {
         return $this->belongsTo(Asset::class);
+    }
+
+    public function getQuantityRemainingAttribute(): int
+    {
+        $qty = (int) $this->quantity;
+        $returned = (int) $this->quantity_returned;
+        return max($qty - $returned, 0);
     }
 }

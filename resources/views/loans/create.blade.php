@@ -98,6 +98,11 @@
             </select>
             @error('unit')<div class="invalid-feedback">{{ $message }}</div>@enderror
           </div>
+          <div class="mb-2">
+            <label class="form-label">Nama Kegiatan</label>
+            <input type="text" name="activity_name" value="{{ old('activity_name') }}" class="form-control @error('activity_name') is-invalid @enderror" required>
+            @error('activity_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+          </div>
           <div class="row g-2">
             <div class="col-6">
               <label class="form-label">Tanggal Pinjam</label>

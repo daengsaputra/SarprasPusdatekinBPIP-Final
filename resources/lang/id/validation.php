@@ -34,6 +34,7 @@ return [
         'borrower_name' => 'nama peminjam',
         'borrower_contact' => 'kontak peminjam',
         'unit' => 'unit kerja',
+        'activity_name' => 'nama kegiatan',
         'quantity' => 'jumlah',
         'loan_date' => 'tanggal pinjam',
         'return_date_planned' => 'rencana tanggal kembali',
@@ -42,4 +43,3 @@ return [
         'file' => 'file',
     ],
 ];
-
