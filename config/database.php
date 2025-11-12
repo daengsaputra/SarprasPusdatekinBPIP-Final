@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'sqlite'),
+    'default' => env('DB_CONNECTION', 'mysql'),
 
     /*
     |--------------------------------------------------------------------------
@@ -41,6 +41,13 @@ return [
             'journal_mode' => null,
             'synchronous' => null,
             'transaction_mode' => 'DEFERRED',
+        ],
+        'legacy_sqlite' => [
+            'driver' => 'sqlite',
+            'url' => env('LEGACY_DB_URL'),
+            'database' => env('LEGACY_DB_DATABASE', database_path('database.sqlite')),
+            'prefix' => '',
+            'foreign_key_constraints' => false,
         ],
 
         'mysql' => [

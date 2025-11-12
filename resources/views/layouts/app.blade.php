@@ -7,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
     .app-sidebar {
-        width: 260px;
+        width: var(--layout-sidebar-width, 250px);
         position: fixed;
         top: 56px;
         bottom: 0;
@@ -15,7 +15,7 @@
         background: var(--sidebar-bg, #fff);
         border-right: 1px solid var(--sidebar-border, rgba(148,163,184,0.25));
         box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
-        padding: 1.5rem 1.25rem;
+        padding: 1.4rem 1.15rem;
         overflow-y: auto;
     }
     .app-sidebar__brand {
@@ -50,14 +50,14 @@
         border-radius: 999px;
     }
     .app-sidebar__section {
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.25rem;
     }
     .app-sidebar__section-title {
-        font-size: 0.72rem;
-        letter-spacing: 0.15em;
+        font-size: var(--font-size-label, 0.78rem);
+        letter-spacing: 0.18em;
         text-transform: uppercase;
         color: var(--sidebar-muted, #94a3b8);
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.45rem;
     }
     .app-sidebar__menu {
         list-style: none;
@@ -65,18 +65,18 @@
         margin: 0;
         display: flex;
         flex-direction: column;
-        gap: 0.4rem;
+        gap: 0.35rem;
     }
     .app-sidebar__link {
         display: flex;
         align-items: center;
         gap: 0.6rem;
-        padding: 0.55rem 0.85rem;
+        padding: 0.5rem 0.85rem;
         border-radius: 12px;
         text-decoration: none;
         color: var(--sidebar-text, #1e293b);
         font-weight: 500;
-        font-size: 0.92rem;
+        font-size: calc(var(--font-size-base, 1rem) * 0.94);
         background: transparent;
     }
     .app-sidebar__link:hover {
@@ -90,6 +90,10 @@
     }
     .app-sidebar__icon {
         font-size: 1rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.75rem;
     }
     .app-sidebar__chevron {
         margin-left: auto;
@@ -116,10 +120,10 @@
         width: auto;
     }
     .app-main {
-        margin-left: 260px;
-        width: calc(100% - 260px);
+        margin-left: var(--layout-sidebar-width, 250px);
+        width: calc(100% - var(--layout-sidebar-width, 250px));
         max-width: 100%;
-        padding: 2.5rem clamp(1.25rem, 3vw, 2.75rem);
+        padding: var(--layout-padding-vertical, 2rem) var(--layout-padding, clamp(1.5rem, 2.8vw, 2.75rem));
         color: var(--app-text);
         background: var(--app-surface, #f8fafc);
         min-height: 100vh;
@@ -127,6 +131,7 @@
     .app-main--guest {
         margin-left: 0;
         width: 100%;
+        padding: var(--layout-padding-vertical, 2rem) var(--layout-padding, clamp(1.5rem, 2.8vw, 2.75rem));
     }
     .report-subnav {
         display: flex;
@@ -285,6 +290,16 @@
             --brand-blue-dark: #1d4ed8;
             --brand-cyan: #38bdf8;
             --font-sans: 'Instrument Sans', 'Inter', 'Segoe UI', 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-size-base: 0.88rem;
+            --font-size-small: 0.8rem;
+            --font-size-label: 0.78rem;
+            --font-size-heading: clamp(1.5rem, 2.4vw, 2.1rem);
+            --layout-sidebar-width: 250px;
+            --layout-padding: clamp(1rem, 2vw, 2rem);
+            --layout-padding-vertical: 1.25rem;
+            --card-radius-lg: 20px;
+            --card-radius: 14px;
+            --card-shadow: 0 12px 28px rgba(15, 23, 42, 0.1);
             --app-bg: linear-gradient(145deg, #050b18 0%, #070d1f 55%, #0b1124 100%);
             --app-surface: rgba(12, 19, 33, 0.92);
             --app-surface-soft: rgba(15, 23, 42, 0.78);
@@ -342,7 +357,8 @@
             background: var(--app-bg);
             color: var(--app-text);
             font-family: var(--font-sans);
-            line-height: 1.5;
+            font-size: var(--font-size-base, 1rem);
+            line-height: 1.55;
             -webkit-font-smoothing: antialiased;
             text-rendering: optimizeLegibility;
             transition: background .3s ease, color .3s ease;
@@ -648,7 +664,6 @@
           @include('components.theme-toggle')
         </div>
         @guest
-          <a href="{{ route('assets.loanable') }}" class="btn btn-outline-primary px-4">Data Barang</a>
           <a href="{{ route('login') }}" class="btn btn-outline-light px-4">Login</a>
         @else
           <form method="POST" action="{{ route('logout') }}" class="d-inline">
@@ -705,13 +720,13 @@
           ],
           'Operasional' => [
             ['route' => 'loans.index', 'label' => 'Peminjaman', 'active' => request()->routeIs('loans.*'), 'icon' => '&#128221;'],
-            ['route' => 'reports.returns', 'label' => 'Pengembalian', 'active' => request()->routeIs('reports.returns'), 'icon' => '&#128259;'],
-            ['route' => 'reports.loans', 'label' => 'Laporan', 'active' => request()->routeIs('reports.loans'), 'icon' => '&#128209;'],
-            ['route' => 'reports.losses', 'label' => 'Laporan Kehilangan', 'active' => request()->routeIs('reports.losses'), 'icon' => '&#9888;'],
+            ['route' => 'reports.loans', 'label' => 'Laporan Peminjaman', 'active' => request()->routeIs('reports.loans'), 'icon' => '&#128209;'],
+            ['route' => 'reports.returns', 'label' => 'Laporan Pengembalian', 'active' => request()->routeIs('reports.returns'), 'icon' => '&#128259;'],
           ],
         ];
         if(auth()->user() && auth()->user()->role==='admin') {
           $menuSections['Administrasi'][] = ['route' => 'users.index', 'label' => 'Anggota', 'active' => request()->routeIs('users.*'), 'icon' => '&#128101;'];
+          $menuSections['Administrasi'][] = ['route' => 'settings.landing', 'label' => 'Pengaturan Landing', 'active' => request()->routeIs('settings.*'), 'icon' => '&#9881;'];
         }
       @endphp
       @foreach($menuSections as $section => $items)

@@ -5,6 +5,22 @@
     $summaryData = $summaryData ?? ($summary ?? []);
     $availableAssets = $availableAssets ?? [];
     $activeLoans = $activeLoans ?? [];
+    $landingVideoUrl = $landingVideoUrl ?? null;
+    $landingVideoMime = $landingVideoMime ?? null;
+    $landingTheme = $landingTheme ?? 'aurora';
+    $themePresets = config('bpip.landing_themes', []);
+    $themeSurfaces = data_get($themePresets, "{$landingTheme}.surfaces", []);
+    $surfaceDefaults = [
+        'surface1' => 'linear-gradient(140deg, #0b1220 0%, #05060a 55%, #020205 100%)',
+        'surface2' => 'rgba(12,19,33,0.92)',
+        'surface3' => 'rgba(18,35,64,0.65)',
+        'accent' => '#38bdf8',
+        'accentSoft' => '#dbeafe',
+        'text_primary' => '#e2e8f0',
+        'text_secondary' => 'rgba(226, 232, 240, 0.75)',
+    ];
+    $themeSurfaces = array_merge($surfaceDefaults, array_filter($themeSurfaces));
+    $hasHeroVideo = filled($landingVideoUrl);
     $loanGroups = collect($activeLoans)->groupBy(function ($loan) {
         return $loan->batch_code ?: ('loan-'.$loan->id);
     })->map(function ($group) {
@@ -51,6 +67,29 @@
 
 @push('styles')
 <style>
+  body {
+    --surface-1: {{ $themeSurfaces['surface1'] }};
+    --surface-2: {{ $themeSurfaces['surface2'] }};
+    --surface-3: {{ $themeSurfaces['surface3'] }};
+    --brand-blue: {{ $themeSurfaces['accent'] }};
+    --brand-cyan: {{ $themeSurfaces['accentSoft'] }};
+    --text-primary: {{ $themeSurfaces['text_primary'] }};
+    --text-secondary: {{ $themeSurfaces['text_secondary'] }};
+  }
+  .hero-chip {
+    background: color-mix(in srgb, var(--brand-blue) 18%, transparent);
+    color: var(--brand-blue);
+    border-color: color-mix(in srgb, var(--brand-blue) 45%, transparent);
+  }
+  .metric-card, .hero-image {
+    border-color: color-mix(in srgb, var(--brand-blue) 10%, transparent);
+  }
+  .metric-value { color: var(--brand-blue); }
+</style>
+@endpush
+
+@push('styles')
+<style>
   .hero-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -87,6 +126,7 @@
     overflow: hidden;
     box-shadow: 0 25px 70px rgba(15, 23, 42, 0.35);
     border: 1px solid rgba(59, 130, 246, 0.25);
+    min-height: 320px;
   }
   .hero-image::after {
     content: '';
@@ -94,6 +134,15 @@
     inset: 0;
     background: linear-gradient(180deg, rgba(15, 23, 42, 0.05), rgba(2, 6, 23, 0.35));
     pointer-events: none;
+  }
+  .hero-image--has-video::after {
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.08), rgba(2, 6, 23, 0.25));
+  }
+  .hero-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
   }
 
   .metrics-row {
@@ -480,9 +529,16 @@
         <a class="btn btn-lg btn-outline-primary px-4" href="{{ route('login') }}">Masuk Dashboard</a>
       </div>
     </div>
-    <div class="hero-image">
+  <div class="hero-image {{ $hasHeroVideo ? 'hero-image--has-video' : '' }}">
+    @if($hasHeroVideo)
+      <video class="hero-video" autoplay muted loop playsinline preload="metadata" poster="{{ asset('images/hero-sarpras.jpg') }}">
+        <source src="{{ $landingVideoUrl }}" @if($landingVideoMime) type="{{ $landingVideoMime }}" @endif>
+        Browser Anda tidak mendukung pemutaran video.
+      </video>
+    @else
       <img src="{{ asset('images/hero-sarpras.jpg') }}" alt="Ilustrasi sarpras" onerror="this.style.display='none';" />
-    </div>
+    @endif
+  </div>
   </div>
 
   <div id="stok" class="metrics-row mb-4">

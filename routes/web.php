@@ -6,8 +6,10 @@ use App\Http\Controllers\LoanController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\ReportsController;
+use App\Http\Controllers\SettingController;
 use App\Models\Asset;
 use App\Models\Loan;
+use App\Models\SiteSetting;
 use App\Models\User;
 use Illuminate\Support\Str;
 
@@ -47,7 +49,17 @@ Route::get('/', function () {
         ->orderByDesc('loan_date')
         ->get();
 
-    return view('landing', compact('summary', 'availableAssets', 'activeLoans'));
+    $landingVideoMeta = SiteSetting::landingVideoMeta();
+    $landingTheme = SiteSetting::landingTheme();
+
+    return view('landing', [
+        'summary' => $summary,
+        'availableAssets' => $availableAssets,
+        'activeLoans' => $activeLoans,
+        'landingVideoUrl' => $landingVideoMeta['url'],
+        'landingVideoMime' => $landingVideoMeta['mime'],
+        'landingTheme' => $landingTheme,
+    ]);
 })->name('landing');
 
 // Authentication (public)
@@ -112,9 +124,10 @@ Route::middleware('auth')->group(function () {
     // Reports
     Route::get('/reports/loans', [ReportsController::class, 'loans'])->name('reports.loans');
     Route::get('/reports/returns', [ReportsController::class, 'returns'])->name('reports.returns');
-    Route::get('/reports/losses', [ReportsController::class, 'losses'])->name('reports.losses');
     Route::get('/reports/loans/pdf', [ReportsController::class, 'loansPdf'])->name('reports.loans.pdf');
     Route::get('/reports/returns/pdf', [ReportsController::class, 'returnsPdf'])->name('reports.returns.pdf');
+    Route::get('/reports/loans/excel', [ReportsController::class, 'loansExcel'])->name('reports.loans.excel');
+    Route::get('/reports/returns/excel', [ReportsController::class, 'returnsExcel'])->name('reports.returns.excel');
 
     // Users (admin only)
     Route::middleware('role:admin')->group(function () {
@@ -126,5 +139,8 @@ Route::middleware('auth')->group(function () {
         Route::delete('/users/{user}', [\App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
         Route::post('/users/{user}/reset-password', [\App\Http\Controllers\UserController::class, 'resetPassword'])->name('users.reset');
         Route::delete('/users/{user}/photo', [\App\Http\Controllers\UserController::class, 'destroyPhoto'])->name('users.photo.destroy');
+
+        Route::get('/settings/landing', [SettingController::class, 'landing'])->name('settings.landing');
+        Route::post('/settings/landing', [SettingController::class, 'updateLanding'])->name('settings.landing.update');
     });
 });

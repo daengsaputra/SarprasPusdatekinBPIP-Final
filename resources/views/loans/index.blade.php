@@ -9,7 +9,8 @@
   .loan-shell {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1rem;
+    font-size: 0.75rem;
   }
   .loan-hero {
     display: flex;
@@ -22,7 +23,7 @@
     box-shadow: 0 25px 50px rgba(15,23,42,0.12);
   }
   .loan-hero__title {
-    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-size: 1.5rem;
     font-weight: 700;
     color: #0f172a;
     margin-bottom: 0.4rem;
@@ -42,13 +43,16 @@
   .loan-summary-label {
     text-transform: uppercase;
     letter-spacing: 0.12em;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     color: #94a3b8;
   }
   .loan-summary-value {
-    font-size: 1.8rem;
+    font-size: 0.75rem;
     font-weight: 700;
     color: #0f172a;
+  }
+  .loan-summary-card .loan-summary-desc {
+    font-size: 0.75rem;
   }
   .loan-filter-card {
     background: #fff;
@@ -56,6 +60,13 @@
     border: 1px solid rgba(148,163,184,0.16);
     box-shadow: 0 18px 40px rgba(15,23,42,0.08);
     padding: 1.5rem 1.7rem;
+  }
+  .loan-filter-card .form-label,
+  .loan-filter-card .form-control,
+  .loan-filter-card .form-select,
+  .loan-filter-card .btn,
+  .loan-filter-card .form-check-label {
+    font-size: 0.75rem;
   }
   .loan-table-card {
     background: #fff;
@@ -67,7 +78,7 @@
   .loan-table-card table th {
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     color: #64748b;
   }
   .loan-actions {
@@ -101,6 +112,9 @@
   }
   .loan-table-card .table tbody tr td {
     vertical-align: middle;
+  }
+  .loan-table-card .badge {
+    font-size: 0.8125rem;
   }
   .loan-table-pagination {
     margin-top: 1rem;
@@ -146,24 +160,6 @@
     <div class="d-flex flex-column align-items-end gap-2">
       <a href="{{ route('loans.create') }}" class="btn btn-primary px-4">+ Peminjaman Baru</a>
       <a href="{{ route('assets.loanable') }}" class="btn btn-outline-primary px-4">Lihat Sarpras</a>
-    </div>
-  </section>
-
-  <section class="loan-summary-grid">
-    <div class="loan-summary-card">
-      <div class="loan-summary-label">Total Data</div>
-      <div class="loan-summary-value">{{ number_format($totalLoanCount) }}</div>
-      <div class="loan-summary-desc">Seluruh catatan peminjaman.</div>
-    </div>
-    <div class="loan-summary-card">
-      <div class="loan-summary-label">Aktif</div>
-      <div class="loan-summary-value">{{ number_format($activeLoanCount) }}</div>
-      <div class="loan-summary-desc">Sedang dalam status dipinjam.</div>
-    </div>
-    <div class="loan-summary-card">
-      <div class="loan-summary-label">Overdue</div>
-      <div class="loan-summary-value text-danger">{{ number_format($overdueCount) }}</div>
-      <div class="loan-summary-desc">Butuh tindak lanjut pengembalian.</div>
     </div>
   </section>
 
@@ -224,7 +220,7 @@
             <th>{!! $link('loan_date','Tanggal') !!}</th>
             <th>{!! $link('asset','Aset') !!}</th>
             <th>{!! $link('borrower_name','Peminjam') !!}</th>
-            <th>{!! $link('quantity','Jumlah') !!}</th>
+            <th class="text-center">{!! $link('quantity','Jumlah') !!}</th>
             <th>{!! $link('status','Status') !!}</th>
             <th>{!! $link('return_date_planned','Rencana Kembali') !!}</th>
             <th>{!! $link('return_date_actual','Kembali') !!}</th>
@@ -237,10 +233,8 @@
               <td>{{ $loan->loan_date?->format('Y-m-d') }}</td>
               <td>{{ $loan->asset->name }}</td>
               <td>{{ $loan->borrower_name }}</td>
-              <td>
+              <td class="text-center">
                 <strong>{{ $loan->quantity }}</strong>
-                @if($loan->quantity_remaining > 0 && $loan->status !== 'returned')
-                @endif
               </td>
               <td>
                 @php($statusLabel = match($loan->status) {

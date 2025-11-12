@@ -2,257 +2,219 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Loan;
-use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
 
 class ReportsController extends Controller
 {
     private function resolveRange(Request $request): array
     {
-        $range = $request->query('range', 'week'); // week|month|year|custom
-        $start = null; $end = null; $label = '';
+        $range = $request->query('range', 'month');
+        $now = Carbon::now();
 
-        if ($range === 'custom' && $request->filled(['start','end'])) {
-            $start = Carbon::parse($request->query('start'))->startOfDay();
-            $end   = Carbon::parse($request->query('end'))->endOfDay();
-            $label = 'Kustom';
-        } elseif ($range === 'month') {
-            $start = Carbon::now()->subDays(30)->startOfDay();
-            $end   = Carbon::now()->endOfDay();
-            $label = '30 Hari Terakhir';
-        } elseif ($range === 'year') {
-            $start = Carbon::now()->startOfYear();
-            $end   = Carbon::now()->endOfDay();
-            $label = 'Tahun Ini';
-        } else { // default week
-            $start = Carbon::now()->subDays(7)->startOfDay();
-            $end   = Carbon::now()->endOfDay();
-            $label = '7 Hari Terakhir';
-            $range = 'week';
-        }
-
-        return [$range, $start, $end, $label];
+        return match ($range) {
+            'week' => [$range, $now->copy()->subDays(7)->startOfDay(), $now->copy()->endOfDay(), '7 Hari Terakhir'],
+            'year' => [$range, $now->copy()->startOfYear(), $now->copy()->endOfDay(), 'Tahun Ini'],
+            'custom' => [
+                $range,
+                Carbon::parse($request->query('start', $now->copy()->startOfMonth()))->startOfDay(),
+                Carbon::parse($request->query('end', $now))->endOfDay(),
+                'Rentang Kustom',
+            ],
+            default => ['month', $now->copy()->subDays(30)->startOfDay(), $now->copy()->endOfDay(), '30 Hari Terakhir'],
+        };
     }
 
-    private function buildReturnsQuery(?string $search, ?string $unit, Carbon $start, Carbon $end)
+    private function buildLoanQuery(Request $request, Carbon $start, Carbon $end, bool $returnsOnly = false)
     {
-        $startRange = $start->copy()->startOfDay();
-        $endRange = $end->copy()->endOfDay();
+        $search = trim((string) $request->query('q'));
+        $unit = $request->query('unit');
+        $status = $request->query('status');
+
+        $dateColumn = $returnsOnly ? 'return_date_actual' : 'loan_date';
 
         return Loan::query()
             ->with('asset')
-            ->where('status', 'returned')
+            ->when($returnsOnly, fn($q) => $q->where('status', 'returned'))
+            ->when(!$returnsOnly && $status, fn($q) => $q->where('status', $status))
+            ->when($unit, fn($q) => $q->where('unit', $unit))
             ->when($search, function ($query) use ($search) {
-                $query->where(function ($w) use ($search) {
-                    $pattern = '%' . $search . '%';
-                    $w->where('borrower_name', 'like', $pattern)
-                      ->orWhereHas('asset', function ($a) use ($pattern) {
-                        $a->where('name', 'like', $pattern)
-                          ->orWhere('code', 'like', $pattern);
-                      });
+                $pattern = '%' . $search . '%';
+                $query->where(function ($q) use ($pattern) {
+                    $q->where('borrower_name', 'like', $pattern)
+                        ->orWhereHas('asset', fn($asset) => $asset
+                            ->where('name', 'like', $pattern)
+                            ->orWhere('code', 'like', $pattern));
                 });
             })
-            ->when($unit, fn ($builder) => $builder->where('unit', $unit))
-            ->whereBetween('return_date_actual', [$startRange, $endRange]);
+            ->whereBetween($dateColumn, [$start->toDateTimeString(), $end->toDateTimeString()]);
+    }
+
+    private function applySorting($query, string $sort, string $dir, bool $returnsOnly = false)
+    {
+        $map = [
+            'loan_date' => 'loan_date',
+            'return_date_actual' => 'return_date_actual',
+            'return_date_planned' => 'return_date_planned',
+            'quantity' => 'quantity',
+            'borrower_name' => 'borrower_name',
+            'unit' => 'unit',
+        ];
+
+        if ($sort === 'asset') {
+            $query->leftJoin('assets as a', 'a.id', '=', 'loans.asset_id')
+                ->select('loans.*')
+                ->orderBy('a.name', $dir);
+        } elseif (array_key_exists($sort, $map)) {
+            $query->orderBy($map[$sort], $dir);
+        } else {
+            $query->orderBy($returnsOnly ? 'return_date_actual' : 'loan_date', 'desc');
+        }
+
+        return $query;
     }
 
     public function loans(Request $request)
     {
-        [$range, $start, $end, $label] = $this->resolveRange($request);
+        [$rangeKey, $start, $end, $rangeLabel] = $this->resolveRange($request);
 
-        $q = $request->query('q');
-        $unit = $request->query('unit');
+        $sort = $request->query('sort', 'loan_date');
+        $dir = $request->query('dir', 'desc') === 'asc' ? 'asc' : 'desc';
 
-        $sort = $request->query('sort');
-        $dir = $request->query('dir','desc')==='asc'?'asc':'desc';
+        $baseQuery = $this->buildLoanQuery($request, $start, $end);
+        $tableQuery = $this->applySorting(clone $baseQuery, $sort, $dir);
 
-        $loans = Loan::with('asset')
-            ->when($q, function($query) use ($q){
-                $query->where(function($w) use ($q){
-                    $w->where('borrower_name','like',"%$q%")
-                      ->orWhereHas('asset', function($a) use ($q){
-                        $a->where('name','like',"%$q%")
-                          ->orWhere('code','like',"%$q%");
-                      });
-                });
-            })
-            ->when($unit, fn($q2)=>$q2->where('unit',$unit))
-            ->whereBetween('loan_date', [$start->toDateString(), $end->toDateString()])
-            ->when($sort==='asset', function($q3){ $q3->leftJoin('assets as a','a.id','=','loans.asset_id')->select('loans.*'); })
-            ->when(in_array($sort,['loan_date','status','quantity','borrower_name','asset','unit']), function($q4) use($sort,$dir){
-                $map = ['loan_date'=>'loans.loan_date','status'=>'loans.status','quantity'=>'loans.quantity','borrower_name'=>'loans.borrower_name','asset'=>'a.name','unit'=>'loans.unit'];
-                $q4->orderBy($map[$sort], $dir);
-            }, function($q4){ $q4->orderByDesc('loans.loan_date'); })
-            ->paginate(15)
-            ->withQueryString();
+        $loans = $tableQuery->paginate(15)->withQueryString();
 
         $summary = [
-            'total_transaksi' => (clone $loans)->total(),
-            'total_jumlah' => Loan::whereBetween('loan_date', [$start->toDateString(), $end->toDateString()])->sum('quantity'),
-            'periode' => $label,
+            'periode' => $rangeLabel,
             'start' => $start->toDateString(),
             'end' => $end->toDateString(),
+            'total_transaksi' => (clone $baseQuery)->count(),
+            'total_jumlah' => (clone $baseQuery)->sum('quantity'),
         ];
 
-        $units = config('bpip.units');
-        return view('reports.loans', compact('loans','summary','range','start','end','units','q','unit','sort','dir'));
+        $units = config('bpip.units', []);
+
+        return view('reports.loans', [
+            'records' => $loans,
+            'summary' => $summary,
+            'rangeKey' => $rangeKey,
+            'start' => $start,
+            'end' => $end,
+            'units' => $units,
+            'filters' => $request->all(),
+            'sort' => $sort,
+            'dir' => $dir,
+        ]);
     }
 
     public function returns(Request $request)
     {
-        [$range, $start, $end, $label] = $this->resolveRange($request);
+        [$rangeKey, $start, $end, $rangeLabel] = $this->resolveRange($request);
 
-        $q = $request->query('q');
-        $unit = $request->query('unit');
+        $sort = $request->query('sort', 'return_date_actual');
+        $dir = $request->query('dir', 'desc') === 'asc' ? 'asc' : 'desc';
 
-        $sort = $request->query('sort');
-        $dir = $request->query('dir','desc')==='asc'?'asc':'desc';
-
-        $sortColumns = [
-            'return_date_actual' => 'loans.return_date_actual',
-            'status' => 'loans.status',
-            'quantity' => 'loans.quantity',
-            'borrower_name' => 'loans.borrower_name',
-            'asset' => 'a.name',
-            'unit' => 'loans.unit',
-        ];
-
-        $baseReturnsQuery = $this->buildReturnsQuery($q, $unit, $start, $end);
-
-        $tableQuery = clone $baseReturnsQuery;
-
-        if ($sort === 'asset') {
-            $tableQuery->leftJoin('assets as a', 'a.id', '=', 'loans.asset_id')->select('loans.*');
-        }
-
-        if (array_key_exists($sort, $sortColumns)) {
-            $tableQuery->orderBy($sortColumns[$sort], $dir);
-        } else {
-            $tableQuery->orderByDesc('loans.return_date_actual');
-        }
+        $baseQuery = $this->buildLoanQuery($request, $start, $end, true);
+        $tableQuery = $this->applySorting(clone $baseQuery, $sort, $dir, true);
 
         $returns = $tableQuery->paginate(15)->withQueryString();
 
         $summary = [
-            'total_transaksi' => (clone $baseReturnsQuery)->count(),
-            'total_jumlah' => (clone $baseReturnsQuery)->sum('quantity'),
-            'periode' => $label,
+            'periode' => $rangeLabel,
             'start' => $start->toDateString(),
             'end' => $end->toDateString(),
-        ];
-
-        $units = config('bpip.units');
-        return view('reports.returns', compact('returns','summary','range','start','end','units','q','unit','sort','dir'));
-    }
-
-    public function losses(Request $request)
-    {
-        [$range, $start, $end, $label] = $this->resolveRange($request);
-
-        $q = $request->query('q');
-        $unit = $request->query('unit');
-
-        $sort = $request->query('sort');
-        $dir = $request->query('dir','desc')==='asc'?'asc':'desc';
-
-        $baseQuery = Loan::query()
-            ->whereColumn('quantity', '>', 'quantity_returned')
-            ->whereBetween('loan_date', [$start->toDateString(), $end->toDateString()])
-            ->whereIn('status', ['borrowed','partial'])
-            ->when($q, function($query) use ($q){
-                $query->where(function($w) use ($q){
-                    $pattern = "%$q%";
-                    $w->where('borrower_name','like',$pattern)
-                      ->orWhereHas('asset', function($a) use ($pattern){
-                        $a->where('name','like',$pattern)
-                          ->orWhere('code','like',$pattern);
-                      });
-                });
-            })
-            ->when($unit, fn($builder) => $builder->where('unit', $unit));
-
-        $tableQuery = (clone $baseQuery)->with('asset');
-
-        if ($sort === 'asset') {
-            $tableQuery->leftJoin('assets as a','a.id','=','loans.asset_id')->select('loans.*');
-        }
-
-        $missingExpr = '(loans.quantity - loans.quantity_returned)';
-
-        if ($sort === 'missing') {
-            $tableQuery->orderByRaw("{$missingExpr} {$dir}");
-        } elseif (in_array($sort, ['loan_date','borrower_name','unit'], true)) {
-            $columns = [
-                'loan_date' => 'loans.loan_date',
-                'borrower_name' => 'loans.borrower_name',
-                'unit' => 'loans.unit',
-            ];
-            $tableQuery->orderBy($columns[$sort], $dir);
-        } elseif ($sort === 'asset') {
-            $tableQuery->orderBy('a.name', $dir);
-        } else {
-            $tableQuery->orderByDesc('loans.loan_date');
-        }
-
-        $losses = $tableQuery->paginate(15)->withQueryString();
-
-        $summary = [
             'total_transaksi' => (clone $baseQuery)->count(),
-            'total_hilang' => (int) ((clone $baseQuery)->selectRaw("SUM({$missingExpr}) as missing_total")->value('missing_total') ?? 0),
-            'periode' => $label,
-            'start' => $start->toDateString(),
-            'end' => $end->toDateString(),
+            'total_jumlah' => (clone $baseQuery)->sum('quantity'),
         ];
 
-        $units = config('bpip.units');
+        $units = config('bpip.units', []);
 
-        return view('reports.losses', compact('losses','summary','range','start','end','units','q','unit','sort','dir'));
+        return view('reports.returns', [
+            'records' => $returns,
+            'summary' => $summary,
+            'rangeKey' => $rangeKey,
+            'start' => $start,
+            'end' => $end,
+            'units' => $units,
+            'filters' => $request->all(),
+            'sort' => $sort,
+            'dir' => $dir,
+        ]);
     }
 
     public function loansPdf(Request $request)
     {
-        [$range, $start, $end, $label] = $this->resolveRange($request);
-        $rows = Loan::with('asset')
-            ->whereBetween('loan_date', [$start->toDateString(), $end->toDateString()])
-            ->orderBy('loan_date')
-            ->get();
-        $summary = [
-            'periode' => $label,
-            'start' => $start->toDateString(),
-            'end' => $end->toDateString(),
-            'total_transaksi' => $rows->count(),
-            'total_jumlah' => $rows->sum('quantity'),
-        ];
-        $pdf = Pdf::loadView('reports.pdf.loans', compact('rows','summary'))
-            ->setPaper('a4', 'portrait');
-        return $pdf->download('laporan-peminjaman-'.$start->toDateString().'_'.$end->toDateString().'.pdf');
+        [$rangeKey, $start, $end] = $this->resolveRange($request);
+        $rows = $this->buildLoanQuery($request, $start, $end)->orderBy('loan_date')->get();
+
+        $pdf = Pdf::loadView('reports.pdf.loans', [
+            'rows' => $rows,
+            'title' => 'Laporan Peminjaman',
+            'period' => [$start->toDateString(), $end->toDateString()],
+        ])->setPaper('a4', 'portrait');
+
+        return $pdf->download("laporan-peminjaman-{$start->format('Ymd')}-{$end->format('Ymd')}.pdf");
     }
 
     public function returnsPdf(Request $request)
     {
-        [$range, $start, $end, $label] = $this->resolveRange($request);
+        [$rangeKey, $start, $end] = $this->resolveRange($request);
+        $rows = $this->buildLoanQuery($request, $start, $end, true)->orderBy('return_date_actual')->get();
 
-        $q = $request->query('q');
-        $unit = $request->query('unit');
+        $pdf = Pdf::loadView('reports.pdf.returns', [
+            'rows' => $rows,
+            'title' => 'Laporan Pengembalian',
+            'period' => [$start->toDateString(), $end->toDateString()],
+        ])->setPaper('a4', 'portrait');
 
-        $rows = $this->buildReturnsQuery($q, $unit, $start, $end)
-            ->orderBy('return_date_actual')
-            ->get();
+        return $pdf->download("laporan-pengembalian-{$start->format('Ymd')}-{$end->format('Ymd')}.pdf");
+    }
 
-        $summary = [
-            'periode' => $label,
-            'start' => $start->toDateString(),
-            'end' => $end->toDateString(),
-            'total_transaksi' => $rows->count(),
-            'total_jumlah' => $rows->sum('quantity'),
-        ];
+    public function loansExcel(Request $request)
+    {
+        [$rangeKey, $start, $end] = $this->resolveRange($request);
+        $rows = $this->buildLoanQuery($request, $start, $end)->orderBy('loan_date')->get();
 
-        $pdf = Pdf::loadView('reports.pdf.returns', compact('rows','summary'))
-            ->setPaper('a4', 'portrait');
-        return $pdf->download('laporan-pengembalian-'.$start->toDateString().'_'.$end->toDateString().'.pdf');
+        return $this->streamCsv($rows, 'laporan-peminjaman', ['Tanggal', 'Aset', 'Peminjam', 'Unit', 'Status', 'Jumlah', 'Rencana Kembali', 'Kembali']);
+    }
+
+    public function returnsExcel(Request $request)
+    {
+        [$rangeKey, $start, $end] = $this->resolveRange($request);
+        $rows = $this->buildLoanQuery($request, $start, $end, true)->orderBy('return_date_actual')->get();
+
+        return $this->streamCsv($rows, 'laporan-pengembalian', ['Tanggal Peminjaman', 'Aset', 'Peminjam', 'Unit', 'Jumlah', 'Rencana Kembali', 'Kembali']);
+    }
+
+    private function streamCsv($rows, string $basename, array $headers)
+    {
+        $filename = $basename . '-' . now()->format('Ymd-His') . '.csv';
+
+        $callback = static function () use ($rows, $headers) {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, $headers);
+            foreach ($rows as $row) {
+                fputcsv($handle, [
+                    optional($row->loan_date)->format('Y-m-d'),
+                    $row->asset->name ?? '-',
+                    $row->borrower_name,
+                    $row->unit,
+                    $row->status,
+                    $row->quantity,
+                    optional($row->return_date_planned)->format('Y-m-d'),
+                    optional($row->return_date_actual)->format('Y-m-d'),
+                ]);
+            }
+            fclose($handle);
+        };
+
+        return Response::streamDownload($callback, $filename, [
+            'Content-Type' => 'text/csv',
+        ]);
     }
 }
-
-

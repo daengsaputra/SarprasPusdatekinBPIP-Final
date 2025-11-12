@@ -13,19 +13,55 @@
 <style>
   body[data-theme="light"] { background: #eef2ff; }
   .asset-shell { display:flex; flex-direction:column; gap:1.5rem; padding-bottom:3rem; }
-  .asset-hero { display:flex; justify-content:space-between; flex-wrap:wrap; gap:1.5rem; padding:1.8rem 2rem; border-radius:32px; background:linear-gradient(120deg, rgba(59,130,246,0.18), #ffffff 65%); border:1px solid rgba(148,163,184,0.18); box-shadow:0 25px 50px rgba(15,23,42,0.12); }
-  .asset-hero__title { font-size:clamp(1.7rem,3vw,2.3rem); font-weight:700; color:#0f172a; margin-bottom:.4rem; }
+  .asset-hero { display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.7rem; padding:0.65rem 0.9rem; border-radius:10px; background:linear-gradient(120deg, rgba(59,130,246,0.08), #ffffff 65%); border:1px solid rgba(148,163,184,0.1); box-shadow:0 6px 18px rgba(15,23,42,0.06); }
+  .asset-hero__title { font-size:clamp(1.05rem,1.6vw,1.25rem); font-weight:700; color:#0f172a; margin-bottom:.15rem; }
   .asset-summary-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem; }
   .asset-summary-card { background:#fff; border-radius:22px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 18px 38px rgba(15,23,42,0.08); padding:1.2rem 1.4rem; }
-  .asset-summary-label { text-transform:uppercase; letter-spacing:0.12em; font-size:0.72rem; color:#94a3b8; }
-  .asset-summary-value { font-size:1.85rem; font-weight:700; color:#0f172a; }
+  .asset-summary-label,
+  .asset-summary-value,
+  .asset-summary-card p {
+    font-size: 0.75rem;
+  }
+  .asset-summary-label { text-transform:uppercase; letter-spacing:0.12em; color:#94a3b8; }
+  .asset-summary-value { font-weight:700; color:#0f172a; }
   .asset-filter-card, .asset-table-card { background:#fff; border-radius:28px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 20px 45px rgba(15,23,42,0.08); padding:1.5rem 1.7rem; }
-  .asset-table-card table thead th { text-transform:uppercase; letter-spacing:0.08em; font-size:0.78rem; color:#64748b; }
+  .asset-table-card table thead th,
+  .asset-table-card table tbody td,
+  .asset-table-card .pagination,
+  .asset-table-card .pagination a,
+  .asset-table-card .pagination span {
+    font-size:0.75rem;
+  }
+  .asset-table-card table thead th { text-transform:uppercase; letter-spacing:0.08em; color:#64748b; }
   .asset-table-card table tbody td { vertical-align:middle; }
   .asset-actions { display:flex; flex-wrap:wrap; gap:0.35rem; }
   .asset-actions .btn {
     border-radius: 12px;
     transition: transform 0.25s cubic-bezier(.17,.67,.45,1.32), box-shadow 0.2s ease;
+    font-size: var(--font-size-small, 0.84rem);
+    padding: 0.35rem 0.65rem;
+    line-height: 1.2;
+  }
+  .asset-photo-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border: 1px solid rgba(59,130,246,0.35);
+    color: #1d4ed8;
+    background: rgba(59,130,246,0.07);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .asset-photo-btn__icon {
+    width: 1.15rem;
+    height: 1.15rem;
+    border-radius: 999px;
+    background: rgba(59,130,246,0.15);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
   }
   .asset-actions .btn.is-animating {
     animation: assetActionPulse 0.35s cubic-bezier(.17,.67,.45,1.32);
@@ -87,7 +123,14 @@
     font-size: 1.2rem;
     cursor: pointer;
   }
-  .letter-wide { letter-spacing:0.12em; }
+  .letter-wide { letter-spacing:0.12em; font-size:0.75rem; }
+  .asset-filter-card .form-label,
+  .asset-filter-card .form-control,
+  .asset-filter-card .form-select,
+  .asset-filter-card .form-check-label,
+  .asset-filter-card .btn {
+    font-size:0.75rem;
+  }
   @media (max-width: 992px) { .asset-hero{flex-direction:column;} body[data-theme="light"] main.container{margin-left:0!important;} }
 </style>
 @endpush
@@ -102,34 +145,16 @@
       <h1 class="asset-hero__title">{{ $title }}</h1>
       <p class="text-muted mb-0">Kelola data sarpras dengan filter cepat, ekspor/impor Excel, serta aksi edit langsung di tabel.</p>
     </div>
-    <div class="d-flex flex-wrap gap-2">
+    <div class="d-flex flex-wrap gap-2 align-items-center">
       @auth
-        <a href="{{ $importUrl }}" class="pill-btn pill-btn--outline">Import Excel <span>&rsaquo;</span></a>
-        <a href="{{ $createUrl }}" class="pill-btn pill-btn--primary">+ Tambah {{ $isLoanable ? 'Barang Peminjaman' : 'Aset' }} <span>&rsaquo;</span></a>
+        <a href="{{ $importUrl }}" class="btn btn-primary w-1">Import Excel <span></span></a>
+        <a href="{{ $createUrl }}" class="btn btn-primary px-4">+ Tambah {{ $isLoanable ? 'Barang Peminjaman' : 'Aset' }} <span>&rsaquo;</span></a>
       @endauth
     </div>
   </section>
 
-  <section class="asset-summary-grid">
-    <div class="asset-summary-card">
-      <div class="asset-summary-label">Total Item</div>
-      <div class="asset-summary-value">{{ number_format($totalAssets ?? 0) }}</div>
-      <div class="text-muted small">Unit tercatat untuk konteks ini.</div>
-    </div>
-    <div class="asset-summary-card">
-      <div class="asset-summary-label">Aktif</div>
-      <div class="asset-summary-value">{{ number_format($activeAssets ?? 0) }}</div>
-      <div class="text-muted small">Status aktif/siap pakai.</div>
-    </div>
-    <div class="asset-summary-card">
-      <div class="asset-summary-label">Unit Tersedia</div>
-      <div class="asset-summary-value">{{ number_format($availableUnits ?? 0) }}</div>
-      <div class="text-muted small">Total satuan yang bisa digunakan.</div>
-    </div>
-  </section>
-
   <section class="asset-filter-card">
-    <form method="GET" action="{{ route($listRoute) }}" class="row g-3 align-items-end">
+    <form method="GET" action="{{ route($listRoute) }}" class="row g-2 align-items-end">
       <input type="hidden" name="filter" value="1">
       <div class="col-md-4">
         <label class="form-label text-uppercase small fw-semibold letter-wide">Cari</label>
@@ -188,11 +213,7 @@
               @php($arrow=$s==='category' ? ($d==='asc'?'▲':'▼') : '•')
               <a href="{{ route($listRoute,$q) }}" class="text-decoration-none text-muted">Kategori <span class="small">{{ $arrow }}</span></a>
             </th>
-            <th>
-              @php($q=array_merge(request()->all(),['sort'=>'qty_available','dir'=>$next('qty_available')]))
-              @php($arrow=$s==='qty_available' ? ($d==='asc'?'▲':'▼') : '•')
-              <a href="{{ route($listRoute,$q) }}" class="text-decoration-none text-muted">Stok <span class="small">{{ $arrow }}</span></a>
-            </th>
+            <th></th>
             <th>
               @php($q=array_merge(request()->all(),['sort'=>'status','dir'=>$next('status')]))
               @php($arrow=$s==='status' ? ($d==='asc'?'▲':'▼') : '•')
@@ -207,7 +228,7 @@
               <td>{{ $asset->code }}</td>
               <td>{{ $asset->name }}</td>
               <td>{{ $asset->category ?? '-' }}</td>
-              <td>{{ $asset->quantity_available }} / {{ $asset->quantity_total }}</td>
+              <td></td>
               <td>
                 @php($statusLabel = $asset->status === 'active' ? 'Aktif' : ($asset->status === 'inactive' ? 'Tidak aktif' : $asset->status))
                 <span class="badge {{ $asset->status === 'active' ? 'bg-success' : 'bg-secondary' }}">{{ $statusLabel }}</span>
@@ -222,7 +243,12 @@
                       <button class="btn btn-sm btn-outline-danger" type="submit">Hapus</button>
                     </form>
                     @if($asset->photo)
-                      <button type="button" class="btn btn-sm btn-outline-secondary" data-photo-view="{{ asset('storage/'.$asset->photo) }}">Foto</button>
+                      <button type="button" class="btn btn-sm asset-photo-btn" data-photo-view="{{ asset('storage/'.$asset->photo) }}">
+                        <span class="asset-photo-btn__icon">&#128247;</span>
+                        <span>Foto</span>
+                      </button>
+                    @else
+                      <span class="text-muted small">Tidak ada foto</span>
                     @endif
                   @endauth
                 </div>
