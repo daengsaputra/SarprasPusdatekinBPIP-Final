@@ -5,21 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? 'SARPRAS PUSDATEKIN' }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    @php
+        $themeSurfaces = $activeLandingThemeSurfaces ?? \App\Models\SiteSetting::landingThemeSurfaces();
+        $brandBlue = data_get($themeSurfaces, 'accent', '#1d4ed8');
+        $brandCyan = data_get($themeSurfaces, 'accentSoft', '#38bdf8');
+        $surface1 = data_get($themeSurfaces, 'surface1', 'linear-gradient(140deg, #0b1220 0%, #05060a 55%, #020205 100%)');
+        $surface2 = data_get($themeSurfaces, 'surface2', 'rgba(15, 23, 42, 0.78)');
+        $surface3 = data_get($themeSurfaces, 'surface3', 'rgba(15, 23, 42, 0.55)');
+        $textPrimary = data_get($themeSurfaces, 'text_primary', '#e2e8f0');
+        $textSecondary = data_get($themeSurfaces, 'text_secondary', 'rgba(226, 232, 240, 0.72)');
+        $borderSoft = 'color-mix(in srgb, ' . $textSecondary . ' 35%, transparent)';
+    @endphp
     <style>
         :root {
-            --brand-blue: #1d4ed8;
-            --brand-blue-dark: #1e3a8a;
-            --brand-cyan: #38bdf8;
+            --brand-blue: {{ $brandBlue }};
+            --brand-blue-dark: {{ $brandBlue }};
+            --brand-cyan: {{ $brandCyan }};
             --brand-ink: #020617;
             --brand-cloud: #f8fafc;
             --brand-slate: #0f172a;
-            --surface-1: linear-gradient(140deg, #0b1220 0%, #05060a 55%, #020205 100%);
-            --surface-2: rgba(15, 23, 42, 0.78);
-            --surface-3: rgba(15, 23, 42, 0.55);
-            --border-soft: rgba(148, 163, 184, 0.18);
-            --text-primary: #e2e8f0;
-            --text-secondary: rgba(226, 232, 240, 0.72);
-            --text-muted: rgba(148, 163, 184, 0.75);
+            --surface-1: {{ $surface1 }};
+            --surface-2: {{ $surface2 }};
+            --surface-3: {{ $surface3 }};
+            --border-soft: {{ $borderSoft }};
+            --text-primary: {{ $textPrimary }};
+            --text-secondary: {{ $textSecondary }};
+            --text-muted: color-mix(in srgb, {{ $textSecondary }} 85%, transparent);
             --bs-body-bg: transparent;
             --bs-body-color: var(--text-primary);
             --bs-heading-color: var(--text-primary);
@@ -34,14 +45,14 @@
             --bs-body-tertiary-bg: rgba(15, 23, 42, 0.45);
             --bs-card-bg: var(--surface-2);
             --bs-card-border-color: var(--border-soft);
-            --bs-primary: #2563eb;
+            --bs-primary: {{ $brandBlue }};
             --bs-primary-rgb: 37, 99, 235;
             --bs-success: #22c55e;
             --bs-success-rgb: 34, 197, 94;
             --bs-warning: #f59e0b;
             --bs-warning-rgb: 245, 158, 11;
-            --bs-primary-bg-subtle: rgba(59, 130, 246, 0.18);
-            --bs-primary-border-subtle: rgba(59, 130, 246, 0.35);
+            --bs-primary-bg-subtle: color-mix(in srgb, {{ $brandBlue }} 18%, transparent);
+            --bs-primary-border-subtle: color-mix(in srgb, {{ $brandBlue }} 35%, transparent);
             --bs-primary-text-emphasis: rgba(191, 219, 254, 0.95);
             --bs-success-bg-subtle: rgba(34, 197, 94, 0.15);
             --bs-success-border-subtle: rgba(34, 197, 94, 0.3);
@@ -62,7 +73,7 @@
             --bs-body-color: var(--text-primary);
             --bs-heading-color: var(--text-primary);
             --bs-link-color: var(--brand-blue);
-            --bs-link-hover-color: #1d4ed8;
+            --bs-link-hover-color: var(--brand-blue-dark);
             --bs-emphasis-color: var(--text-primary);
             --bs-border-color: rgba(15, 23, 42, 0.08);
             --bs-secondary-color: rgba(71, 85, 105, 0.7);
@@ -72,15 +83,15 @@
             --bs-body-tertiary-bg: rgba(226, 232, 240, 0.78);
             --bs-card-bg: var(--surface-2);
             --bs-card-border-color: var(--border-soft);
-            --bs-primary: #2563eb;
+            --bs-primary: var(--brand-blue);
             --bs-primary-rgb: 37, 99, 235;
             --bs-success: #22c55e;
             --bs-success-rgb: 34, 197, 94;
             --bs-warning: #f59e0b;
             --bs-warning-rgb: 245, 158, 11;
-            --bs-primary-bg-subtle: rgba(59, 130, 246, 0.18);
-            --bs-primary-border-subtle: rgba(59, 130, 246, 0.25);
-            --bs-primary-text-emphasis: #1e3a8a;
+            --bs-primary-bg-subtle: color-mix(in srgb, var(--brand-blue) 18%, transparent);
+            --bs-primary-border-subtle: color-mix(in srgb, var(--brand-blue) 25%, transparent);
+            --bs-primary-text-emphasis: var(--brand-blue-dark);
             --bs-success-bg-subtle: rgba(34, 197, 94, 0.12);
             --bs-success-border-subtle: rgba(34, 197, 94, 0.25);
             --bs-success-text-emphasis: #166534;
@@ -140,49 +151,39 @@
         /* Theme Slider Toggle */
         .theme-toggle-slider {
             cursor: pointer;
-            width: 56px;
-            height: 28px;
+            width: 64px;
+            height: 32px;
             border-radius: 999px;
-            background-color: rgba(15, 23, 42, 0.6);
-            border: 1px solid var(--border-soft);
-            position: relative;
             position: fixed;
             top: 1.2rem;
             right: 1.5rem;
             z-index: 1500;
-            transition: background-color .2s ease;
+            background: linear-gradient(135deg, rgba(20, 31, 49, 0.95), rgba(8, 14, 26, 0.9));
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            box-shadow: inset 0 0 12px rgba(4, 6, 12, 0.65);
+            transition: background .3s ease, border-color .3s ease, box-shadow .3s ease;
         }
         .theme-toggle-slider input { display: none; }
         .theme-toggle-slider .slider-knob {
             position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 22px;
-            height: 22px;
+            top: 3px;
+            left: 3px;
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
-            background-color: var(--brand-cyan);
-            transition: transform .3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--brand-ink);
+            background: radial-gradient(circle at 30% 30%, #f8fbff, #dbeafe);
+            box-shadow: 0 6px 16px rgba(5, 9, 20, 0.45);
+            transition: transform .3s ease, background .3s ease, box-shadow .3s ease;
         }
-        .theme-toggle-slider .slider-knob svg {
-            width: 14px;
-            height: 14px;
-        }
-        .theme-toggle-slider .icon-sun { display: none; }
-        .theme-toggle-slider .icon-moon { display: block; }
-
         .theme-toggle-slider input:checked + .slider-knob {
-            transform: translateX(28px);
-            background-color: #f59e0b;
+            transform: translateX(30px);
+            background: radial-gradient(circle at 30% 30%, #fff8e5, #fed89b);
+            box-shadow: 0 6px 16px rgba(249, 178, 51, 0.45);
         }
-        .theme-toggle-slider input:checked + .slider-knob .icon-sun { display: block; }
-        .theme-toggle-slider input:checked + .slider-knob .icon-moon { display: none; }
-
         [data-theme="light"] .theme-toggle-slider {
-            background-color: rgba(226, 232, 240, 0.8);
+            background: linear-gradient(135deg, rgba(226, 232, 240, 0.95), rgba(203, 213, 225, 0.85));
+            border-color: rgba(148, 163, 184, 0.5);
+            box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.6);
         }
         main.container {
             padding-top: 4rem;
@@ -237,20 +238,30 @@
 <script>
     const bodyEl = document.body;
     const toggleInput = document.getElementById('themeToggleInput');
-    const storedTheme = localStorage.getItem('landingTheme');
     const landingNav = document.querySelector('.landing-navbar');
+    const LANDING_STORAGE_KEY = 'landingTheme';
+    const APP_STORAGE_KEY = 'appTheme';
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const storedTheme = localStorage.getItem(LANDING_STORAGE_KEY) || localStorage.getItem(APP_STORAGE_KEY);
 
-    const applyTheme = (theme) => {
-        bodyEl.dataset.theme = theme;
+    const applyTheme = (theme, { persist = true } = {}) => {
+        const safeTheme = theme === 'light' ? 'light' : 'dark';
+        bodyEl.dataset.theme = safeTheme;
         if (toggleInput) {
-            toggleInput.checked = theme === 'light';
+            toggleInput.checked = safeTheme === 'light';
         }
-        localStorage.setItem('landingTheme', theme);
+        if (persist) {
+            localStorage.setItem(LANDING_STORAGE_KEY, safeTheme);
+            localStorage.setItem(APP_STORAGE_KEY, safeTheme);
+        }
+        bodyEl.dispatchEvent(new CustomEvent('app:theme-changed', { detail: { theme: safeTheme } }));
     };
 
     // Terapkan tema saat halaman dimuat
-    const initialTheme = storedTheme || 'dark';
-    applyTheme(initialTheme);               
+    const initialTheme = storedTheme === 'light' || storedTheme === 'dark'
+        ? storedTheme
+        : (prefersDark ? 'dark' : 'light');
+    applyTheme(initialTheme, { persist: false });
 
     if (toggleInput) {
         toggleInput.addEventListener('change', () => {
@@ -258,6 +269,13 @@
             applyTheme(newTheme);
         });
     }
+
+    window.addEventListener('storage', (event) => {
+        if (event.key === LANDING_STORAGE_KEY || event.key === APP_STORAGE_KEY) {
+            const updatedTheme = event.newValue === 'light' ? 'light' : 'dark';
+            applyTheme(updatedTheme, { persist: false });
+        }
+    });
 
     const handleScroll = () => {
         if (!landingNav) {

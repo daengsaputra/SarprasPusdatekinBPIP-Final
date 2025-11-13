@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Loan;
 use App\Models\Asset;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class LoanController extends Controller
@@ -120,6 +122,8 @@ class LoanController extends Controller
             'loan_date' => 'required|date',
             'return_date_planned' => 'nullable|date|after_or_equal:loan_date',
             'notes' => 'nullable|string',
+            'loan_photo' => $this->attachmentRule(true),
+            'request_photo' => $this->attachmentRule(true),
         ]);
         $asset = Asset::findOrFail($validated['asset_id']);
         if ($asset->kind !== Asset::KIND_LOANABLE) {
@@ -129,12 +133,29 @@ class LoanController extends Controller
             return back()->withInput()->withErrors(['quantity' => 'Jumlah melebihi stok tersedia.']);
         }
 
-        $loan = Loan::create($validated + [
-            'status' => 'borrowed',
-            'quantity_returned' => 0,
-        ]);
+        $loanData = $validated;
+        unset($loanData['loan_photo'], $loanData['request_photo']);
 
-        $asset->decrement('quantity_available', $validated['quantity']);
+        $loanPhotoPath = null;
+        $requestPhotoPath = null;
+
+        try {
+            $loanPhotoPath = $this->storeAttachment($request->file('loan_photo'), 'loan-proofs');
+            $requestPhotoPath = $this->storeAttachment($request->file('request_photo'), 'loan-requests');
+
+            $loan = Loan::create($loanData + [
+                'status' => 'borrowed',
+                'quantity_returned' => 0,
+                'loan_photo_path' => $loanPhotoPath,
+                'request_photo_path' => $requestPhotoPath,
+            ]);
+
+            $asset->decrement('quantity_available', $validated['quantity']);
+        } catch (\Throwable $e) {
+            $this->deleteAttachment($loanPhotoPath);
+            $this->deleteAttachment($requestPhotoPath);
+            throw $e;
+        }
 
         return redirect()->route('loans.index')->with('success', 'Peminjaman berhasil dicatat.');
     }
@@ -150,7 +171,24 @@ class LoanController extends Controller
             'loan_date' => 'required|date',
             'return_date_planned' => 'nullable|date|after_or_equal:loan_date',
             'notes' => 'nullable|string',
+            'loan_photo' => $this->attachmentRule(true),
+            'request_photo' => $this->attachmentRule(true),
         ]);
+
+        $loanData = $data;
+        unset($loanData['loan_photo'], $loanData['request_photo']);
+
+        $loanPhotoPath = null;
+        $requestPhotoPath = null;
+
+        try {
+            $loanPhotoPath = $this->storeAttachment($request->file('loan_photo'), 'loan-proofs');
+            $requestPhotoPath = $this->storeAttachment($request->file('request_photo'), 'loan-requests');
+        } catch (\Throwable $e) {
+            $this->deleteAttachment($loanPhotoPath);
+            $this->deleteAttachment($requestPhotoPath);
+            throw $e;
+        }
 
         // Ambil items dari hidden field JSON atau array biasa
         $itemsRaw = $request->input('items');
@@ -173,7 +211,8 @@ class LoanController extends Controller
         }, $items));
 
         $batch = 'PJ'.now()->format('YmdHis');
-        DB::transaction(function () use ($data, $items, $batch) {
+        try {
+            DB::transaction(function () use ($loanData, $items, $batch, $loanPhotoPath, $requestPhotoPath) {
             foreach ($items as $item) {
                 $asset = Asset::lockForUpdate()->findOrFail($item['asset_id']);
                 if ($asset->kind !== Asset::KIND_LOANABLE) {
@@ -185,20 +224,27 @@ class LoanController extends Controller
                 Loan::create([
                     'batch_code' => $batch,
                     'asset_id' => $asset->id,
-                    'borrower_name' => $data['borrower_name'],
-                    'borrower_contact' => $data['borrower_contact'] ?? null,
-                    'unit' => $data['unit'],
-                    'activity_name' => $data['activity_name'],
+                    'borrower_name' => $loanData['borrower_name'],
+                    'borrower_contact' => $loanData['borrower_contact'] ?? null,
+                    'unit' => $loanData['unit'],
+                    'activity_name' => $loanData['activity_name'],
                     'quantity' => $item['quantity'],
                     'quantity_returned' => 0,
-                    'loan_date' => $data['loan_date'],
-                    'return_date_planned' => $data['return_date_planned'] ?? null,
+                    'loan_date' => $loanData['loan_date'],
+                    'return_date_planned' => $loanData['return_date_planned'] ?? null,
                     'status' => 'borrowed',
-                    'notes' => $data['notes'] ?? null,
+                    'notes' => $loanData['notes'] ?? null,
+                    'loan_photo_path' => $loanPhotoPath,
+                    'request_photo_path' => $requestPhotoPath,
                 ]);
                 $asset->decrement('quantity_available', $item['quantity']);
             }
         });
+        } catch (\Throwable $e) {
+            $this->deleteAttachment($loanPhotoPath);
+            $this->deleteAttachment($requestPhotoPath);
+            throw $e;
+        }
 
         return redirect()->route('loans.index')
             ->with('success', 'Peminjaman berhasil dicatat. Bukti siap dicetak.')
@@ -261,9 +307,16 @@ class LoanController extends Controller
             'return_date_actual' => 'required|date|after_or_equal:' . $loan->loan_date->format('Y-m-d'),
             'return_quantity' => 'required|integer|min:1|max:' . $maxReturnable,
             'notes' => 'nullable|string',
+            'return_photo' => $this->attachmentRule(true),
         ]);
 
-        DB::transaction(function () use ($loan, $validated) {
+        $returnPhotoPath = null;
+        $previousReturnPhoto = $loan->return_photo_path;
+
+        try {
+            $returnPhotoPath = $this->storeAttachment($request->file('return_photo'), 'loan-returns');
+
+            DB::transaction(function () use ($loan, $validated, $returnPhotoPath) {
             $loan->refresh();
             $outs = $loan->quantity_remaining;
             if ($outs <= 0) {
@@ -279,6 +332,7 @@ class LoanController extends Controller
                 'status' => $remaining === 0 ? 'returned' : 'partial',
                 'return_date_actual' => $remaining === 0 ? $validated['return_date_actual'] : $loan->return_date_actual,
                 'notes' => $validated['notes'] ?? $loan->notes,
+                'return_photo_path' => $returnPhotoPath ?? $loan->return_photo_path,
             ]);
 
             $asset = Asset::whereKey($loan->asset_id)->lockForUpdate()->first();
@@ -289,6 +343,14 @@ class LoanController extends Controller
                 ]);
             }
         });
+        } catch (\Throwable $e) {
+            $this->deleteAttachment($returnPhotoPath);
+            throw $e;
+        }
+
+        if ($returnPhotoPath && $previousReturnPhoto && $previousReturnPhoto !== $returnPhotoPath) {
+            $this->deleteAttachment($previousReturnPhoto);
+        }
 
         $redirect = redirect()->route('loans.index')
             ->with('success', 'Pengembalian berhasil diproses.');
@@ -306,6 +368,12 @@ class LoanController extends Controller
         abort_if($items->isEmpty(), 404);
 
         $first = $items->first();
+        $attachments = [
+            'ND / Helpdesk' => $first->request_photo_path,
+            'Serah Terima' => $first->loan_photo_path,
+            'Pengembalian' => $first->return_photo_path,
+        ];
+
         $data = [
             'batch' => $batch,
             'borrower' => $first->borrower_name,
@@ -317,6 +385,7 @@ class LoanController extends Controller
             'officer' => auth()->user()->name ?? 'Petugas',
             'items' => $items,
             'printed_at' => now(),
+            'attachments' => $attachments,
         ];
 
         if ($request->boolean('preview')) {
@@ -353,6 +422,34 @@ class LoanController extends Controller
         }
 
         return $pdf->stream('bukti-pengembalian-'.$loan->id.'.pdf');
+    }
+
+    protected function attachmentRule(bool $required = false): array
+    {
+        $mimes = config('bpip.loan_attachment_mimes', ['jpg', 'jpeg', 'png', 'webp']);
+        $mimes = is_array($mimes) ? implode(',', $mimes) : (string) $mimes;
+        $max = (int) config('bpip.loan_attachment_max_kb', 4096);
+
+        $rule = ['image', 'mimes:' . $mimes, 'max:' . $max];
+        if ($required) {
+            array_unshift($rule, 'required');
+        } else {
+            array_unshift($rule, 'nullable');
+        }
+
+        return $rule;
+    }
+
+    protected function storeAttachment(?UploadedFile $file, string $directory): ?string
+    {
+        return $file ? $file->store($directory, 'public') : null;
+    }
+
+    protected function deleteAttachment(?string $path): void
+    {
+        if ($path) {
+            Storage::disk('public')->delete($path);
+        }
     }
 }
 

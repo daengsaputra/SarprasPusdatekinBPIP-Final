@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? 'SARPRAS PUSDATEKIN - Sarana Prasarana Aset Pusdatekin' }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    @php
+        $sharedThemeSurfaces = $activeLandingThemeSurfaces ?? \App\Models\SiteSetting::landingThemeSurfaces();
+        $sharedBrandBlue = data_get($sharedThemeSurfaces, 'accent', '#2563eb');
+        $sharedBrandCyan = data_get($sharedThemeSurfaces, 'accentSoft', '#38bdf8');
+        $sharedSurface1 = data_get($sharedThemeSurfaces, 'surface1', 'linear-gradient(145deg, #050b18 0%, #070d1f 55%, #0b1124 100%)');
+        $sharedSurface2 = data_get($sharedThemeSurfaces, 'surface2', 'rgba(12, 19, 33, 0.92)');
+        $sharedSurface3 = data_get($sharedThemeSurfaces, 'surface3', 'rgba(15, 23, 42, 0.78)');
+        $sharedTextPrimary = data_get($sharedThemeSurfaces, 'text_primary', '#e2e8f0');
+        $sharedTextSecondary = data_get($sharedThemeSurfaces, 'text_secondary', 'rgba(148, 163, 184, 0.78)');
+    @endphp
     <style>
     .app-sidebar {
         width: var(--layout-sidebar-width, 250px);
@@ -286,9 +296,9 @@
         color: #93c5fd;
     }
         :root {
-            --brand-blue: #2563eb;
-            --brand-blue-dark: #1d4ed8;
-            --brand-cyan: #38bdf8;
+            --brand-blue: {{ $sharedBrandBlue }};
+            --brand-blue-dark: {{ $sharedBrandBlue }};
+            --brand-cyan: {{ $sharedBrandCyan }};
             --font-sans: 'Instrument Sans', 'Inter', 'Segoe UI', 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
             --font-size-base: 0.88rem;
             --font-size-small: 0.8rem;
@@ -300,30 +310,30 @@
             --card-radius-lg: 20px;
             --card-radius: 14px;
             --card-shadow: 0 12px 28px rgba(15, 23, 42, 0.1);
-            --app-bg: linear-gradient(145deg, #050b18 0%, #070d1f 55%, #0b1124 100%);
-            --app-surface: rgba(12, 19, 33, 0.92);
-            --app-surface-soft: rgba(15, 23, 42, 0.78);
-            --app-border: rgba(148, 163, 184, 0.25);
-            --app-border-strong: rgba(59, 130, 246, 0.4);
-            --app-text: #e2e8f0;
-            --app-text-muted: rgba(148, 163, 184, 0.78);
+            --app-bg: {{ $sharedSurface1 }};
+            --app-surface: {{ $sharedSurface2 }};
+            --app-surface-soft: {{ $sharedSurface3 }};
+            --app-border: color-mix(in srgb, {{ $sharedTextSecondary }} 35%, transparent);
+            --app-border-strong: color-mix(in srgb, {{ $sharedBrandBlue }} 35%, transparent);
+            --app-text: {{ $sharedTextPrimary }};
+            --app-text-muted: {{ $sharedTextSecondary }};
             --app-shadow: 0 30px 60px rgba(2, 6, 23, 0.55);
             --app-card-shadow: 0 26px 60px rgba(2, 6, 23, 0.5);
-            --app-nav-bg: rgba(8, 13, 25, 0.92);
-            --app-nav-border: rgba(59, 130, 246, 0.32);
+            --app-nav-bg: color-mix(in srgb, {{ $sharedSurface2 }} 90%, transparent);
+            --app-nav-border: color-mix(in srgb, {{ $sharedBrandBlue }} 25%, transparent);
             --app-input-bg: rgba(15, 23, 42, 0.75);
             --app-input-border: rgba(148, 163, 184, 0.3);
-            --app-input-focus: rgba(59, 130, 246, 0.6);
-            --app-scroll-thumb: rgba(59, 130, 246, 0.5);
-            --app-highlight: rgba(59, 130, 246, 0.22);
-            --sidebar-bg: rgba(10,16,32,0.95);
-            --sidebar-border: rgba(59,130,246,0.4);
-            --sidebar-text: #f1f5f9;
-            --sidebar-muted: rgba(148,163,184,0.78);
-            --sidebar-active-bg: rgba(59,130,246,0.22);
-            --bs-body-color: #e2e8f0;
+            --app-input-focus: color-mix(in srgb, {{ $sharedBrandBlue }} 60%, transparent);
+            --app-scroll-thumb: color-mix(in srgb, {{ $sharedBrandBlue }} 45%, transparent);
+            --app-highlight: color-mix(in srgb, {{ $sharedBrandBlue }} 22%, transparent);
+            --sidebar-bg: color-mix(in srgb, {{ $sharedSurface2 }} 94%, transparent);
+            --sidebar-border: color-mix(in srgb, {{ $sharedBrandBlue }} 35%, transparent);
+            --sidebar-text: {{ $sharedTextPrimary }};
+            --sidebar-muted: {{ $sharedTextSecondary }};
+            --sidebar-active-bg: color-mix(in srgb, {{ $sharedBrandBlue }} 22%, transparent);
+            --bs-body-color: {{ $sharedTextPrimary }};
             --bs-body-bg: transparent;
-            --bs-border-color: rgba(148,163,184,0.3);
+            --bs-border-color: color-mix(in srgb, {{ $sharedTextSecondary }} 35%, transparent);
         }
         [data-theme="light"] {
             --app-bg: linear-gradient(165deg, #ffffff 0%, #f5f7ff 38%, #e7efff 100%);
@@ -502,7 +512,7 @@
     .form-control:focus,
     .form-select:focus {
         border-color: var(--app-input-focus);
-        box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+        box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--brand-blue) 25%, transparent);
         background: var(--app-input-bg);
         color: var(--app-text);
     }

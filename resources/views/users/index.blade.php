@@ -23,11 +23,11 @@
   .hero-action:active { transform:translateY(1px); }
   .users-hero__title { font-size:clamp(1.8rem,3vw,2.4rem); font-weight:700; color:#0f172a; }
   .users-summary-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem; }
-  .users-summary-card { background:#fff; border-radius:22px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 18px 38px rgba(15,23,42,0.08); padding:1.2rem 1.4rem; }
+  .users-summary-card { background:#fafafa; border-radius:22px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 18px 38px rgba(15,23,42,0.08); padding:1.2rem 1.4rem; }
   .users-summary-label { text-transform:uppercase; letter-spacing:0.12em; font-size:0.72rem; color:#94a3b8; }
   .users-summary-value { font-size:1.85rem; font-weight:700; color:#0f172a; }
   .users-card-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1rem; }
-  .user-card { background:#fff; border-radius:26px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 18px 38px rgba(15,23,42,0.08); padding:1.2rem; display:flex; gap:1rem; align-items:center; }
+  .user-card { background:#fafafa border-radius:26px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 18px 38px rgba(15,23,42,0.08); padding:1.2rem; display:flex; gap:1rem; align-items:center; }
   .user-avatar { width:56px; height:56px; border-radius:18px; object-fit:cover; border:1px solid #e2e8f0; }
   .user-avatar--fallback { background:linear-gradient(135deg,#475569,#1e293b); color:#fff; font-weight:600; display:flex; align-items:center; justify-content:center; font-size:1rem; }
   .user-actions { margin-left:auto; display:flex; gap:0.3rem; flex-wrap:wrap; }

@@ -10,9 +10,15 @@
     table.meta td { padding: 3px 6px; vertical-align: top; }
     table.items { width:100%; border-collapse: collapse; margin-top: 14px; }
     table.items th, table.items td { border: 1px solid #ccc; padding: 6px 8px; }
-    .mt-2 { margin-top: 12px; }
-    .mt-4 { margin-top: 28px; }
-    .sign { width: 45%; display: inline-block; }
+  .mt-2 { margin-top: 12px; }
+  .mt-4 { margin-top: 28px; }
+  .sign { width: 45%; display: inline-block; }
+  .attachments { margin-top: 18px; }
+  .attachments h3 { font-size: 13px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.12em; }
+  .attachment-grid { display: flex; gap: 12px; flex-wrap: wrap; }
+  .attachment-card { border: 1px solid #ccc; border-radius: 8px; padding: 6px; width: 180px; text-align: center; }
+  .attachment-card strong { display:block; margin-bottom:4px; font-size:11px; }
+  .attachment-card img { max-width: 100%; max-height: 140px; object-fit: cover; border-radius: 6px; }
   </style>
 </head>
 <body>
@@ -25,6 +31,7 @@
 
   <table class="meta">
     <tr><td style="width:120px">Kode Pinjam</td><td>: {{ $batch }}</td></tr>
+    <tr><td>Total Unit</td><td>: {{ $items->sum('quantity') }} unit</td></tr>
     <tr><td>Nama Peminjam</td><td>: {{ $borrower }}</td></tr>
     @if($contact)
       <tr><td>Kontak</td><td>: {{ $contact }}</td></tr>
@@ -63,6 +70,26 @@
     <div class="sign">Peminjam<br><br><br><strong>{{ $borrower }}</strong></div>
     <div class="sign" style="float:right; text-align:right">Petugas<br><br><br><strong>{{ $officer }}</strong></div>
   </div>
+
+  @php($attachmentList = collect($attachments ?? [])->filter())
+  @if($attachmentList->isNotEmpty())
+    <div class="attachments">
+      <h3>Bukti Foto</h3>
+      <div class="attachment-grid">
+        @foreach($attachmentList as $label => $path)
+          @php($absolute = $path ? storage_path('app/public/'.$path) : null)
+          <div class="attachment-card">
+            <strong>{{ $label }}</strong>
+            @if($absolute && file_exists($absolute))
+              <img src="{{ $absolute }}" alt="{{ $label }}">
+            @else
+              <div style="font-size:10px;color:#666">File tidak ditemukan</div>
+            @endif
+          </div>
+        @endforeach
+      </div>
+    </div>
+  @endif
 
   <div class="mt-2" style="font-size:10px; color:#666">Dicetak: {{ $printed_at->format('Y-m-d H:i') }}</div>
 </body>

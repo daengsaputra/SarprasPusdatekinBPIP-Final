@@ -18,6 +18,10 @@ return [
     'asset_photo_max_kb' => env('ASSET_PHOTO_MAX_KB', 4096), // in KB
     'asset_photo_mimes' => explode(',', env('ASSET_PHOTO_MIMES', 'jpg,jpeg,png,webp')),
 
+    // Loan attachment settings (ND pengajuan, bukti pinjam/kembali)
+    'loan_attachment_max_kb' => env('LOAN_ATTACHMENT_MAX_KB', 4096),
+    'loan_attachment_mimes' => explode(',', env('LOAN_ATTACHMENT_MIMES', 'jpg,jpeg,png,webp')),
+
     // Upload settings for landing hero video
     'landing_video_max_kb' => env('LANDING_VIDEO_MAX_KB', 51200), // in KB (approx. 50 MB)
     'landing_video_mimes' => explode(',', env('LANDING_VIDEO_MIMES', 'mp4,webm,ogg')),

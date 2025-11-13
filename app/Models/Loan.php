@@ -21,6 +21,9 @@ class Loan extends Model
         'return_date_actual',
         'status',
         'notes',
+        'loan_photo_path',
+        'return_photo_path',
+        'request_photo_path',
     ];
 
     protected $casts = [

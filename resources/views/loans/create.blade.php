@@ -8,6 +8,30 @@
   .dot-green{ background:#10b981 }
   .dot-red{ background:#ef4444 }
   .cart-item input[type=number]{ width:90px }
+  .file-drop {
+    border: 1px dashed rgba(148, 163, 184, 0.8);
+    border-radius: 16px;
+    padding: 1.25rem;
+    text-align: center;
+    background: rgba(248, 250, 252, 0.85);
+    transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
+    cursor: pointer;
+  }
+  .file-drop:hover { border-color: rgba(59, 130, 246, 0.8); }
+  .file-drop.is-dragover {
+    border-color: #2563eb;
+    background: rgba(37, 99, 235, 0.06);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08) inset;
+  }
+  .file-drop.is-invalid { border-color: #dc3545; }
+  .file-drop__input { display: none; }
+  .file-drop__icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    margin: 0 auto 0.75rem;
+    display: flex; align-items:center; justify-content:center;
+    background: rgba(37,99,235,0.12); color:#2563eb;
+  }
+  .file-drop__filename { display:block; margin-top:0.3rem; color:#475569; font-size:0.9rem; }
 </style>
 @endpush
 
@@ -75,7 +99,7 @@
         </div>
         <div id="cartList" class="mb-3"></div>
 
-        <form id="batchForm" method="POST" action="{{ route('loans.store.batch') }}">
+        <form id="batchForm" method="POST" action="{{ route('loans.store.batch') }}" enctype="multipart/form-data">
           @csrf
           <input type="hidden" name="items" id="itemsField">
 
@@ -112,6 +136,38 @@
               <label class="form-label">Rencana Kembali</label>
               <input type="date" name="return_date_planned" class="form-control">
             </div>
+          </div>
+          <div class="mb-2 mt-2">
+            <label class="form-label">Foto ND/Helpdesk Pengajuan</label>
+            <div class="file-drop @error('request_photo') is-invalid @enderror" data-file-drop>
+              <input type="file" name="request_photo" id="requestPhotoInput" accept=".jpg,.jpeg,.png,.webp,image/*" class="file-drop__input" required>
+              <div class="file-drop__body">
+                <div class="file-drop__icon">
+                  📄
+                </div>
+                <strong>Tarik & lepaskan file di sini</strong>
+                <div>atau klik untuk memilih dari komputer</div>
+                <small class="file-drop__filename" data-file-drop-name>Belum ada file</small>
+              </div>
+            </div>
+            <div class="form-text">Unggah dokumentasi ND/helpdesk (wajib, format JPG/PNG/WebP).</div>
+            @error('request_photo')<div class="invalid-feedback">{{ $message }}</div>@enderror
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Foto Serah Terima (Saat Peminjaman)</label>
+            <div class="file-drop @error('loan_photo') is-invalid @enderror" data-file-drop>
+              <input type="file" name="loan_photo" id="loanPhotoInput" accept=".jpg,.jpeg,.png,.webp,image/*" class="file-drop__input" required>
+              <div class="file-drop__body">
+                <div class="file-drop__icon">
+                  📷
+                </div>
+                <strong>Tarik & lepaskan foto</strong>
+                <div>atau klik untuk memilih dari komputer</div>
+                <small class="file-drop__filename" data-file-drop-name>Belum ada file</small>
+              </div>
+            </div>
+            <div class="form-text">Gunakan foto bukti serah terima saat barang keluar (wajib).</div>
+            @error('loan_photo')<div class="invalid-feedback">{{ $message }}</div>@enderror
           </div>
           <div class="mb-2 mt-2">
             <label class="form-label">Catatan</label>
@@ -178,5 +234,48 @@
       // So keep as string and decode in controller? Simpler: use hidden multiple input fields
     }
   });
+
+  initFileDropzones();
+
+  function initFileDropzones() {
+    const zones = document.querySelectorAll('[data-file-drop]');
+    if (!zones.length) return;
+
+    zones.forEach((zone) => {
+      const input = zone.querySelector('input[type="file"]');
+      const nameEl = zone.querySelector('[data-file-drop-name]');
+      const setFileName = () => {
+        if (!input?.files?.length) {
+          if (nameEl) nameEl.textContent = 'Belum ada file';
+          return;
+        }
+        if (nameEl) nameEl.textContent = input.files[0].name;
+      };
+
+      zone.addEventListener('click', () => input?.click());
+      zone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        zone.classList.add('is-dragover');
+      });
+      zone.addEventListener('dragleave', (e) => {
+        if (!zone.contains(e.relatedTarget)) {
+          zone.classList.remove('is-dragover');
+        }
+      });
+      zone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        zone.classList.remove('is-dragover');
+        if (!input) return;
+        const dt = new DataTransfer();
+        if (e.dataTransfer?.files?.length) {
+          dt.items.add(e.dataTransfer.files[0]);
+        }
+        input.files = dt.files;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+      input?.addEventListener('change', setFileName);
+      setFileName();
+    });
+  }
 </script>
 @endpush

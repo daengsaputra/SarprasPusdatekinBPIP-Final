@@ -4,7 +4,7 @@
 @push('styles')
 <style>
   body {
-    background: #dbeafe;
+    background: #fff;
     min-height: 100vh;
   }
   body.receipt-preview-mode {
@@ -18,7 +18,11 @@
   body.receipt-preview-mode .app-main {
     margin-left: 0 !important;
     max-width: none;
-    padding-top: 0;
+    width: 100%;
+    padding: 0 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
   }
   @media print {
     nav.navbar, aside, header, footer { display: none !important; }
@@ -34,6 +38,13 @@
     max-width: 920px;
     width: 100%;
     margin: 2rem auto;
+    transform: scale(0.98);
+    opacity: 0;
+    transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.35s ease;
+  }
+  .receipt-preview__shell.is-loaded {
+    transform: scale(1);
+    opacity: 1;
   }
   .receipt-preview__toolbar {
     display: flex;
@@ -106,7 +117,7 @@
     gap: 1.5rem;
   }
   .receipt-meta__label {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     color: #94a3b8;
@@ -114,7 +125,7 @@
     font-weight: 600;
   }
   .receipt-meta__value {
-    font-size: 1.04rem;
+    font-size: 1rem;
     color: #111827;
     font-weight: 600;
   }
@@ -168,6 +179,46 @@
     margin-top: 1rem;
     color: #0f172a;
   }
+  .receipt-attachments {
+    margin-top: 1.5rem;
+    background: #fff;
+    border-radius: 24px;
+    padding: 1.5rem;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+  }
+  .receipt-attachments__title {
+    font-size: 0.85rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+  .receipt-attachments__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+  }
+  .receipt-attachment-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 0.75rem;
+    text-align: center;
+    background: linear-gradient(180deg, #f8fafc 0%, #fff 100%);
+  }
+  .receipt-attachment-card strong {
+    display: block;
+    font-size: 0.85rem;
+    color: #0f172a;
+    margin-bottom: 0.5rem;
+  }
+  .receipt-attachment-card img {
+    max-width: 100%;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    max-height: 180px;
+    object-fit: cover;
+  }
 </style>
 @endpush
 
@@ -186,10 +237,6 @@
   </div>
 
   <div class="receipt-summary">
-    <div class="receipt-summary__item">
-      <span>Total Item</span>
-      <div class="receipt-summary__value">{{ $items->count() }}</div>
-    </div>
     <div class="receipt-summary__item">
       <span>Total Unit</span>
       <div class="receipt-summary__value">{{ $items->sum('quantity') }} unit</div>
@@ -268,6 +315,28 @@
     </div>
   </section>
 
+  @php($attachmentList = collect($attachments ?? [])->filter())
+  @if($attachmentList->isNotEmpty())
+    <section class="receipt-attachments">
+      <div class="receipt-attachments__title">Bukti Foto</div>
+      <div class="receipt-attachments__grid">
+        @foreach($attachmentList as $label => $path)
+          @php($exists = $path && \Illuminate\Support\Facades\Storage::disk('public')->exists($path))
+          <div class="receipt-attachment-card">
+            <strong>{{ $label }}</strong>
+            @if($exists)
+              <a href="{{ asset('storage/'.$path) }}" target="_blank">
+                <img src="{{ asset('storage/'.$path) }}" alt="{{ $label }}">
+              </a>
+            @else
+              <span class="text-muted small d-block">File tidak tersedia</span>
+            @endif
+          </div>
+        @endforeach
+      </div>
+    </section>
+  @endif
+
   <div class="signature-panel row g-4 mt-0">
     <div class="col-md-6 signature-panel__item">
       <div class="signature-panel__label">Peminjam</div>
@@ -285,6 +354,12 @@
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     document.body.classList.add('receipt-preview-mode');
+    requestAnimationFrame(function(){
+      var shell = document.querySelector('.receipt-preview__shell');
+      if(shell){
+        shell.classList.add('is-loaded');
+      }
+    });
   });
 </script>
 @endpush

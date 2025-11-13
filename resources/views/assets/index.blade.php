@@ -24,16 +24,16 @@
   }
   .asset-summary-label { text-transform:uppercase; letter-spacing:0.12em; color:#94a3b8; }
   .asset-summary-value { font-weight:700; color:#0f172a; }
-  .asset-filter-card, .asset-table-card { background:#fff; border-radius:28px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 20px 45px rgba(15,23,42,0.08); padding:1.5rem 1.7rem; }
-  .asset-table-card table thead th,
-  .asset-table-card table tbody td,
-  .asset-table-card .pagination,
-  .asset-table-card .pagination a,
-  .asset-table-card .pagination span {
+  .asset-filter-card, .min-w-full border border-gray-300 dark:border-gray-700 rounded-lg { background:#fff; border-radius:28px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 20px 45px rgba(15,23,42,0.08); padding:1.5rem 1.7rem; }
+  .min-w-full border border-gray-300 dark:border-gray-700 rounded-lg table thead th,
+  .min-w-full border border-gray-300 dark:border-gray-700 rounded-lg table tbody td,
+  .min-w-full border border-gray-300 dark:border-gray-700 rounded-lg .pagination,
+  .min-w-full border border-gray-300 dark:border-gray-700 rounded-lg .pagination a,
+  .min-w-full border border-gray-300 dark:border-gray-700 rounded-lg .pagination span {
     font-size:0.75rem;
   }
-  .asset-table-card table thead th { text-transform:uppercase; letter-spacing:0.08em; color:#64748b; }
-  .asset-table-card table tbody td { vertical-align:middle; }
+  .min-w-full border border-gray-300 dark:border-gray-700 rounded-lg table thead th { text-transform:uppercase; letter-spacing:0.08em; color:#64748b; }
+  .min-w-full border border-gray-300 dark:border-gray-700 rounded-lg table tbody td { vertical-align:middle; }
   .asset-actions { display:flex; flex-wrap:wrap; gap:0.35rem; }
   .asset-actions .btn {
     border-radius: 12px;
@@ -71,19 +71,22 @@
     60% { transform: scale(1.05); }
     100% { transform: scale(1); }
   }
+  body.asset-photo-modal-open {
+    overflow: hidden;
+  }
   .asset-photo-modal {
     position: fixed;
     inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(2,6,23,0.6);
+    background: rgba(15, 23, 42, 0.65);
     backdrop-filter: blur(6px);
+    padding: 1.5rem;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.25s ease, visibility 0.25s ease;
-    z-index: 1400;
-    padding: 1.5rem;
+    z-index: 2000;
   }
   .asset-photo-modal.is-visible {
     opacity: 1;
@@ -94,13 +97,21 @@
     background: #fff;
     border-radius: 24px;
     padding: 1rem;
-    box-shadow: 0 40px 90px rgba(15,23,42,0.45);
-    transform: scale(0.85);
-    transition: transform 0.32s cubic-bezier(.17,.67,.45,1.32);
-    max-width: min(480px, 90vw);
+    box-shadow: 0 40px 90px rgba(15,23,42,0.35);
+    transform: scale(0.92);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    max-width: min(540px, 90vw);
+    width: 100%;
   }
   .asset-photo-modal.is-visible .asset-photo-panel {
     transform: scale(1);
+  }
+  .asset-photo-label {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 0.5rem;
   }
   .asset-photo-panel img {
     width: 100%;
@@ -190,7 +201,7 @@
     </form>
   </section>
 
-  <section class="asset-table-card">
+  <section class="min-w-full border border-gray-300 dark:border-gray-700 rounded-lg">
     <div class="table-responsive">
       <table class="table align-middle">
         <thead>
@@ -243,7 +254,7 @@
                       <button class="btn btn-sm btn-outline-danger" type="submit">Hapus</button>
                     </form>
                     @if($asset->photo)
-                      <button type="button" class="btn btn-sm asset-photo-btn" data-photo-view="{{ asset('storage/'.$asset->photo) }}">
+                      <button type="button" class="btn btn-sm asset-photo-btn" data-photo-view="{{ asset('storage/'.$asset->photo) }}" data-photo-label="{{ $asset->name }}">
                         <span class="asset-photo-btn__icon">&#128247;</span>
                         <span>Foto</span>
                       </button>
@@ -272,6 +283,7 @@
 <div class="asset-photo-modal" data-photo-modal aria-hidden="true" role="dialog">
   <div class="asset-photo-panel">
     <button type="button" class="asset-photo-close" data-photo-close>&times;</button>
+    <div class="asset-photo-label" data-photo-label style="display:none;"></div>
     <img src="" alt="Foto aset">
   </div>
 </div>
@@ -282,19 +294,30 @@
   document.addEventListener('DOMContentLoaded', () => {
     const modal = document.querySelector('[data-photo-modal]');
     const closeBtn = modal?.querySelector('[data-photo-close]');
-    const showPhotoModal = (src) => {
+    const labelBox = modal?.querySelector('[data-photo-label]');
+    const showPhotoModal = (src, label = '') => {
       if (!modal) return;
       const img = modal.querySelector('img');
       img.src = src || '';
       modal.classList.add('is-visible');
       modal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('asset-photo-modal-open');
+      if (labelBox) {
+        labelBox.textContent = label;
+        labelBox.style.display = label ? 'block' : 'none';
+      }
     };
     const hidePhotoModal = () => {
       if (!modal) return;
       modal.classList.remove('is-visible');
       modal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('asset-photo-modal-open');
       const img = modal.querySelector('img');
       img.src = '';
+      if (labelBox) {
+        labelBox.textContent = '';
+        labelBox.style.display = 'none';
+      }
     };
     closeBtn?.addEventListener('click', hidePhotoModal);
     modal?.addEventListener('click', (event) => {
@@ -308,28 +331,19 @@
       }
     });
 
-    const tableCard = document.querySelector('.asset-table-card');
-    if (!tableCard) {
-      return;
-    }
-    tableCard.addEventListener('click', (event) => {
-      const btn = event.target.closest('.asset-actions .btn');
-      if (!btn) {
-        return;
-      }
-      const photoTarget = event.target.closest('[data-photo-view]');
-      if (photoTarget) {
+    document.querySelectorAll('[data-photo-view]').forEach((btn) => {
+      btn.addEventListener('click', (event) => {
         event.preventDefault();
-        showPhotoModal(photoTarget.getAttribute('data-photo-view'));
-      }
-      btn.classList.remove('is-animating');
-      void btn.offsetWidth;
-      btn.classList.add('is-animating');
-    });
-    tableCard.addEventListener('animationend', (event) => {
-      if (event.target.classList.contains('is-animating')) {
-        event.target.classList.remove('is-animating');
-      }
+        const src = btn.getAttribute('data-photo-view');
+        if (!src) {
+          return;
+        }
+        showPhotoModal(src, btn.getAttribute('data-photo-label'));
+        btn.classList.remove('is-animating');
+        void btn.offsetWidth;
+        btn.classList.add('is-animating');
+      });
+      btn.addEventListener('animationend', () => btn.classList.remove('is-animating'));
     });
   });
 </script>

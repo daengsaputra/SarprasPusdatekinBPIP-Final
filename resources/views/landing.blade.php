@@ -7,19 +7,6 @@
     $activeLoans = $activeLoans ?? [];
     $landingVideoUrl = $landingVideoUrl ?? null;
     $landingVideoMime = $landingVideoMime ?? null;
-    $landingTheme = $landingTheme ?? 'aurora';
-    $themePresets = config('bpip.landing_themes', []);
-    $themeSurfaces = data_get($themePresets, "{$landingTheme}.surfaces", []);
-    $surfaceDefaults = [
-        'surface1' => 'linear-gradient(140deg, #0b1220 0%, #05060a 55%, #020205 100%)',
-        'surface2' => 'rgba(12,19,33,0.92)',
-        'surface3' => 'rgba(18,35,64,0.65)',
-        'accent' => '#38bdf8',
-        'accentSoft' => '#dbeafe',
-        'text_primary' => '#e2e8f0',
-        'text_secondary' => 'rgba(226, 232, 240, 0.75)',
-    ];
-    $themeSurfaces = array_merge($surfaceDefaults, array_filter($themeSurfaces));
     $hasHeroVideo = filled($landingVideoUrl);
     $loanGroups = collect($activeLoans)->groupBy(function ($loan) {
         return $loan->batch_code ?: ('loan-'.$loan->id);
@@ -67,29 +54,6 @@
 
 @push('styles')
 <style>
-  body {
-    --surface-1: {{ $themeSurfaces['surface1'] }};
-    --surface-2: {{ $themeSurfaces['surface2'] }};
-    --surface-3: {{ $themeSurfaces['surface3'] }};
-    --brand-blue: {{ $themeSurfaces['accent'] }};
-    --brand-cyan: {{ $themeSurfaces['accentSoft'] }};
-    --text-primary: {{ $themeSurfaces['text_primary'] }};
-    --text-secondary: {{ $themeSurfaces['text_secondary'] }};
-  }
-  .hero-chip {
-    background: color-mix(in srgb, var(--brand-blue) 18%, transparent);
-    color: var(--brand-blue);
-    border-color: color-mix(in srgb, var(--brand-blue) 45%, transparent);
-  }
-  .metric-card, .hero-image {
-    border-color: color-mix(in srgb, var(--brand-blue) 10%, transparent);
-  }
-  .metric-value { color: var(--brand-blue); }
-</style>
-@endpush
-
-@push('styles')
-<style>
   .hero-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -100,14 +64,15 @@
     display: inline-flex;
     align-items: center;
     gap: 0.75rem;
-    background: rgba(59, 130, 246, 0.18);
+    background: color-mix(in srgb, var(--brand-blue) 18%, transparent);
     padding: 0.6rem 1.2rem;
     border-radius: 999px;
-    color: #1d4ed8;
+    color: var(--brand-blue);
     font-weight: 600;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     font-size: 0.75rem;
+    border: 1px solid color-mix(in srgb, var(--brand-blue) 45%, transparent);
   }
   .hero-heading {
     font-size: clamp(2.4rem, 5vw, 3.4rem);
@@ -125,7 +90,7 @@
     border-radius: 28px;
     overflow: hidden;
     box-shadow: 0 25px 70px rgba(15, 23, 42, 0.35);
-    border: 1px solid rgba(59, 130, 246, 0.25);
+    border: 1px solid color-mix(in srgb, var(--brand-blue) 35%, transparent);
     min-height: 320px;
   }
   .hero-image::after {
@@ -151,47 +116,44 @@
     gap: 1.5rem;
   }
   .metric-card {
-    background: #f8fafc;
-    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: var(--surface-2);
+    border: 1px solid color-mix(in srgb, var(--text-primary) 12%, transparent);
     border-radius: 18px;
     padding: 1.6rem;
-    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
-  }
-  [data-theme="dark"] .metric-card,
-  body[data-theme="dark"] .metric-card {
-    background: #f8fafc;
-    border-color: rgba(15, 23, 42, 0.12);
-    color: #0f172a;
+    box-shadow: 0 12px 30px color-mix(in srgb, var(--brand-blue) 14%, transparent);
   }
   .metric-label {
     text-transform: uppercase;
     letter-spacing: 0.12em;
     font-size: 0.85rem;
     font-weight: 600;
-    color: #475569;
+    color: var(--text-secondary);
   }
   .metric-value {
     font-size: clamp(2.2rem, 4vw, 2.8rem);
     font-weight: 700;
-    color: #0f172a;
+    color: var(--brand-blue);
+  }
+  .metric-value--warn {
+    color: #f59e0b;
   }
   .metric-desc {
-    color: #64748b;
+    color: var(--text-secondary);
+  }
+  .badge-accent {
+    background: color-mix(in srgb, var(--brand-blue) 18%, transparent);
+    color: var(--brand-blue);
+    border: 1px solid color-mix(in srgb, var(--brand-blue) 35%, transparent);
   }
 
   .section-panel {
-    background: #f8fafc;
-    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: var(--surface-2);
+    border: 1px solid color-mix(in srgb, var(--text-primary) 12%, transparent);
     border-radius: 24px;
     padding: 1.6rem;
-    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+    box-shadow: 0 16px 40px color-mix(in srgb, var(--brand-blue) 14%, transparent);
     height: 100%;
-  }
-  [data-theme="dark"] .section-panel,
-  body[data-theme="dark"] .section-panel {
-    background: #f8fafc;
-    border-color: rgba(15, 23, 42, 0.12);
-    color: #0f172a;
+    color: var(--text-primary);
   }
   .section-header {
     display: flex;
@@ -208,7 +170,7 @@
     width: 6px;
   }
   .scroll-list::-webkit-scrollbar-thumb {
-    background: rgba(59, 130, 246, 0.35);
+    background: color-mix(in srgb, var(--brand-blue) 45%, transparent);
     border-radius: 8px;
   }
   .asset-item {
@@ -216,7 +178,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 0.75rem 0;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+    border-bottom: 1px solid color-mix(in srgb, var(--text-secondary) 35%, transparent);
   }
   .asset-item:last-child {
     border-bottom: none;
@@ -225,9 +187,9 @@
     width: 48px;
     height: 48px;
     border-radius: 14px;
-    border: 1px solid rgba(148, 163, 184, 0.2);
-    background: rgba(15, 23, 42, 0.85);
-    color: #38bdf8;
+    border: 1px solid color-mix(in srgb, var(--text-secondary) 30%, transparent);
+    background: var(--surface-3);
+    color: var(--brand-cyan);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -246,10 +208,10 @@
   }
   .asset-name {
     font-weight: 600;
-    color: #0f172a;
+    color: var(--text-primary);
   }
   .asset-meta {
-    color: #64748b;
+    color: var(--text-secondary);
     font-size: 0.9rem;
   }
   .asset-quantity {
@@ -262,11 +224,15 @@
   }
 
   .loan-card {
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(226, 244, 255, 0.9));
-    border: 1px solid rgba(99, 102, 241, 0.18);
+    background: linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--surface-2) 92%, transparent),
+      color-mix(in srgb, var(--surface-3) 80%, transparent)
+    );
+    border: 1px solid color-mix(in srgb, var(--brand-blue) 25%, transparent);
     border-radius: 28px;
     padding: 1.8rem;
-    box-shadow: 0 30px 60px rgba(15, 23, 42, 0.16);
+    box-shadow: 0 30px 60px color-mix(in srgb, var(--brand-blue) 16%, transparent);
     display: flex;
     flex-direction: column;
     gap: 1.2rem;
@@ -278,14 +244,12 @@
     position: absolute;
     inset: 18px;
     border-radius: 24px;
-    background: radial-gradient(190px circle at top right, rgba(14, 165, 233, 0.18), transparent 60%);
+    background: radial-gradient(
+      190px circle at top right,
+      color-mix(in srgb, var(--brand-cyan) 35%, transparent),
+      transparent 60%
+    );
     pointer-events: none;
-  }
-  [data-theme="dark"] .loan-card,
-  body[data-theme="dark"] .loan-card {
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(226, 244, 255, 0.92));
-    border-color: rgba(79, 70, 229, 0.28);
-    color: #0f172a;
   }
   .loan-card__header {
     display: flex;
@@ -310,7 +274,7 @@
     font-size: 0.68rem;
     text-transform: uppercase;
     letter-spacing: 0.18em;
-    color: rgba(71, 85, 105, 0.9);
+    color: color-mix(in srgb, var(--text-secondary) 85%, transparent);
     font-weight: 700;
     margin-bottom: 0.4rem;
     display: inline-block;
@@ -318,15 +282,15 @@
   .loan-title {
     font-size: clamp(1.35rem, 2vw, 1.65rem);
     font-weight: 700;
-    color: #0f172a;
+    color: var(--text-primary);
   }
   .loan-context-pill {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
     padding: 0.45rem 1rem;
-    background: rgba(37, 99, 235, 0.12);
-    color: #1d4ed8;
+    background: color-mix(in srgb, var(--brand-blue) 14%, transparent);
+    color: var(--brand-blue);
     border-radius: 999px;
     font-size: 0.85rem;
     font-weight: 600;
@@ -336,8 +300,8 @@
     text-overflow: ellipsis;
   }
   .loan-unit {
-    background: rgba(59, 130, 246, 0.15);
-    color: #2563eb;
+    background: color-mix(in srgb, var(--brand-blue) 15%, transparent);
+    color: var(--brand-blue);
     border-radius: 999px;
     padding: 0.2rem 0.8rem;
     font-size: 0.78rem;
@@ -350,8 +314,8 @@
     gap: 0.5rem;
   }
   .loan-quantity {
-    background: rgba(14, 165, 233, 0.1);
-    color: #0369a1;
+    background: color-mix(in srgb, var(--brand-cyan) 22%, transparent);
+    color: color-mix(in srgb, var(--brand-blue) 75%, var(--text-primary));
     border-radius: 999px;
     padding: 0.35rem 1.2rem;
     font-weight: 700;
@@ -384,13 +348,13 @@
     font-size: 0.74rem;
     text-transform: uppercase;
     letter-spacing: 0.16em;
-    color: rgba(100, 116, 139, 0.82);
+    color: color-mix(in srgb, var(--text-secondary) 80%, transparent);
     font-weight: 700;
     display: block;
     margin-bottom: 0.2rem;
   }
   .loan-value {
-    color: #0f172a;
+    color: var(--text-primary);
     font-size: 1rem;
     font-weight: 700;
   }
@@ -399,7 +363,7 @@
     font-weight: 600;
   }
   .loan-muted {
-    color: rgba(71, 85, 105, 0.75);
+    color: color-mix(in srgb, var(--text-secondary) 65%, transparent);
   }
   .loan-alert {
     align-self: flex-start;
@@ -418,7 +382,7 @@
     gap: 0.5rem;
     align-items: center;
     font-size: 0.82rem;
-    color: #0f172a;
+    color: var(--text-primary);
   }
   .loan-meta-inline__dates span {
     display: inline-flex;
@@ -427,41 +391,28 @@
   .loan-meta-inline__dates .loan-meta-sep {
     opacity: 0.45;
   }
-  [data-theme="dark"] .loan-label,
-  body[data-theme="dark"] .loan-label,
-  [data-theme="dark"] .loan-label-inline,
-  body[data-theme="dark"] .loan-label-inline {
-    color: rgba(51, 65, 85, 0.9);
-  }
-
   .feature-row {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 1.5rem;
   }
   .feature-card {
-    background: #f8fafc;
-    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: var(--surface-2);
+    border: 1px solid color-mix(in srgb, var(--text-primary) 12%, transparent);
     border-radius: 18px;
     padding: 1.6rem;
     height: 100%;
-    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+    box-shadow: 0 16px 40px color-mix(in srgb, var(--brand-blue) 14%, transparent);
     display: flex;
     flex-direction: column;
     gap: 0.8rem;
   }
-  [data-theme="dark"] .feature-card,
-  body[data-theme="dark"] .feature-card {
-    background: #f8fafc;
-    border-color: rgba(15, 23, 42, 0.12);
-    color: #0f172a;
-  }
   .feature-title {
     font-weight: 700;
-    color: #0f172a;
+    color: var(--text-primary);
   }
   .feature-desc {
-    color: #475569;
+    color: var(--text-secondary);
   }
 
   .marquee-wrapper {
@@ -469,11 +420,11 @@
     bottom: 0;
     z-index: 100;
     overflow: hidden;
-    background: rgba(248, 250, 252, 0.96);
-    border: 1px solid rgba(15, 23, 42, 0.1);
+    background: color-mix(in srgb, var(--surface-2) 90%, transparent);
+    border: 1px solid color-mix(in srgb, var(--text-primary) 15%, transparent);
     border-radius: 999px;
     padding: 0.75rem 0;
-    box-shadow: 0 12px 25px rgba(15, 23, 42, 0.12);
+    box-shadow: 0 12px 25px color-mix(in srgb, var(--brand-blue) 12%, transparent);
     margin-top: 3rem;
   }
   .marquee-track {
@@ -488,26 +439,19 @@
     align-items: center;
     gap: 0.5rem;
     font-size: 0.9rem;
-    color: #0f172a;
+    color: var(--text-primary);
   }
   .marquee-label {
     font-weight: 600;
   }
   .marquee-borrower {
-    color: #1d4ed8;
+    color: var(--brand-blue);
     font-weight: 700;
   }
   .marquee-dot {
     margin: 0 1rem;
     opacity: 0.4;
   }
-  [data-theme="dark"] .marquee-wrapper,
-  body[data-theme="dark"] .marquee-wrapper {
-    background: rgba(248, 250, 252, 0.96);
-    border-color: rgba(15, 23, 42, 0.12);
-    color: #0f172a;
-  }
-
   @keyframes marquee-slide {
     0% { transform: translateX(0); }
     100% { transform: translateX(-50%); }
@@ -549,12 +493,12 @@
     </div>
     <div class="metric-card">
       <div class="metric-label">Siap Dipinjam</div>
-      <div class="metric-value" style="color:#1d4ed8;">{{ number_format(data_get($summaryData, 'available', 0)) }}</div>
+      <div class="metric-value">{{ number_format(data_get($summaryData, 'available', 0)) }}</div>
       <p class="metric-desc mb-0">Perangkat yang tersedia saat ini.</p>
     </div>
     <div class="metric-card">
       <div class="metric-label">Sedang Digunakan</div>
-      <div class="metric-value" style="color:#f59e0b;">{{ number_format(data_get($summaryData, 'in_use', max(data_get($summaryData, 'total', 0) - data_get($summaryData, 'available', 0), 0))) }}</div>
+      <div class="metric-value metric-value--warn">{{ number_format(data_get($summaryData, 'in_use', max(data_get($summaryData, 'total', 0) - data_get($summaryData, 'available', 0), 0))) }}</div>
       <p class="metric-desc mb-0">Unit dalam status peminjaman aktif.</p>
     </div>
   </div>
@@ -564,7 +508,7 @@
       <div class="section-panel">
         <div class="section-header">
           <h5 class="mb-0">Sarpras Tersedia</h5>
-          <span class="badge rounded-pill text-bg-primary">{{ number_format(data_get($summaryData, 'available', 0)) }} unit</span>
+          <span class="badge badge-accent rounded-pill">{{ number_format(data_get($summaryData, 'available', 0)) }} unit</span>
         </div>
         <div class="scroll-list">
           @forelse(($availableAssets ?? []) as $asset)

@@ -13,11 +13,11 @@
     background:linear-gradient(120deg, rgba(16,185,129,0.2), #fff);
     border:1px solid rgba(148,163,184,0.15); box-shadow:0 18px 40px rgba(15,23,42,0.1);
   }
-  .report-filter { background:#fff; border:1px solid rgba(148,163,184,0.15); border-radius:18px; padding:1rem; box-shadow:0 10px 25px rgba(15,23,42,0.06); }
-  .report-filter label { text-transform:uppercase; letter-spacing:.2em; font-size:.72rem; color:#94a3b8; }
+  .min-w-full border border-gray-300 dark:border-gray-700 rounded-lg { background:#fff; border:1px solid rgba(148,163,184,0.15); border-radius:18px; padding:1rem; box-shadow:0 10px 25px rgba(15,23,42,0.06); }
+  .min-w-full border border-gray-300 dark:border-gray-700 rounded-lg label { text-transform:uppercase; letter-spacing:.2em; font-size:.72rem; color:#94a3b8; }
   .report-actions { display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; }
-  .report-table-card { background:#fff; border:1px solid rgba(148,163,184,0.12); border-radius:20px; padding:1rem; box-shadow:0 12px 30px rgba(15,23,42,0.08); }
-  .report-table-card table th { text-transform:uppercase; letter-spacing:.12em; font-size:.72rem; color:#64748b; }
+  .min-w-full border border-gray-300 dark:border-gray-700 rounded-lg { background:#fff; border:1px solid rgba(148,163,184,0.12); border-radius:20px; padding:1rem; box-shadow:0 12px 30px rgba(15,23,42,0.08); }
+  .min-w-full border border-gray-300 dark:border-gray-700 rounded-lg table th { text-transform:uppercase; letter-spacing:.12em; font-size:.72rem; color:#64748b; }
   .summary-pill { padding:.4rem .9rem; border-radius:999px; background:rgba(16,185,129,.15); font-size:.8rem; }
 </style>
 @endpush
@@ -37,7 +37,7 @@
     </div>
   </section>
 
-  <section class="report-filter">
+  <section class="min-w-full border border-gray-300 dark:border-gray-700 rounded-lg">
     <form method="GET" class="row g-2">
       <div class="col-md-3">
         <label>Rentang</label>
@@ -77,7 +77,7 @@
     </form>
   </section>
 
-  <section class="report-table-card">
+  <section class="min-w-full border border-gray-300 dark:border-gray-700 rounded-lg">
     <div class="table-responsive">
       <table class="table align-middle">
         <thead>
