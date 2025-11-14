@@ -8,15 +8,19 @@
   .loan-hero { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.9rem; padding:1.35rem 1.6rem; border-radius:24px; background:linear-gradient(120deg, rgba(59,130,246,0.12), #ffffff 70%); border:1px solid rgba(148,163,184,0.1); box-shadow:0 12px 35px rgba(15,23,42,0.08); }
   .loan-hero__title { font-size:clamp(1.15rem,2.2vw,1.65rem); font-weight:700; color:#0f172a; margin-bottom:0.2rem; }
   .loan-hero__subtitle { color:#475569; font-size:0.9rem; }
+  .loan-hero__cta { display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; margin-top:0.85rem; }
+  .loan-hero__cta small { color:#64748b; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; }
   .loan-summary-card { background:#fff; border-radius:18px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 14px 32px rgba(15,23,42,0.08); padding:0.9rem 1.2rem; min-width:160px; }
   .loan-summary-label { text-transform:uppercase; letter-spacing:0.15em; font-size:0.62rem; color:#94a3b8; }
   .loan-summary-value { font-size:1.35rem; font-weight:700; color:#0f172a; }
   .loan-filter-card, .loan-table-card { background:#fff; border-radius:28px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 20px 45px rgba(15,23,42,0.08); padding:1.5rem 1.7rem; }
   .loan-table-card { padding:1.2rem 1.4rem; }
   .loan-group { border:1px solid rgba(226,232,240,0.9); border-radius:24px; padding:1rem 1.3rem; margin-bottom:1rem; background:#fafbff; box-shadow:0 18px 35px rgba(15,23,42,0.06); }
-  .loan-package { font-size:0.82rem; color:#475569; display:flex; flex-direction:column; gap:0.25rem; }
-  .loan-package__label { text-transform:uppercase; font-size:0.68rem; letter-spacing:0.12em; color:#94a3b8; margin-bottom:0.1rem; }
-  .loan-group__title { font-size:1.05rem; font-weight:700; color:#0f172a; margin-bottom:0.2rem; }
+  .loan-group__meta { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:0.5rem 1.5rem; padding-bottom:1rem; border-bottom:1px solid rgba(148,163,184,0.25); }
+  .loan-group__meta-item { display:flex; flex-direction:column; gap:0.12rem; }
+  .loan-group__meta-label { text-transform:uppercase; font-size:0.68rem; letter-spacing:0.12em; color:#94a3b8; }
+  .loan-group__meta-value { font-size:0.95rem; font-weight:700; color:#0f172a; white-space:nowrap; }
+  .loan-group__meta-value.is-wrap { white-space:normal; font-weight:600; line-height:1.4; }
   .loan-attachments { display:flex; flex-wrap:wrap; gap:0.4rem; }
   .loan-attachment-chip { display:inline-flex; align-items:center; gap:0.25rem; padding:0.22rem 0.75rem; border-radius:999px; border:1px solid rgba(59,130,246,0.35); font-size:0.72rem; text-decoration:none; color:#2563eb; background:rgba(59,130,246,0.08); transition:transform .25s cubic-bezier(0.34,1.56,0.64,1); transform:scale(0.96); }
   .loan-attachment-chip:hover { transform:scale(1); border-color:rgba(59,130,246,0.55); box-shadow:0 8px 18px rgba(59,130,246,0.2); }
@@ -24,8 +28,15 @@
   .loan-alert { border-radius:18px; border:1px solid rgba(59,130,246,0.25); background:rgba(59,130,246,0.08); padding:0.9rem 1.2rem; display:flex; justify-content:space-between; align-items:center; color:#0f172a; }
   .loan-alert.alert-success { border-color:rgba(16,185,129,0.35); background:rgba(209,250,229,0.9); }
   .letter-spacing-wide { letter-spacing:0.22em; }
-  .loan-table-card table thead th { text-transform:uppercase; letter-spacing:0.08em; color:#64748b; font-size:0.76rem; }
-  .loan-table-card table tbody td { vertical-align:middle; }
+  .loan-table-card table { width:100%; border-collapse:separate; border-spacing:0; table-layout:auto; }
+  .loan-table-card table thead th { text-transform:uppercase; letter-spacing:0.08em; color:#64748b; font-size:0.76rem; white-space:nowrap; }
+  .loan-table-card table th,
+  .loan-table-card table td { padding:0.65rem 0.75rem; }
+  .loan-table-card table tbody td { vertical-align:top; }
+  .loan-table-card table td[rowspan] { border-bottom:none; }
+  .loan-asset-cell { min-width:200px; }
+  .loan-asset-name { display:block; font-weight:600; color:#0f172a; white-space:normal; word-break:break-word; }
+  .loan-asset-code { display:block; font-size:0.78rem; color:#64748b; }
   .loan-table-pagination { margin-top:1.2rem; display:flex; justify-content:flex-end; }
   .loan-attachment-modal { position:fixed; inset:0; background:rgba(15,23,42,0.65); display:flex; justify-content:center; align-items:center; padding:1.5rem; opacity:0; pointer-events:none; transition:opacity .25s ease; z-index:2000; }
   .loan-attachment-modal.is-visible { opacity:1; pointer-events:auto; }
@@ -58,6 +69,13 @@
     <div>
       <div class="loan-hero__title">Daftar Peminjaman</div>
       <div class="loan-hero__subtitle">Pantau setiap aset yang keluar-masuk beserta bukti fotonya.</div>
+      <div class="loan-hero__cta">
+        <a href="{{ route('loans.create') }}" class="btn btn-primary px-4 d-flex align-items-center gap-2">
+          <span class="fs-5">+</span>
+          <span>Tambah Peminjaman</span>
+        </a>
+        <small>Proses batch baru & cetak bukti langsung</small>
+      </div>
     </div>
     <div class="loan-actions">
       <div class="loan-summary-card">
@@ -126,27 +144,39 @@
           'Serah Terima' => $firstLoan->loan_photo_path,
           'Pengembalian' => $firstLoan->return_photo_path,
         ])
+        @php($sequenceNumber = 'P' . str_pad($loop->iteration, 4, '0', STR_PAD_LEFT))
         <article class="loan-group">
+          <div class="loan-group__meta">
+            <div class="loan-group__meta-item">
+              <span class="loan-group__meta-label">ID Peminjaman</span>
+              <span class="loan-group__meta-value">{{ $sequenceNumber }}</span>
+            </div>
+            <div class="loan-group__meta-item">
+              <span class="loan-group__meta-label">Nama Peminjam</span>
+              <span class="loan-group__meta-value">{{ $firstLoan->borrower_name }}</span>
+            </div>
+            <div class="loan-group__meta-item">
+              <span class="loan-group__meta-label">Nama Kegiatan</span>
+              <span class="loan-group__meta-value is-wrap">{{ $firstLoan->activity_name ?: '-' }}</span>
+            </div>
+            <div class="loan-group__meta-item">
+              <span class="loan-group__meta-label">Tanggal Pinjam</span>
+              <span class="loan-group__meta-value">{{ $firstLoan->loan_date?->format('d M Y') ?? '-' }}</span>
+            </div>
+          </div>
           <div class="table-responsive">
             <table class="table align-middle mb-0">
               <thead>
                 <tr>
-                  <th style="width:160px;">ID Peminjaman</th>
-                  <th style="width:180px;">Nama Peminjam</th>
-                  <th style="width:200px;">Nama Kegiatan</th>
-                  <th style="width:140px;">Tanggal Pinjam</th>
-                  <th style="width:160px;">Unit</th>
                   <th>Aset</th>
                   <th>Status</th>
                   <th>Rencana Kembali</th>
-                  <th style="width:220px;">Lampiran</th>
+                  <th>Lampiran</th>
                   <th>Pengembalian</th>
                   <th>Aksi</th>
                 </tr>
               </thead>
               <tbody>
-                @php($firstRow = true)
-                @php($attachmentsRendered = false)
                 @foreach($batchLoans as $loan)
                   @php($statusLabel = match($loan->status) {
                     'borrowed' => 'Dipinjam',
@@ -161,60 +191,24 @@
                     default => 'bg-secondary'
                   })
                   <tr>
-                    @if($firstRow)
-                      <td rowspan="{{ $batchLoans->count() }}">
-                        <div class="loan-package">
-                          <div>
-                            <div class="loan-package__label">ID Peminjaman</div>
-                            <div class="loan-group__title mb-0">{{ $batchCode }}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td rowspan="{{ $batchLoans->count() }}">
-                        <div class="loan-package">
-                          <div class="loan-package__label">Nama Peminjam</div>
-                          <div class="loan-group__title mb-0">{{ $firstLoan->borrower_name }}</div>
-                        </div>
-                      </td>
-                      <td rowspan="{{ $batchLoans->count() }}">
-                        <div class="loan-package">
-                          <div class="loan-package__label">Nama Kegiatan</div>
-                          <div><strong>{{ $firstLoan->activity_name ?? '-' }}</strong></div>
-                        </div>
-                      </td>
-                      <td rowspan="{{ $batchLoans->count() }}">
-                        <div class="loan-package">
-                          <div class="loan-package__label">Tanggal Pinjam</div>
-                          <div><strong>{{ $firstLoan->loan_date?->format('d M Y') ?? '-' }}</strong></div>
-                        </div>
-                      </td>
-                      <td rowspan="{{ $batchLoans->count() }}">
-                        <div class="loan-package">
-                          <div class="loan-package__label">Unit</div>
-                          <div><strong>{{ $firstLoan->unit ?? '-' }}</strong></div>
-                        </div>
-                      </td>
-                      @php($firstRow = false)
-                    @endif
-                    <td>
-                      <div class="fw-semibold">{{ $loan->asset->name ?? '-' }}</div>
-                      <div class="text-muted small">Jumlah: <strong>{{ $loan->quantity }}</strong> {{ $loan->asset->code ? '• '.$loan->asset->code : '' }}</div>
+                    <td class="loan-asset-cell">
+                      <span class="loan-asset-name" title="{{ $loan->asset->name ?? '-' }}">{{ $loan->asset->name ?? '-' }}</span>
+                      @if($loan->asset->code)
+                        <span class="loan-asset-code">{{ $loan->asset->code }}</span>
+                      @endif
                     </td>
                     <td><span class="badge {{ $badgeClass }}">{{ $statusLabel }}</span></td>
                     <td>{{ $loan->return_date_planned?->format('d M Y') ?? '-' }}</td>
-                    @if(!$attachmentsRendered)
+                    @if($loop->first)
                       <td rowspan="{{ $batchLoans->count() }}">
-                        <div class="loan-package">
-                          <div class="loan-attachments">
-                            @foreach($attachments as $label => $path)
-                              @if($path)
-                                <button type="button" class="loan-attachment-chip" data-attachment="{{ asset('storage/'.$path) }}" data-label="{{ $label }}">Foto {{ $label }}</button>
-                              @endif
-                            @endforeach
-                          </div>
+                        <div class="loan-attachments">
+                          @foreach($attachments as $label => $path)
+                            @if($path)
+                              <button type="button" class="loan-attachment-chip" data-attachment="{{ asset('storage/'.$path) }}" data-label="{{ $label }}">Foto {{ $label }}</button>
+                            @endif
+                          @endforeach
                         </div>
                       </td>
-                      @php($attachmentsRendered = true)
                     @endif
                     <td>{{ $loan->return_date_actual?->format('d M Y') ?? '-' }}</td>
                     <td>

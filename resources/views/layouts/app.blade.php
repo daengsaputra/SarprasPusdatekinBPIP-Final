@@ -431,64 +431,6 @@
             background: var(--brand-blue);
             color: #fff;
         }
-        .theme-toggle-slot {
-            display: flex;
-            align-items: center;
-        }
-        .app-theme-toggle__switch {
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 62px;
-            height: 30px;
-            border-radius: 999px;
-            padding: 0 10px;
-            background: var(--app-surface-soft);
-            border: 1px solid var(--app-border);
-            cursor: pointer;
-            transition: background .3s ease, border-color .3s ease;
-        }
-        .app-theme-toggle__icon {
-            font-size: 0.95rem;
-            line-height: 1;
-            color: var(--app-text-muted);
-            transition: opacity .25s ease, color .25s ease;
-            display: flex;
-        }
-        .app-theme-toggle__icon svg {
-            width: 16px;
-            height: 16px;
-            display: block;
-            pointer-events: none;
-        }
-        .app-theme-toggle__icon--sun {
-            opacity: 0;
-        }
-        .app-theme-toggle__thumb {
-            position: absolute;
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
-            top: 50%;
-            left: 4px;
-            transform: translateY(-50%);
-            background: var(--brand-cyan);
-            box-shadow: 0 10px 22px rgba(56, 189, 248, 0.4);
-            transition: transform .3s cubic-bezier(0.22, 1, 0.36, 1), background .3s ease, box-shadow .3s ease;
-        }
-        .app-theme-toggle__input:checked + .app-theme-toggle__switch .app-theme-toggle__thumb {
-            transform: translate(28px, -50%);
-            background: #fbbf24;
-            box-shadow: 0 10px 20px rgba(251, 191, 36, 0.35);
-        }
-        .app-theme-toggle__input:checked + .app-theme-toggle__switch .app-theme-toggle__icon--sun {
-            opacity: 1;
-            color: #fbbf24;
-        }
-        .app-theme-toggle__input:checked + .app-theme-toggle__switch .app-theme-toggle__icon--moon {
-            opacity: 0;
-        }
         .card {
             background: var(--app-surface);
             border: 1px solid var(--app-border);
@@ -646,7 +588,7 @@
     </style>
     @stack('styles')
 </head>
-<body data-theme="dark">
+<body data-theme="light">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
   <div class="container-fluid">
     <a class="navbar-brand fw-semibold text-uppercase" href="{{ route('landing') }}">
@@ -670,9 +612,6 @@
       </ul>
       <div class="ms-auto d-flex align-items-center gap-3 text-white-50">
         <span class="d-none d-md-inline">{{ now()->format('Y-m-d') }}</span>
-        <div class="theme-toggle-slot d-flex align-items-center">
-          @include('components.theme-toggle')
-        </div>
         @guest
           <a href="{{ route('login') }}" class="btn btn-outline-light px-4">Login</a>
         @else

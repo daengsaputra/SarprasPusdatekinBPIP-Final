@@ -30,45 +30,6 @@
     height: auto;
     display: block;
   }
-  .theme-grid {
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:1rem;
-  }
-  .theme-option {
-    border:1px solid rgba(148,163,184,0.35);
-    border-radius:18px;
-    padding:1rem;
-    display:flex;
-    gap:1rem;
-    align-items:center;
-    cursor:pointer;
-    transition:border-color .2s ease, box-shadow .2s ease;
-  }
-  .theme-option input {
-    display:none;
-  }
-  .theme-option__swatch {
-    width:48px;
-    height:48px;
-    border-radius:14px;
-    background:linear-gradient(135deg,#e2e8f0,#cbd5f5);
-    border:1px solid rgba(148,163,184,0.4);
-  }
-  .theme-option__info h3 {
-    margin:0;
-    font-size:0.9rem;
-    font-weight:600;
-  }
-  .theme-option__info p {
-    margin:0;
-    font-size:0.8rem;
-    color:#64748b;
-  }
-  .theme-option.is-active {
-    border-color:#2563eb;
-    box-shadow:0 12px 30px rgba(37,99,235,0.18);
-  }
 </style>
 @endpush
 
@@ -117,41 +78,9 @@
     </div>
   @endif
 
-  <div class="d-flex gap-3 mb-4">
+  <div class="d-flex gap-3 mb-0">
     <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
     <button type="reset" class="btn btn-light border">Reset Form</button>
   </div>
-
-  <h2 class="mt-4">Tema Landing</h2>
-  <p class="text-muted mb-3">Pilih satu dari tiga template tema untuk mengubah warna latar dan aksen halaman landing.</p>
-  <div class="theme-grid">
-    @foreach($themes as $key => $theme)
-      @php($active = $currentTheme === $key)
-      <label class="theme-option {{ $active ? 'is-active' : '' }}">
-        <input type="radio" name="theme" value="{{ $key }}" {{ $active ? 'checked' : '' }}>
-        <div class="theme-option__swatch" style="background:linear-gradient(135deg, {{ $theme['swatch'][0] }}, {{ $theme['swatch'][1] ?? $theme['swatch'][0] }});"></div>
-        <div class="theme-option__info">
-          <h3>{{ $theme['label'] ?? \Illuminate\Support\Str::title($key) }}</h3>
-          <p>{{ $theme['tagline'] ?? 'Tema landing' }}</p>
-        </div>
-      </label>
-    @endforeach
-  </div>
-  @error('theme')
-    <div class="text-danger small mt-2">{{ $message }}</div>
-  @enderror
 </form>
 @endsection
-
-@push('scripts')
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.theme-option input').forEach((input) => {
-      input.addEventListener('change', () => {
-        document.querySelectorAll('.theme-option').forEach((card) => card.classList.remove('is-active'));
-        input.closest('.theme-option')?.classList.add('is-active');
-      });
-    });
-  });
-</script>
-@endpush
