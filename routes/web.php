@@ -7,11 +7,14 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\LandingMediaController;
 use App\Models\Asset;
 use App\Models\Loan;
 use App\Models\SiteSetting;
 use App\Models\User;
 use Illuminate\Support\Str;
+
+Route::get('/landing/video', [LandingMediaController::class, 'video'])->name('landing.video');
 
 // Landing page (public)
 Route::get('/', function () {

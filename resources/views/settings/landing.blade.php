@@ -30,6 +30,36 @@
     height: auto;
     display: block;
   }
+  .theme-option {
+    border: 2px solid transparent;
+    border-radius: 16px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    background: #f8fafc;
+  }
+  .theme-option input[type="radio"] {
+    accent-color: #2563eb;
+  }
+  .theme-option.selected {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+    background: #ffffff;
+  }
+  .theme-swatch {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    flex-shrink: 0;
+    display: flex;
+    overflow: hidden;
+  }
+  .theme-swatch span {
+    flex: 1;
+  }
 </style>
 @endpush
 
@@ -75,6 +105,36 @@
         <input type="checkbox" name="remove_video" value="1" class="form-check-input" id="removeVideo">
         <label class="form-check-label" for="removeVideo">Hapus video saat ini</label>
       </div>
+    </div>
+  @endif
+
+  @if(!empty($themes))
+    @php($selectedTheme = old('theme', $currentTheme))
+    <div class="mb-4">
+      <label class="form-label d-block">Tema Landing Page</label>
+      <div class="row g-3">
+        @foreach($themes as $key => $theme)
+          @php($isActive = $selectedTheme === $key)
+          <div class="col-md-6">
+            <label class="theme-option {{ $isActive ? 'selected' : '' }}">
+              <input class="form-check-input me-3" type="radio" name="theme" value="{{ $key }}" {{ $isActive ? 'checked' : '' }}>
+              <div class="theme-swatch">
+                @foreach($theme['swatch'] ?? [] as $color)
+                  <span style="background: {{ $color }}"></span>
+                @endforeach
+              </div>
+              <div>
+                <div class="fw-semibold">{{ $theme['label'] ?? \Illuminate\Support\Str::headline($key) }}</div>
+                <div class="text-muted small mb-1">{{ $theme['tagline'] ?? 'Tema landing' }}</div>
+                <div class="text-uppercase text-muted small" style="letter-spacing:0.2em;">{{ $key }}</div>
+              </div>
+            </label>
+          </div>
+        @endforeach
+      </div>
+      @error('theme')
+        <div class="text-danger small mt-2">{{ $message }}</div>
+      @enderror
     </div>
   @endif
 

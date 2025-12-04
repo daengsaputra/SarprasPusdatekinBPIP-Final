@@ -4,7 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 
 class SiteSetting extends Model
 {
@@ -20,9 +22,14 @@ class SiteSetting extends Model
      */
     public static function getValue(string $key, mixed $default = null): mixed
     {
-        return static::query()
-            ->where('key', $key)
-            ->value('value') ?? $default;
+        try {
+            return static::query()
+                ->where('key', $key)
+                ->value('value') ?? $default;
+        } catch (QueryException) {
+            // During early bootstrap the table might not exist yet.
+            return $default;
+        }
     }
 
     /**
@@ -62,9 +69,21 @@ class SiteSetting extends Model
             'ogv' => 'video/ogg',
         ];
 
+        $version = null;
+        try {
+            $version = @filemtime($disk->path($normalizedPath)) ?: null;
+        } catch (\Throwable) {
+            $version = null;
+        }
+
+        $url = URL::to('/landing/video');
+        if ($version) {
+            $url .= (str_contains($url, '?') ? '&' : '?') . '_v=' . $version;
+        }
+
         return [
             'path' => $normalizedPath,
-            'url' => asset('storage/' . $normalizedPath),
+            'url' => $url,
             'mime' => $mimeMap[$extension] ?? null,
         ];
     }

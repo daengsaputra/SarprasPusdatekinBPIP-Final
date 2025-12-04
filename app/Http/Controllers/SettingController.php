@@ -6,6 +6,7 @@ use App\Models\SiteSetting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class SettingController extends Controller
@@ -45,12 +46,12 @@ class SettingController extends Controller
     {
         $maxKb = (int) config('bpip.landing_video_max_kb', 51200);
         $allowedMimes = implode(',', config('bpip.landing_video_mimes', ['mp4', 'webm', 'ogg']));
-        $themeKeys = implode(',', array_keys($this->themes));
+        $themeOptions = array_keys($this->themes);
 
         $validated = $request->validate([
             'landing_video' => ['nullable', 'file', 'mimes:' . $allowedMimes, 'max:' . $maxKb],
             'remove_video' => ['nullable', 'boolean'],
-            'theme' => ['required', 'in:' . $themeKeys],
+            'theme' => ['nullable', Rule::in($themeOptions)],
         ]);
 
         $currentPath = SiteSetting::getValue('landing_video_path');
@@ -76,8 +77,9 @@ class SettingController extends Controller
             $messages[] = 'Video landing berhasil diperbarui.';
         }
 
-        if ($request->filled('theme') && $request->theme !== $currentTheme) {
-            SiteSetting::updateValue('landing_theme', $request->theme);
+        $selectedTheme = $validated['theme'] ?? null;
+        if ($selectedTheme && $selectedTheme !== $currentTheme) {
+            SiteSetting::updateValue('landing_theme', $selectedTheme);
             $messages[] = 'Tema landing berhasil diperbarui.';
         }
 

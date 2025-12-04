@@ -1,9 +1,7 @@
-﻿<?php
+<?php
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -13,11 +11,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // panggil seeder admin
         $this->call([
             AdminUserSeeder::class,
             AssetSeeder::class,
+            LoanSeeder::class,
+            SiteSettingSeeder::class,
         ]);
     }
 }
-
