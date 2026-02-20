@@ -247,12 +247,17 @@
               <td>
                 <div class="asset-actions">
                   @auth
-                    <a class="btn btn-sm btn-outline-primary" href="{{ route('assets.edit', $asset) }}">Edit</a>
+                    <a class="btn btn-sm btn-outline-primary" href="{{ route('assets.edit', ['asset' => $asset, 'kind' => $isLoanable ? \App\Models\Asset::KIND_LOANABLE : \App\Models\Asset::KIND_INVENTORY]) }}">Edit</a>
                     <form method="POST" action="{{ route('assets.destroy', $asset) }}" onsubmit="return confirm('Hapus aset ini?')">
                       @csrf
                       @method('DELETE')
                       <button class="btn btn-sm btn-outline-danger" type="submit">Hapus</button>
                     </form>
+                    @if($asset->bast_document_path)
+                      <a class="btn btn-sm btn-outline-secondary" target="_blank" rel="noopener" href="{{ asset('storage/'.$asset->bast_document_path) }}">BAST</a>
+                    @else
+                      <span class="text-muted small">BAST -</span>
+                    @endif
                     @if($asset->photo)
                       <button type="button" class="btn btn-sm asset-photo-btn" data-photo-view="{{ asset('storage/'.$asset->photo) }}" data-photo-label="{{ $asset->name }}">
                         <span class="asset-photo-btn__icon">&#128247;</span>

@@ -35,7 +35,8 @@
 <div>
   <h6>Catatan:</h6>
   <ul>
-    <li>Kolom yang didukung: <code>code, name, category, description, quantity_total, status, kind</code>.</li>
+    <li>Kolom yang didukung: <code>code, name, category, description, quantity_total, status, kind, foto_sarpras, dokument_bast</code>.</li>
+    <li>Kolom <code>foto_sarpras</code> dan <code>dokument_bast</code> diisi nama/path file (contoh: <code>assets/cam-01.jpg</code>, <code>assets/bast/cam-01.pdf</code>).</li>
     <li>Status gunakan <code>active</code> atau <code>inactive</code> (boleh juga "aktif"/"nonaktif").</li>
     <li>Jika kolom <code>kind</code> dikosongkan, data akan dianggap {{ $forcedKind === \App\Models\Asset::KIND_INVENTORY ? 'aset inventaris' : 'barang peminjaman' }}{{ $forcedKind ? '' : ' secara default (loanable)' }}.</li>
     <li>Jika <code>code</code> sudah ada: data akan diupdate, stok tersedia disesuaikan otomatis dengan pinjaman yang sedang berjalan.</li>

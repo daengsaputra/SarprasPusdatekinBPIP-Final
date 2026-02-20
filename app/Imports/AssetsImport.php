@@ -36,6 +36,8 @@ class AssetsImport implements ToCollection, WithHeadingRow
 
             $category = (string)($row['category'] ?? $row['kategori'] ?? null);
             $description = (string)($row['description'] ?? $row['deskripsi'] ?? null);
+            $photo = trim((string) ($row['foto_sarpras'] ?? $row['photo'] ?? ''));
+            $bastDocument = trim((string) ($row['dokument_bast'] ?? $row['dokumen_bast'] ?? $row['bast_document'] ?? ''));
             $total = (int)($row['quantity_total'] ?? $row['jumlah_total'] ?? $row['stok'] ?? 0);
             $statusRaw = strtolower(trim((string)($row['status'] ?? 'active')));
             $status = in_array($statusRaw, ['active', 'aktif'])
@@ -59,6 +61,8 @@ class AssetsImport implements ToCollection, WithHeadingRow
                     'quantity_total' => $total,
                     'quantity_available' => $total,
                     'status' => $status,
+                    'photo' => $photo !== '' ? $photo : null,
+                    'bast_document_path' => $bastDocument !== '' ? $bastDocument : null,
                 ]);
                 $this->stats['inserted']++;
             } else {
@@ -72,6 +76,8 @@ class AssetsImport implements ToCollection, WithHeadingRow
                     'quantity_total' => $total,
                     'quantity_available' => $newAvailable,
                     'status' => $status,
+                    'photo' => $photo !== '' ? $photo : $asset->photo,
+                    'bast_document_path' => $bastDocument !== '' ? $bastDocument : $asset->bast_document_path,
                 ]);
                 $this->stats['updated']++;
             }

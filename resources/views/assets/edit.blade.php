@@ -1,5 +1,7 @@
 @php($title = 'Edit Aset')
 @php($categoryPresets = ['Laptop','HP','Tablet','Kamera','Drone','Proyektor','Audio','Perlengkapan Rapat','Server','Lainnya'])
+@php($photoFileName = old('photo_file_name', $asset->photo ? basename($asset->photo) : 'Belum ada file dipilih'))
+@php($bastDocumentFileName = old('bast_document_file_name', $asset->bast_document_path ? basename($asset->bast_document_path) : 'Belum ada file dipilih'))
 @extends('layouts.app')
 
 @push('styles')
@@ -100,8 +102,9 @@
     <div class="asset-grid">
       <div>
         <label class="form-label">Foto Sarpras</label>
-        <input type="file" name="photo" accept="image/*" class="form-control @error('photo') is-invalid @enderror" {{ $asset->photo ? '' : 'required' }}>
+        <input type="file" name="photo" id="photoInput" accept="image/*" class="form-control @error('photo') is-invalid @enderror" {{ $asset->photo ? '' : 'required' }}>
         @error('photo')<div class="invalid-feedback">{{ $message }}</div>@enderror
+        <input type="text" id="photoFileName" class="form-control mt-2" value="{{ $photoFileName }}" readonly>
         <div class="form-text">Format: {{ implode(', ', config('bpip.asset_photo_mimes', config('bpip.user_photo_mimes'))) }}. Maks {{ (int) config('bpip.asset_photo_max_kb', config('bpip.user_photo_max_kb')) }} KB.</div>
         @if($asset->photo)
           <img src="{{ asset('storage/'.$asset->photo) }}" alt="Foto aset" class="mt-2 rounded-3 border" style="width:120px;height:120px;object-fit:cover;">
@@ -109,8 +112,9 @@
       </div>
       <div>
         <label class="form-label">Dokumen BAST</label>
-        <input type="file" name="bast_document" accept=".pdf,.doc,.docx" class="form-control @error('bast_document') is-invalid @enderror" {{ $asset->bast_document_path ? '' : 'required' }}>
+        <input type="file" name="bast_document" id="bastDocumentInput" accept=".pdf,.doc,.docx" class="form-control @error('bast_document') is-invalid @enderror" {{ $asset->bast_document_path ? '' : 'required' }}>
         @error('bast_document')<div class="invalid-feedback">{{ $message }}</div>@enderror
+        <input type="text" id="bastDocumentFileName" class="form-control mt-2" value="{{ $bastDocumentFileName }}" readonly>
         <div class="form-text">Berita acara serah terima (maks {{ (int) config('bpip.asset_bast_doc_max_kb', 5120) }} KB).</div>
         @if($asset->bast_document_path)
           <div class="mt-2 d-flex align-items-center gap-3 flex-wrap">
@@ -118,21 +122,6 @@
             <div class="form-check">
               <input class="form-check-input" type="checkbox" value="1" id="removeBastDoc" name="remove_bast_document">
               <label class="form-check-label" for="removeBastDoc">Hapus & ganti</label>
-            </div>
-          </div>
-        @endif
-      </div>
-      <div>
-        <label class="form-label">Foto Bukti Peminjaman</label>
-        <input type="file" name="bast_photo" accept="image/*" class="form-control @error('bast_photo') is-invalid @enderror" {{ $asset->bast_photo_path ? '' : 'required' }}>
-        @error('bast_photo')<div class="invalid-feedback">{{ $message }}</div>@enderror
-        <div class="form-text">Dokumentasi serah terima.</div>
-        @if($asset->bast_photo_path)
-          <div class="mt-2 d-flex align-items-center gap-3 flex-wrap">
-            <img src="{{ asset('storage/'.$asset->bast_photo_path) }}" alt="Foto BAST" style="width:120px;height:120px;object-fit:cover;border-radius:12px;border:1px solid #e2e8f0;">
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" value="1" id="removeBastPhoto" name="remove_bast_photo">
-              <label class="form-check-label" for="removeBastPhoto">Hapus & ganti</label>
             </div>
           </div>
         @endif
@@ -147,3 +136,29 @@
   </div>
 </form>
 @endsection
+
+@push('scripts')
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const bindFileName = (inputId, targetId, fallbackValue = 'Belum ada file dipilih') => {
+      const input = document.getElementById(inputId);
+      const target = document.getElementById(targetId);
+      if (!input || !target) return;
+
+      const currentValue = (target.value || '').trim();
+      const defaultValue = currentValue !== '' ? currentValue : fallbackValue;
+
+      const update = () => {
+        const fileName = input.files && input.files[0] ? input.files[0].name : '';
+        target.value = fileName || defaultValue;
+      };
+
+      input.addEventListener('change', update);
+      update();
+    };
+
+    bindFileName('photoInput', 'photoFileName');
+    bindFileName('bastDocumentInput', 'bastDocumentFileName');
+  });
+</script>
+@endpush

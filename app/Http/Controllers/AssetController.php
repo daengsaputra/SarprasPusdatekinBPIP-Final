@@ -168,7 +168,7 @@ class AssetController extends Controller
             'status' => 'required|in:active,inactive',
             'photo' => 'required|image|mimes:' . implode(',', config('bpip.asset_photo_mimes', config('bpip.user_photo_mimes'))) . '|max:' . (int) config('bpip.asset_photo_max_kb', config('bpip.user_photo_max_kb')),
             'bast_document' => 'required|file|mimes:' . implode(',', config('bpip.asset_bast_doc_mimes', ['pdf'])) . '|max:' . (int) config('bpip.asset_bast_doc_max_kb', 5120),
-            'bast_photo' => 'required|image|mimes:' . implode(',', config('bpip.asset_photo_mimes', config('bpip.user_photo_mimes'))) . '|max:' . (int) config('bpip.asset_photo_max_kb', config('bpip.user_photo_max_kb')),
+            'bast_photo' => 'nullable|image|mimes:' . implode(',', config('bpip.asset_photo_mimes', config('bpip.user_photo_mimes'))) . '|max:' . (int) config('bpip.asset_photo_max_kb', config('bpip.user_photo_max_kb')),
         ]);
 
         $validated['quantity_total'] = $validated['quantity_total'] ?? 1;
@@ -215,12 +215,9 @@ class AssetController extends Controller
     {
         $photoRule = ($asset->photo ? 'nullable' : 'required') . '|image|mimes:' . implode(',', config('bpip.asset_photo_mimes', config('bpip.user_photo_mimes'))) . '|max:' . (int) config('bpip.asset_photo_max_kb', config('bpip.user_photo_max_kb'));
         $bastDocRule = ($asset->bast_document_path ? 'nullable' : 'required') . '|file|mimes:' . implode(',', config('bpip.asset_bast_doc_mimes', ['pdf'])) . '|max:' . (int) config('bpip.asset_bast_doc_max_kb', 5120);
-        $bastPhotoRule = ($asset->bast_photo_path ? 'nullable' : 'required') . '|image|mimes:' . implode(',', config('bpip.asset_photo_mimes', config('bpip.user_photo_mimes'))) . '|max:' . (int) config('bpip.asset_photo_max_kb', config('bpip.user_photo_max_kb'));
+        $bastPhotoRule = 'nullable|image|mimes:' . implode(',', config('bpip.asset_photo_mimes', config('bpip.user_photo_mimes'))) . '|max:' . (int) config('bpip.asset_photo_max_kb', config('bpip.user_photo_max_kb'));
         if ($request->boolean('remove_bast_document')) {
             $bastDocRule = 'required|file|mimes:' . implode(',', config('bpip.asset_bast_doc_mimes', ['pdf'])) . '|max:' . (int) config('bpip.asset_bast_doc_max_kb', 5120);
-        }
-        if ($request->boolean('remove_bast_photo')) {
-            $bastPhotoRule = 'required|image|mimes:' . implode(',', config('bpip.asset_photo_mimes', config('bpip.user_photo_mimes'))) . '|max:' . (int) config('bpip.asset_photo_max_kb', config('bpip.user_photo_max_kb'));
         }
 
         $validated = $request->validate([
@@ -253,7 +250,7 @@ class AssetController extends Controller
                 Storage::disk('public')->delete($asset->bast_document_path);
             }
         }
-        if ($request->boolean('remove_bast_photo') || $request->hasFile('bast_photo')) {
+        if ($request->hasFile('bast_photo')) {
             if ($asset->bast_photo_path) {
                 Storage::disk('public')->delete($asset->bast_photo_path);
             }
@@ -262,10 +259,6 @@ class AssetController extends Controller
         if ($request->boolean('remove_bast_document')) {
             $validated['bast_document_path'] = null;
         }
-        if ($request->boolean('remove_bast_photo')) {
-            $validated['bast_photo_path'] = null;
-        }
-
         if ($request->hasFile('bast_document')) {
             $validated['bast_document_path'] = $request->file('bast_document')->store('assets/bast', 'public');
         }
