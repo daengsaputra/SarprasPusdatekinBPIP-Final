@@ -674,7 +674,7 @@
           ],
         ];
         if(auth()->user() && auth()->user()->role==='admin') {
-          $menuSections['Administrasi'][] = ['route' => 'users.index', 'label' => 'Anggota boyband', 'active' => request()->routeIs('users.*'), 'icon' => '&#128101;'];
+          $menuSections['Administrasi'][] = ['route' => 'users.index', 'label' => 'Daftar Anggota', 'active' => request()->routeIs('users.*'), 'icon' => '&#128101;'];
           $menuSections['Administrasi'][] = ['route' => 'settings.landing', 'label' => 'Pengaturan Landing', 'active' => request()->routeIs('settings.*'), 'icon' => '&#9881;'];
         }
       @endphp
