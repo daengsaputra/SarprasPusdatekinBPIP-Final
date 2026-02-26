@@ -514,71 +514,7 @@
     .text-muted {
         color: var(--app-text-muted) !important;
     }
-        .running-info {
-            position: fixed;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: #ffffff;
-            color: #0f172a;
-            z-index: 1035;
-            overflow: hidden;
-            font-size: 0.85rem;
-            border-top: 1px solid rgba(148, 163, 184, 0.35);
-            box-shadow: 0 -8px 20px rgba(15, 23, 42, 0.1);
-        }
-        .running-info::before,
-        .running-info::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 80px;
-            pointer-events: none;
-        }
-        .running-track {
-            display: inline-flex;
-            white-space: nowrap;
-            gap: 4rem;
-            padding: 0.6rem 0;
-            animation: ticker 55s linear infinite;
-            align-items: center;
-        }
-        .running-track > span {
-            display: inline-flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        .marquee-entry {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.65rem;
-            text-transform: uppercase;
-            font-weight: 600;
-            letter-spacing: .08em;
-            color: #0f172a;
-        }
-        .marquee-label {
-            color: rgba(30, 64, 175, 0.9);
-            letter-spacing: 0.16em;
-            font-size: 0.78rem;
-        }
-        .marquee-borrower {
-            color: #0ea5e9;
-            letter-spacing: 0.2em;
-        }
-        .marquee-dot {
-            color: rgba(234, 179, 8, 0.9);
-            font-size: 1.2rem;
-        }
-        .marquee-sep {
-            color: rgba(71, 85, 105, 0.85);
-        }
-        @keyframes ticker {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-        body::-webkit-scrollbar {
+body::-webkit-scrollbar {
             width: 10px;
         }
         body::-webkit-scrollbar-thumb {
@@ -611,7 +547,7 @@
         @endauth
       </ul>
       <div class="ms-auto d-flex align-items-center gap-3 text-white-50">
-        <span class="d-none d-md-inline">{{ now()->format('Y-m-d') }}</span>
+        <span class="d-none d-md-inline">{{ now()->locale('id')->translatedFormat('l, Y-m-d') }}</span>
         @guest
           <a href="{{ route('login') }}" class="btn btn-outline-light px-4">Login</a>
         @else
@@ -736,64 +672,6 @@
  </main>
 @endauth
 
-@php
-  $activeLoansTicker = \App\Models\Loan::with('asset')
-      ->whereIn('status', ['borrowed', 'partial'])
-      ->orderByDesc('loan_date')
-      ->get()
-      ->groupBy(function ($loan) {
-          return $loan->batch_code ?: ('loan-' . $loan->id);
-      })
-      ->map(function ($group) {
-          $first = $group->first();
-          $loanDate = $group->min('loan_date');
-          $plannedReturn = $group->filter(fn($loan) => $loan->return_date_planned)->min('return_date_planned');
-          $activity = trim((string) ($first->activity_name ?? ''));
-          if ($activity === '') {
-              $activity = trim((string) ($first->notes ?? ''));
-          }
-          $assetsLabels = $group->map(function ($loan) {
-              $name = $loan->asset->name ?? 'Sarana tidak ditemukan';
-              $code = $loan->asset->code ?? null;
-              $quantity = (int) ($loan->quantity ?? 0);
-              $label = trim($name . ($code ? " ({$code})" : ''));
-              if ($quantity > 1) {
-                  $label .= ' x' . $quantity;
-              }
-              return $label;
-          })->filter();
-
-          return (object) [
-              'borrower_name' => $first->borrower_name,
-              'activity' => $activity !== '' ? $activity : 'Tidak ada keterangan kegiatan',
-              'total_quantity' => (int) $group->sum('quantity'),
-              'return_date_planned' => $plannedReturn,
-              'assets_preview' => $assetsLabels->take(2)->implode(' • '),
-          ];
-      })
-      ->values();
-
-  $tickerEntries = [];
-  foreach ($activeLoansTicker as $loan) {
-      $borrower = e($loan->borrower_name ?? 'Peminjam');
-      $activity = e(\Illuminate\Support\Str::limit($loan->activity ?? 'Tidak ada keterangan kegiatan', 80));
-      $assets = e($loan->assets_preview ?: 'Sarana tidak ditemukan');
-      $quantity = e((int) ($loan->total_quantity ?? 0));
-      $dueDate = e(optional($loan->return_date_planned)->format('d M Y') ?: 'Tanpa batas');
-      $tickerEntries[] = "<span class=\"marquee-entry\"><span class=\"marquee-label\">Nama Peminjam:</span> <span class=\"marquee-borrower\">{$borrower}</span> <span class=\"marquee-sep\">|</span> <span class=\"marquee-label\">Nama Kegiatan:</span> {$activity} <span class=\"marquee-sep\">|</span> <span class=\"marquee-label\">Alat:</span> {$assets} ({$quantity} unit) <span class=\"marquee-sep\">|</span> <span class=\"marquee-label\">Target Kembali:</span> {$dueDate}</span>";
-  }
-  if (empty($tickerEntries)) {
-      $tickerEntries[] = '<span class="marquee-entry">Belum ada peminjaman aktif.</span>';
-  }
-  $tickerHtml = '<span class="marquee-entry"><span class="marquee-label">Monitoring SARPRAS PUSDATEKIN :</span></span> ' . implode('<span class="marquee-dot">&bull;</span>', $tickerEntries);
-@endphp
-<div class="running-info" aria-live="polite">
-  <div class="running-track">
-    <span>{!! $tickerHtml !!}</span>
-    <span>{!! $tickerHtml !!}</span>
-  </div>
-</div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
@@ -811,6 +689,7 @@
 @stack('scripts')
 </body>
 </html>
+
 
 
 

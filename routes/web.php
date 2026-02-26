@@ -14,6 +14,11 @@ use App\Models\SiteSetting;
 use App\Models\User;
 use Illuminate\Support\Str;
 
+Route::get('/admin', function () {
+    return view('admin.index');
+});
+
+
 Route::get('/landing/video', [LandingMediaController::class, 'video'])->name('landing.video');
 
 // Landing page (public)

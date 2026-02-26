@@ -415,47 +415,6 @@
     color: var(--text-secondary);
   }
 
-  .marquee-wrapper {
-    position: sticky;
-    bottom: 0;
-    z-index: 100;
-    overflow: hidden;
-    background: color-mix(in srgb, var(--surface-2) 90%, transparent);
-    border: 1px solid color-mix(in srgb, var(--text-primary) 15%, transparent);
-    border-radius: 999px;
-    padding: 0.75rem 0;
-    box-shadow: 0 12px 25px color-mix(in srgb, var(--brand-blue) 12%, transparent);
-    margin-top: 3rem;
-  }
-  .marquee-track {
-    display: inline-flex;
-    white-space: nowrap;
-    gap: 2.5rem;
-    animation: marquee-slide 55s linear infinite;
-    padding-left: 100%;
-  }
-  .marquee-entry {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-    color: var(--text-primary);
-  }
-  .marquee-label {
-    font-weight: 600;
-  }
-  .marquee-borrower {
-    color: var(--brand-blue);
-    font-weight: 700;
-  }
-  .marquee-dot {
-    margin: 0 1rem;
-    opacity: 0.4;
-  }
-  @keyframes marquee-slide {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-  }
 </style>
 @endpush
 
@@ -619,27 +578,4 @@
     </div>
   </div>
 
-  @php
-      $tickerEntries = [];
-      foreach ($loanGroups as $loan) {
-          $borrower = e($loan->borrower_name ?? 'Peminjam');
-          $activityRaw = trim((string) ($loan->activity ?? ''));
-          $activity = e($activityRaw !== '' ? \Illuminate\Support\Str::limit($activityRaw, 80) : 'Tidak ada keterangan kegiatan');
-          $assets = e($loan->assets_preview ?? 'Sarana tidak ditemukan');
-          $quantity = e((int) ($loan->total_quantity ?? 0));
-          $dueDate = e(optional($loan->return_date_planned)->format('d M Y') ?: 'Tanpa batas');
-          $tickerEntries[] = "<span class=\"marquee-entry\"><span class=\"marquee-label\">Nama Peminjam:</span> <span class=\"marquee-borrower\">{$borrower}</span> <span class=\"marquee-sep\">|</span> <span class=\"marquee-label\">Nama Kegiatan:</span> {$activity} <span class=\"marquee-sep\">|</span> <span class=\"marquee-label\">Alat:</span> {$assets} ({$quantity} unit) <span class=\"marquee-sep\">|</span> <span class=\"marquee-label\">Target Kembali:</span> {$dueDate}</span>";
-      }
-      if (empty($tickerEntries)) {
-          $tickerEntries[] = '<span class="marquee-entry">Belum ada peminjaman aktif.</span>';
-      }
-      $tickerHtml = '<span class="marquee-entry"><span class="marquee-label">Monitoring SARPRAS PUSDATEKIN :</span></span> ' . implode('<span class="marquee-dot">&bull;</span>', $tickerEntries);
-  @endphp
-  <div class="marquee-wrapper" aria-live="polite">
-    <div class="marquee-track">
-      <span>{!! $tickerHtml !!}</span>
-      <span>{!! $tickerHtml !!}</span>
-    </div>
-  </div>
 @endsection
-
