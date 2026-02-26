@@ -114,36 +114,77 @@
 
 /* Sidebar menu order/style like initial SARPRAS */
 .sarpras-menu-title {
-    font-size: 12px;
+    font-size: 10px;
     letter-spacing: 0.18em;
     color: #8a8fa1 !important;
     font-weight: 600;
-    margin-top: 0.6rem;
-    margin-bottom: 0.65rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
 }
 
 .sarpras-menu-list > li > .sarpras-menu-link {
-    display: flex;
+    display: grid !important;
+    grid-template-columns: 18px minmax(0, 1fr) 14px;
     align-items: center;
-    border-radius: 16px;
-    padding: 0.9rem 0.95rem;
-    margin: 0.2rem 0.65rem;
-    gap: 0.8rem;
-    font-size: 1rem;
+    border-radius: 12px;
+    padding: 0.68rem 0.78rem;
+    margin: 0.15rem 0.55rem;
+    gap: 0.62rem;
+    font-size: 0.8rem;
     font-weight: 500;
     color: #1f2430;
     background: transparent;
     border: 1px solid transparent;
 }
 
+.sarpras-menu-list > li > .sarpras-menu-link > i {
+    margin-right: 0 !important;
+}
+
 .sarpras-menu-list > li > .sarpras-menu-link i:first-child {
-    font-size: 1.1rem;
-    width: 20px;
+    font-size: 0.88rem;
+    width: 18px;
     text-align: center;
 }
 
+@media (min-width: 992px) {
+    #main-wrapper:not(.menu-toggle) .nav-header,
+    #main-wrapper:not(.menu-toggle) .deznav {
+        width: 19.25rem;
+    }
+
+    #main-wrapper:not(.menu-toggle) .header {
+        padding-left: 19.25rem;
+    }
+
+    #main-wrapper:not(.menu-toggle) .content-body {
+        margin-left: 19.25rem;
+    }
+
+    #main-wrapper:not(.menu-toggle) .footer {
+        padding-left: 19.25rem;
+    }
+}
+
+.sarpras-menu-list > li > .sarpras-menu-link .nav-text {
+    display: block;
+    min-width: 0;
+    padding-right: 0.75rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
+}
+
 .sarpras-menu-arrow {
-    margin-left: auto;
+    margin-left: 0 !important;
+    width: 14px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    float: none !important;
+    line-height: 1;
+    flex-shrink: 0;
     color: #8a8fa1;
 }
 

@@ -53,6 +53,8 @@
 @endpush
 
 @section('content')
+<main class="content-body">
+<div class="container-fluid">
 <div class="loan-shell">
   @if(session('receipt_batch'))
     @php($batch = session('receipt_batch'))
@@ -255,6 +257,8 @@
     <img src="" alt="Lampiran" id="attachmentModalImage">
   </div>
 </div>
+</div>
+</main>
 @endsection
 
 @push('scripts')

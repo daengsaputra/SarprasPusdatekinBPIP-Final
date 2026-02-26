@@ -36,6 +36,8 @@
 @endpush
 
 @section('content')
+<main class="content-body">
+<div class="container-fluid">
 <h1 class="h5 mb-3">Pilih barang yang akan dipinjam</h1>
 
 <div class="row g-3">
@@ -181,6 +183,8 @@
   </div>
 </div>
 
+</div>
+</main>
 @endsection
 
 @push('scripts')

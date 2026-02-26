@@ -31,6 +31,8 @@
 @endpush
 
 @section('content')
+<main class="content-body">
+<div class="container-fluid">
 <h1 class="h4 mb-3">Pengembalian Aset</h1>
 
 <div class="card mb-3">
@@ -81,6 +83,8 @@
     <a href="{{ route('loans.index') }}" class="btn btn-secondary">Batal</a>
   </div>
 </form>
+</div>
+</main>
 @endsection
 
 @push('scripts')
