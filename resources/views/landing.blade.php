@@ -421,7 +421,6 @@
 @section('content')
   <div class="hero-grid mb-5">
     <div>
-      <span class="hero-chip">SARPRAS PUSDATEKIN</span>
       <h1 class="hero-heading mt-3">Sarana Prasarana Pusdatekin BPIP</h1>
       <p class="hero-subtext mt-3">
         Kelola kebutuhan sarana prasarana dengan cepat dan terarah. Pantau ketersediaan, ajukan peminjaman,

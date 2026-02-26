@@ -1,158 +1,113 @@
-@php
-    use Illuminate\Support\Str;
-    $title = 'Laporan Peminjaman';
-@endphp
+@php($title = 'Laporan Peminjaman')
+@php($loans = $records ?? collect())
 @extends('layouts.app')
 
-@push('styles')
-<style>
-  .report-shell { display:flex; flex-direction:column; gap:1rem; }
-  .report-hero {
-    display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap;
-    padding:1.3rem 1.5rem; border-radius:20px;
-    background:linear-gradient(120deg, rgba(59,130,246,0.15), #fff);
-    border:1px solid rgba(148,163,184,0.15); box-shadow:0 18px 40px rgba(15,23,42,0.1);
-  }
-  .min-w-full border border-gray-300 dark:border-gray-700 rounded-lg { background:#fff; border:1px solid rgba(148,163,184,0.15); border-radius:18px; padding:1rem; box-shadow:0 10px 25px rgba(15,23,42,0.06); }
-  .min-w-full border border-gray-300 dark:border-gray-700 rounded-lg label { text-transform:uppercase; letter-spacing:.2em; font-size:.72rem; color:#94a3b8; }
-  .report-actions { display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; }
-  .min-w-full border border-gray-300 dark:border-gray-700 rounded-lg { background:#fff; border:1px solid rgba(148,163,184,0.12); border-radius:20px; padding:1rem; box-shadow:0 12px 30px rgba(15,23,42,0.08); }
-  .min-w-full border border-gray-300 dark:border-gray-700 rounded-lg table th { text-transform:uppercase; letter-spacing:.12em; font-size:.72rem; color:#64748b; }
-  .summary-pill { padding:.4rem .9rem; border-radius:999px; background:rgba(59,130,246,.1); font-size:.8rem; }
-</style>
-@endpush
-
 @section('content')
-<div class="report-shell">
-  <section class="report-hero">
-    <div>
-      <p class="text-uppercase text-muted mb-1" style="letter-spacing:.35em;">Laporan</p>
-      <h1 class="h5 mb-1">Riwayat Peminjaman Barang</h1>
-      <p class="mb-0 text-muted">Pantau seluruh peminjaman, export PDF/Excel, dan filter berdasarkan rentang waktu.</p>
-    </div>
-    <div class="report-actions">
-      <span class="summary-pill">Periode: {{ $summary['periode'] }}</span>
-      <a href="{{ route('reports.loans.pdf', request()->all()) }}" class="btn btn-outline-primary btn-sm">Download PDF</a>
-      <a href="{{ route('reports.loans.excel', request()->all()) }}" class="btn btn-primary btn-sm">Download Excel</a>
-    </div>
-  </section>
-
-  <section class="min-w-full border border-gray-300 dark:border-gray-700 rounded-lg">
-    <form method="GET" class="row g-2">
-      <div class="col-md-3">
-        <label>Rentang</label>
-        <select name="range" class="form-select" id="rangeSelect">
-          @foreach(['week' => '7 Hari','month' => '30 Hari','year' => 'Tahun Ini','custom' => 'Kustom'] as $key => $label)
-            <option value="{{ $key }}" {{ $rangeKey === $key ? 'selected' : '' }}>{{ $label }}</option>
-          @endforeach
-        </select>
-      </div>
-      <div class="col-md-3">
-        <label>Mulai</label>
-        <input type="date" name="start" class="form-control" value="{{ request('start', $start->toDateString()) }}" data-range-input>
-      </div>
-      <div class="col-md-3">
-        <label>Sampai</label>
-        <input type="date" name="end" class="form-control" value="{{ request('end', $end->toDateString()) }}" data-range-input>
-      </div>
-      <div class="col-md-3">
-        <label>Cari</label>
-        <input type="text" name="q" class="form-control" value="{{ request('q') }}" placeholder="aset / peminjam">
-      </div>
-      <div class="col-md-3">
-        <label>Status</label>
-        <select name="status" class="form-select">
-          <option value="">Semua</option>
-          @foreach(['borrowed' => 'Dipinjam','partial' => 'Dikembalikan sebagian','returned' => 'Sudah kembali'] as $key => $label)
-            <option value="{{ $key }}" {{ request('status') === $key ? 'selected' : '' }}>{{ $label }}</option>
-          @endforeach
-        </select>
-      </div>
-      <div class="col-md-3">
-        <label>Unit Kerja</label>
-        <select name="unit" class="form-select">
-          <option value="">Semua</option>
-          @foreach($units as $unit)
-            <option value="{{ $unit }}" {{ request('unit') === $unit ? 'selected' : '' }}>{{ $unit }}</option>
-          @endforeach
-        </select>
-      </div>
-      <div class="col-md-3 align-self-end">
-        <button type="submit" class="btn btn-primary w-100">Terapkan</button>
-      </div>
-      <div class="col-md-3 align-self-end">
-        <a href="{{ route('reports.loans') }}" class="btn btn-outline-secondary w-100">Reset</a>
-      </div>
-    </form>
-  </section>
-
-  <section class="min-w-full border border-gray-300 dark:border-gray-700 rounded-lg">
-    <div class="table-responsive">
-      <table class="table align-middle">
-        <thead>
-          <tr>
-            @php($sort = $sort ?? 'loan_date')
-            @php($dir = $dir ?? 'desc')
-            @php($link = function($key,$label) use ($sort,$dir) {
-              $next = ($sort === $key && $dir === 'asc') ? 'desc' : 'asc';
-              $q = array_merge(request()->all(), ['sort' => $key, 'dir' => $next]);
-              $arrow = $sort === $key ? ($dir === 'asc' ? '▲' : '▼') : '';
-              return '<a href="'.route('reports.loans',$q).'" class="text-decoration-none text-muted">'.$label.' '.$arrow.'</a>';
-            })
-          <tr>
-            <th>{!! $link('loan_date','Tanggal') !!}</th>
-            <th>{!! $link('asset','Aset') !!}</th>
-            <th>{!! $link('borrower_name','Peminjam') !!}</th>
-            <th>{!! $link('unit','Unit') !!}</th>
-            <th>{!! $link('status','Status') !!}</th>
-            <th class="text-center">{!! $link('quantity','Jumlah') !!}</th>
-            <th>{!! $link('return_date_planned','Rencana Kembali') !!}</th>
-            <th>{!! $link('return_date_actual','Kembali') !!}</th>
-          </tr>
-        </thead>
-        <tbody>
-          @forelse($records as $row)
-            <tr>
-              <td>{{ optional($row->loan_date)->format('Y-m-d') ?? '-' }}</td>
-              <td>{{ $row->asset->name ?? '-' }}</td>
-              <td>{{ $row->borrower_name }}</td>
-              <td>{{ $row->unit ?? '-' }}</td>
-              <td>{{ Str::title($row->status) }}</td>
-              <td class="text-center">{{ $row->quantity }}</td>
-              <td>{{ optional($row->return_date_planned)->format('Y-m-d') ?? '-' }}</td>
-              <td>{{ optional($row->return_date_actual)->format('Y-m-d') ?? '-' }}</td>
-            </tr>
-          @empty
-            <tr>
-              <td colspan="8" class="text-center text-muted py-4">Belum ada data.</td>
-            </tr>
-          @endforelse
-        </tbody>
-      </table>
-    </div>
-    <div class="mt-3 d-flex justify-content-end">
-      {{ $records->links() }}
-    </div>
-  </section>
+<main class="content-body">
+<div class="container-fluid">
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h4">Laporan Peminjaman</h1>
+  <div class="d-flex align-items-center gap-2">
+    <a class="btn btn-outline-secondary btn-sm" href="{{ route('reports.loans', ['range' => 'week']) }}">Seminggu</a>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ route('reports.loans', ['range' => 'month']) }}">Sebulan</a>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ route('reports.loans', ['range' => 'year']) }}">Setahun</a>
+    <a class="btn btn-primary btn-sm" href="{{ route('reports.loans.pdf', request()->all()) }}">Download PDF</a>
+  </div>
 </div>
-@endsection
 
-@push('scripts')
-<script>
-  (function () {
-    const range = document.getElementById('rangeSelect');
-    const toggleInputs = () => {
-      const isCustom = range.value === 'custom';
-      document.querySelectorAll('[data-range-input]').forEach(el => el.disabled = !isCustom);
-    };
-    range?.addEventListener('change', () => {
-      toggleInputs();
-      if(range.value !== 'custom') {
-        document.querySelector('[name=\"start\"]').value = '';
-        document.querySelector('[name=\"end\"]').value = '';
-      }
-    });
-    toggleInputs();
-  })();
-</script>
-@endpush
+<form method="GET" class="row g-2 align-items-end mb-3">
+  <input type="hidden" name="range" value="custom">
+  <div class="col-md-3">
+    <label class="form-label">Dari</label>
+    <input type="date" name="start" value="{{ request('start', $start->toDateString()) }}" class="form-control">
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Sampai</label>
+    <input type="date" name="end" value="{{ request('end', $end->toDateString()) }}" class="form-control">
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Cari</label>
+    <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="aset/peminjam">
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Unit Kerja</label>
+    <select name="unit" class="form-select">
+      <option value="">Semua</option>
+      @foreach(($units ?? config('bpip.units')) as $u)
+        <option value="{{ $u }}" {{ request('unit')===$u?'selected':'' }}>{{ $u }}</option>
+      @endforeach
+    </select>
+  </div>
+  <div class="col-md-2">
+    <button class="btn btn-primary w-100" type="submit">Terapkan</button>
+  </div>
+</form>
+
+<div class="row g-3 mb-3">
+  <div class="col-md-3">
+    <div class="card">
+      <div class="card-body">
+        <div class="text-muted small">Periode</div>
+        <div class="fw-bold">{{ $summary['periode'] }}</div>
+        <div class="small">{{ $summary['start'] }} s/d {{ $summary['end'] }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card">
+      <div class="card-body">
+        <div class="text-muted small">Total Transaksi</div>
+        <div class="fs-4 fw-bold">{{ $summary['total_transaksi'] }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card">
+      <div class="card-body">
+        <div class="text-muted small">Total Jumlah Barang</div>
+        <div class="fs-4 fw-bold">{{ $summary['total_jumlah'] }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="table-responsive">
+<table class="table table-striped align-middle">
+  <thead>
+  <tr>
+    @php($sort=request('sort'))
+    @php($dir=request('dir','desc'))
+    @php($link=function($key,$label) use($sort,$dir){
+      $next = ($sort===$key && $dir==='asc') ? 'desc' : 'asc';
+      $q = array_merge(request()->all(), ['sort'=>$key,'dir'=>$next]);
+      $arrow = $sort===$key ? ($dir==='asc'?'&uarr;':'&darr;') : '&bull;';
+      return '<a href="'.route('reports.loans',$q).'" class="text-decoration-none">'.$label.' <span class="text-muted">'.$arrow.'</span></a>';
+    })
+    <th>{!! $link('loan_date','Tanggal Pinjam') !!}</th>
+    <th>{!! $link('asset','Aset') !!}</th>
+    <th>{!! $link('borrower_name','Peminjam') !!}</th>
+    <th>{!! $link('quantity','Jumlah') !!}</th>
+    <th>{!! $link('status','Status') !!}</th>
+  </tr>
+  </thead>
+  <tbody>
+  @forelse($loans as $row)
+    <tr>
+      <td>{{ $row->loan_date?->format('Y-m-d') }}</td>
+      <td>{{ $row->asset->code }} - {{ $row->asset->name }}</td>
+      <td>{{ $row->borrower_name }}</td>
+      <td>{{ $row->quantity }}</td>
+      @php($statusLabel = $row->status === 'borrowed' ? 'dipinjam' : ($row->status === 'returned' ? 'sudah kembali' : $row->status))
+      <td><span class="badge {{ $row->status==='borrowed'?'text-bg-warning':'text-bg-success' }}">{{ $statusLabel }}</span></td>
+    </tr>
+  @empty
+    <tr><td colspan="5" class="text-center">Tidak ada data.</td></tr>
+  @endforelse
+  </tbody>
+</table>
+</div>
+
+{{ $loans->links() }}
+</div>
+</main>
+@endsection

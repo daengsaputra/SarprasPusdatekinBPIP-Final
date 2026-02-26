@@ -1,40 +1,39 @@
-@php($title = 'Lupa Password')
-@extends('layouts.app')
+@extends('layouts.auth')
+
+@section('title', 'Forgot Password')
 
 @section('content')
-<div class="row justify-content-center">
-  <div class="col-md-6 col-lg-5">
-    <div class="card shadow-sm">
-      <div class="card-body p-4">
-        <h1 class="h4 mb-3">Lupa Password</h1>
-        <p class="text-muted">Masukkan username atau email untuk membuat tautan reset password.</p>
+<div class="authincation h-100">
+    <div class="container h-100">
+        <div class="row justify-content-center h-100 align-items-center">
+            <div class="col-md-6">
+                <div class="card p-5 shadow-lg">
+                    <h4 class="text-center mb-4">Forgot Password</h4>
+                    <p class="text-center text-muted mb-4">Masukkan email untuk menerima tautan reset password.</p>
 
-        @if(session('status'))
-          <div class="alert alert-success">{{ session('status') }}</div>
-        @endif
-        @if(session('reset_link'))
-          <div class="alert alert-info">
-            <div class="fw-semibold mb-1">Tautan reset (salin dan buka):</div>
-            <div class="small"><a href="{{ session('reset_link') }}">{{ session('reset_link') }}</a></div>
-          </div>
-        @endif
+                    @if (session('status'))
+                        <div class="alert alert-success">{{ session('status') }}</div>
+                    @endif
 
-        <form method="POST" action="{{ route('password.email') }}" class="row gy-3">
-          @csrf
-          <div class="col-12">
-            <label class="form-label">Username atau Email</label>
-            <input type="text" name="identifier" value="{{ old('identifier') }}" class="form-control @error('identifier') is-invalid @enderror" required autofocus>
-            @error('identifier')<div class="invalid-feedback">{{ $message }}</div>@enderror
-          </div>
-          <div class="col-12 d-grid">
-            <button class="btn btn-primary" type="submit">Buat Tautan Reset</button>
-          </div>
-          <div class="col-12 text-center">
-            <a href="{{ route('login') }}" class="small">Kembali ke login</a>
-          </div>
-        </form>
-      </div>
+                    <form method="POST" action="{{ route('password.email') }}">
+                        @csrf
+                        <div class="form-group mb-3">
+                            <label class="form-label"><strong>Email</strong></label>
+                            <input id="email" type="email" class="form-control form-control-lg @error('email') is-invalid @enderror"
+                                   name="email" value="{{ old('email') }}" required autofocus>
+                            @error('email')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg w-100">Send Reset Link</button>
+                    </form>
+
+                    <div class="mt-3 text-center">
+                        <a href="{{ route('login') }}">Back to login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 @endsection

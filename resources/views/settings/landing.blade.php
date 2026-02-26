@@ -64,6 +64,8 @@
 @endpush
 
 @section('content')
+<main class="content-body">
+<div class="container-fluid">
 <div class="d-flex justify-content-between align-items-start mb-4">
   <div>
     <p class="text-uppercase text-muted small mb-1" style="letter-spacing:0.25em;">Pengaturan</p>
@@ -143,4 +145,6 @@
     <button type="reset" class="btn btn-light border">Reset Form</button>
   </div>
 </form>
+</div>
+</main>
 @endsection

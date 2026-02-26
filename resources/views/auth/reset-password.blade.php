@@ -1,32 +1,48 @@
-@php($title = 'Reset Password')
-@extends('layouts.app')
+@extends('layouts.auth')
+
+@section('title', 'Reset Password')
 
 @section('content')
-<div class="row justify-content-center">
-  <div class="col-md-6 col-lg-5">
-    <div class="card shadow-sm">
-      <div class="card-body p-4">
-        <h1 class="h4 mb-3">Reset Password</h1>
-        <form method="POST" action="{{ route('password.update') }}" class="row gy-3">
-          @csrf
-          <input type="hidden" name="token" value="{{ $token }}">
-          <input type="hidden" name="email" value="{{ $email }}">
-          <div class="col-12">
-            <label class="form-label">Password Baru</label>
-            <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" required>
-            @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
-          </div>
-          <div class="col-12">
-            <label class="form-label">Ulangi Password</label>
-            <input type="password" name="password_confirmation" class="form-control" required>
-          </div>
-          <div class="col-12 d-grid">
-            <button class="btn btn-primary" type="submit">Reset</button>
-          </div>
-        </form>
-      </div>
+<div class="authincation h-100">
+    <div class="container h-100">
+        <div class="row justify-content-center h-100 align-items-center">
+            <div class="col-md-6">
+                <div class="card p-5 shadow-lg">
+                    <h4 class="text-center mb-4">Reset Password</h4>
+
+                    <form method="POST" action="{{ route('password.store') }}">
+                        @csrf
+                        <input type="hidden" name="token" value="{{ $request->route('token') }}">
+
+                        <div class="form-group mb-3">
+                            <label class="form-label"><strong>Email</strong></label>
+                            <input id="email" type="email" class="form-control form-control-lg @error('email') is-invalid @enderror"
+                                   name="email" value="{{ old('email', $request->email) }}" required autofocus>
+                            @error('email')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label"><strong>Password</strong></label>
+                            <input id="password" type="password" class="form-control form-control-lg @error('password') is-invalid @enderror"
+                                   name="password" required autocomplete="new-password">
+                            @error('password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label"><strong>Confirm Password</strong></label>
+                            <input id="password_confirmation" type="password" class="form-control form-control-lg"
+                                   name="password_confirmation" required autocomplete="new-password">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100">Reset Password</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 @endsection
-

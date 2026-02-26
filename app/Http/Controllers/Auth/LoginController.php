@@ -3,63 +3,100 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 
 class LoginController extends Controller
 {
-    /**
-     * Menampilkan form login.
-     */
-    public function showLoginForm()
-    {
-        if (Auth::check()) {
-            return redirect()->route('dashboard');
-        }
+    /*
+    |--------------------------------------------------------------------------
+    | Login Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller handles authenticating users for the application and
+    | redirecting them to your home screen. The controller uses a trait
+    | to conveniently provide its functionality to your applications.
+    |
+    */
 
-        return view('auth.login');
+    use AuthenticatesUsers;
+
+    /**
+     * Where to redirect users after login.
+     *
+     * @var string
+     */
+    protected $redirectTo = '/dashboard';
+
+    /**
+     * Use a single login field that accepts email or username.
+     */
+    public function username()
+    {
+        return 'login';
     }
 
     /**
-     * Menangani permintaan login.
+     * Validate the login request.
      */
-    public function login(Request $request)
+    protected function validateLogin(Request $request)
     {
-        $credentials = $request->validate([
-            'identifier' => 'required|string',
-            'password' => 'required|string',
+        $request->validate([
+            'login' => ['required', 'string', 'max:255'],
+            'password' => ['required', 'string'],
         ]);
-
-        // Tentukan field untuk login (bisa email atau name)
-        $loginField = filter_var($credentials['identifier'], FILTER_VALIDATE_EMAIL) ? 'email' : 'name';
-
-        $authData = [
-            $loginField => $credentials['identifier'],
-            'password' => $credentials['password'],
-        ];
-
-        // Coba untuk autentikasi
-        if (Auth::attempt($authData, $request->boolean('remember'))) {
-            $request->session()->regenerate();
-
-            return redirect()->intended(route('dashboard'));
-        }
-
-        // Jika gagal, kembali dengan pesan error
-        return back()->withErrors([
-            'identifier' => 'Kredensial yang diberikan tidak cocok dengan data kami.',
-        ])->onlyInput('identifier');
     }
 
     /**
-     * Menangani proses logout.
+     * Build credentials for email-or-username login.
      */
-    public function logout(Request $request)
+    protected function credentials(Request $request)
     {
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return redirect('/login')->with('success', 'Anda telah berhasil keluar.');
+        $login = trim((string) $request->input('login'));
+        $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'name';
+
+        if ($field === 'email') {
+            $login = strtolower($login);
+        }
+
+        return [
+            $field => $login,
+            'password' => $request->input('password'),
+        ];
+    }
+
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('guest')->except('logout');
+        $this->middleware('auth')->only('logout');
+    }
+
+    /**
+     * Limit login attempts to reduce brute-force attacks.
+     */
+    protected function maxAttempts()
+    {
+        return 5;
+    }
+
+    /**
+     * Lockout window in minutes.
+     */
+    protected function decayMinutes()
+    {
+        return 1;
+    }
+
+    /**
+     * Redirect users to login page after logout.
+     */
+    protected function loggedOut($request)
+    {
+        return redirect('/login');
     }
 }

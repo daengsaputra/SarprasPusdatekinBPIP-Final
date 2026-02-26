@@ -24,16 +24,16 @@
   }
   .asset-summary-label { text-transform:uppercase; letter-spacing:0.12em; color:#94a3b8; }
   .asset-summary-value { font-weight:700; color:#0f172a; }
-  .asset-filter-card, .min-w-full border border-gray-300 dark:border-gray-700 rounded-lg { background:#fff; border-radius:28px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 20px 45px rgba(15,23,42,0.08); padding:1.5rem 1.7rem; }
-  .min-w-full border border-gray-300 dark:border-gray-700 rounded-lg table thead th,
-  .min-w-full border border-gray-300 dark:border-gray-700 rounded-lg table tbody td,
-  .min-w-full border border-gray-300 dark:border-gray-700 rounded-lg .pagination,
-  .min-w-full border border-gray-300 dark:border-gray-700 rounded-lg .pagination a,
-  .min-w-full border border-gray-300 dark:border-gray-700 rounded-lg .pagination span {
+  .asset-filter-card, .min-w-full border border-gray-300 rounded-lg { background:#fff; border-radius:28px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 20px 45px rgba(15,23,42,0.08); padding:1.5rem 1.7rem; }
+  .min-w-full border border-gray-300 rounded-lg table thead th,
+  .min-w-full border border-gray-300 rounded-lg table tbody td,
+  .min-w-full border border-gray-300 rounded-lg .pagination,
+  .min-w-full border border-gray-300 rounded-lg .pagination a,
+  .min-w-full border border-gray-300 rounded-lg .pagination span {
     font-size:0.75rem;
   }
-  .min-w-full border border-gray-300 dark:border-gray-700 rounded-lg table thead th { text-transform:uppercase; letter-spacing:0.08em; color:#64748b; }
-  .min-w-full border border-gray-300 dark:border-gray-700 rounded-lg table tbody td { vertical-align:middle; }
+  .min-w-full border border-gray-300 rounded-lg table thead th { text-transform:uppercase; letter-spacing:0.08em; color:#64748b; }
+  .min-w-full border border-gray-300 rounded-lg table tbody td { vertical-align:middle; }
   .asset-actions { display:flex; flex-wrap:wrap; gap:0.35rem; }
   .asset-actions .btn {
     border-radius: 12px;
@@ -149,6 +149,8 @@
 @section('content')
 @php($statusValue = request('status', ''))
 @php($availableChecked = request('available') === '1')
+<main class="content-body">
+<div class="container-fluid">
 <div class="asset-shell">
   <section class="asset-hero">
     <div>
@@ -201,7 +203,7 @@
     </form>
   </section>
 
-  <section class="min-w-full border border-gray-300 dark:border-gray-700 rounded-lg">
+  <section class="min-w-full border border-gray-300 rounded-lg">
     <div class="table-responsive">
       <table class="table align-middle">
         <thead>
@@ -292,6 +294,8 @@
     <img src="" alt="Foto aset">
   </div>
 </div>
+</div>
+</main>
 @endsection
 
 @push('scripts')
