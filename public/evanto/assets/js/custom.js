@@ -298,26 +298,123 @@ var Gymove = function(){
 			jQuery('.dz-chat-history-box').addClass('d-none');
 		}); 
 		
-		jQuery('.dz-fullscreen').on('click',function(){
-			jQuery('.dz-fullscreen').toggleClass('active');
-		});
+		// fullscreen icon class handled in handleDzFullScreen – no toggle here
+		// jQuery('.dz-fullscreen').on('click',function(){
+		// 	jQuery('.dz-fullscreen').toggleClass('active');
+		// });
 	}
 	
 	var handleDzFullScreen = function() {
+		var isFullscreenMode = false;
+		var manualExit = false;
+		var fullscreenPreference = sessionStorage.getItem('fullscreenMode');
+		
+		// Auto-restore fullscreen if it was active before page reload
+		if(fullscreenPreference === 'active') {
+			setTimeout(function() {
+				if(document.documentElement.requestFullscreen) {
+					document.documentElement.requestFullscreen().catch(() => {});
+				} else if(document.documentElement.webkitRequestFullscreen) {
+					document.documentElement.webkitRequestFullscreen();
+				} else if(document.documentElement.mozRequestFullScreen) {
+					document.documentElement.mozRequestFullScreen();
+				} else if(document.documentElement.msRequestFullscreen) {
+					document.documentElement.msRequestFullscreen();
+				}
+			}, 300);
+		}
+		
+		// Track fullscreen status
+		document.addEventListener('fullscreenchange', function() {
+			isFullscreenMode = !!document.fullscreenElement;
+			if(!isFullscreenMode && !manualExit) {
+				// exited unexpectedly, restore
+				setTimeout(function() {
+					if(document.documentElement.requestFullscreen) {
+						document.documentElement.requestFullscreen().catch(() => {});
+					}
+				}, 100);
+			} else if(!isFullscreenMode && manualExit) {
+				// User clicked button to exit, reset flag after short delay
+				setTimeout(function() {
+					manualExit = false;
+				}, 500);
+			}
+		});
+		document.addEventListener('webkitfullscreenchange', function() {
+			isFullscreenMode = !!document.webkitFullscreenElement;
+			if(!isFullscreenMode && !manualExit) {
+				setTimeout(function() {
+					if(document.documentElement.webkitRequestFullscreen) {
+						document.documentElement.webkitRequestFullscreen();
+					}
+				}, 100);
+			} else if(!isFullscreenMode && manualExit) {
+				setTimeout(function() {
+					manualExit = false;
+				}, 500);
+			}
+		});
+		document.addEventListener('mozfullscreenchange', function() {
+			isFullscreenMode = !!document.mozFullScreenElement;
+			if(!isFullscreenMode && !manualExit) {
+				setTimeout(function() {
+					if(document.documentElement.mozRequestFullScreen) {
+						document.documentElement.mozRequestFullScreen();
+					}
+				}, 100);
+			} else if(!isFullscreenMode && manualExit) {
+				setTimeout(function() {
+					manualExit = false;
+				}, 500);
+			}
+		});
+		document.addEventListener('MSFullscreenChange', function() {
+			isFullscreenMode = !!document.msFullscreenElement;
+			if(!isFullscreenMode && !manualExit) {
+				setTimeout(function() {
+					if(document.documentElement.msRequestFullscreen) {
+						document.documentElement.msRequestFullscreen();
+					}
+				}, 100);
+			} else if(!isFullscreenMode && manualExit) {
+				setTimeout(function() {
+					manualExit = false;
+				}, 500);
+			}
+		});
+		
+		// Prevent ESC key from closing fullscreen
+		document.addEventListener('keydown', function(e) {
+			if(e.key === 'Escape' && isFullscreenMode) {
+				e.preventDefault();
+				e.stopPropagation();
+				return false;
+			}
+		}, true);
+		
+		// Fullscreen button click handler
 		jQuery('.dz-fullscreen').on('click',function(e){
+			e.preventDefault();
+			e.stopPropagation();
+			
 			if(document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement||document.msFullscreenElement) { 
-				/* Enter fullscreen */
+				/* Exit fullscreen via button */
+				manualExit = true;
+				sessionStorage.removeItem('fullscreenMode');
 				if(document.exitFullscreen) {
 					document.exitFullscreen();
 				} else if(document.msExitFullscreen) {
-					document.msExitFullscreen(); /* IE/Edge */
+					document.msExitFullscreen();
 				} else if(document.mozCancelFullScreen) {
-					document.mozCancelFullScreen(); /* Firefox */
+					document.mozCancelFullScreen();
 				} else if(document.webkitExitFullscreen) {
-					document.webkitExitFullscreen(); /* Chrome, Safari & Opera */
+					document.webkitExitFullscreen();
 				}
 			} 
-			else { /* exit fullscreen */
+			else { /* Enter fullscreen */
+				manualExit = false;
+				sessionStorage.setItem('fullscreenMode', 'active');
 				if(document.documentElement.requestFullscreen) {
 					document.documentElement.requestFullscreen();
 				} else if(document.documentElement.webkitRequestFullscreen) {
@@ -329,6 +426,33 @@ var Gymove = function(){
 				}
 			}		
 		});
+		
+		// Save fullscreen state before page navigation
+		document.addEventListener('click', function(e) {
+			var target = e.target;
+			var $target = jQuery(target);
+			
+			// Check if clicking a menu link (but not fullscreen button)
+			if(($target.closest('a').length || target.tagName === 'A') && 
+			   !$target.closest('.dz-fullscreen').length) {
+				
+				// If in fullscreen mode and clicking a navigation link, save preference
+				if(isFullscreenMode && (e.target.tagName === 'A' || $target.closest('a').length)) {
+					sessionStorage.setItem('fullscreenMode', 'active');
+				}
+			}
+		}, true);
+		
+		// Prevent menu clicks from exiting fullscreen by resetting manualExit flag
+		document.addEventListener('click', function(e) {
+			if(manualExit && isFullscreenMode) {
+				// Don't auto-exit when clicking menus while in fullscreen
+				var target = e.target;
+				if(!jQuery(target).closest('.dz-fullscreen').length) {
+					manualExit = false;
+				}
+			}
+		}, true);
 	}
 	
 	var handleShowPass = function(){
