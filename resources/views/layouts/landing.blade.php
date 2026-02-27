@@ -114,7 +114,7 @@
                 <li class="nav-item"><a class="nav-link" href="#fitur">Fitur</a></li>
                 <li class="nav-item"><a class="nav-link" href="#stok">Stok</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('assets.loanable') }}">Data Barang</a></li>
-                <li class="nav-item"><a class="btn btn-cta px-4" href="{{ route('login') }}">Login</a></li>
+                <li class="nav-item"><button class="btn btn-cta px-4" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button></li>
             </ul>
         </div>
     </div>

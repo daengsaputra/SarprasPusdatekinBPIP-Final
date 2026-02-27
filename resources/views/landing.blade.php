@@ -415,6 +415,115 @@
     color: var(--text-secondary);
   }
 
+  /* Modal Login Styles */
+  .modal-backdrop.show {
+    backdrop-filter: blur(8px);
+    background-color: rgba(15, 23, 42, 0.5);
+  }
+  
+  .modal.fade .modal-dialog {
+    transform: scale(0.7);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+  }
+  
+  .modal.show .modal-dialog {
+    transform: scale(1);
+    opacity: 1;
+  }
+  
+  .modal-login .modal-content {
+    border: none;
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(15, 23, 42, 0.3);
+    background: var(--surface-1);
+  }
+  
+  .modal-login .modal-header {
+    border-bottom: 1px solid color-mix(in srgb, var(--text-primary) 12%, transparent);
+    padding: 1.5rem;
+  }
+  
+  .modal-login .modal-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  
+  .modal-login .btn-close {
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+  }
+  
+  .modal-login .btn-close:hover {
+    opacity: 1;
+  }
+  
+  .modal-login .modal-body {
+    padding: 2rem;
+  }
+  
+  .modal-login .form-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.6rem;
+  }
+  
+  .modal-login .form-control {
+    background: var(--surface-2);
+    border: 1px solid color-mix(in srgb, var(--text-secondary) 30%, transparent);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+  }
+  
+  .modal-login .form-control:focus {
+    background: var(--surface-2);
+    border-color: var(--brand-blue);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-blue) 20%, transparent);
+    color: var(--text-primary);
+  }
+  
+  .modal-login .form-control::placeholder {
+    color: color-mix(in srgb, var(--text-secondary) 70%, transparent);
+  }
+  
+  .modal-login .btn {
+    border-radius: 10px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+  
+  .modal-login .btn-primary {
+    background: var(--brand-blue);
+    border-color: var(--brand-blue);
+  }
+  
+  .modal-login .btn-primary:hover {
+    background: color-mix(in srgb, var(--brand-blue) 90%, black);
+    border-color: color-mix(in srgb, var(--brand-blue) 90%, black);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px color-mix(in srgb, var(--brand-blue) 35%, transparent);
+  }
+  
+  .modal-login .alert {
+    border-radius: 10px;
+    border: none;
+  }
+  
+  .show-pass {
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+  }
+  
+  .show-pass:hover {
+    opacity: 1;
+  }
+
 </style>
 @endpush
 
@@ -428,7 +537,7 @@
       </p>
       <div class="d-flex flex-wrap gap-3 mt-4">
         <a class="btn btn-lg btn-primary px-4" href="{{ route('assets.loanable') }}">Lihat Koleksi Sarpras</a>
-        <a class="btn btn-lg btn-outline-primary px-4" href="{{ route('login') }}">Masuk Dashboard</a>
+        <button class="btn btn-lg btn-outline-primary px-4" data-bs-toggle="modal" data-bs-target="#loginModal">Masuk Dashboard</button>
       </div>
     </div>
   <div class="hero-image {{ $hasHeroVideo ? 'hero-image--has-video' : '' }}">
@@ -576,5 +685,116 @@
       <p class="feature-desc mb-0">Laporan pemakaian sarpras membantu pengambilan keputusan yang cepat.</p>
     </div>
   </div>
+
+  <!-- Login Modal -->
+  <div class="modal fade modal-login" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="d-flex align-items-center gap-3 ms-0">
+            <img src="{{ asset('evanto/assets/images/Logo Baju Pusdatin.png') }}" alt="SARPRAS" class="img-fluid" style="max-height:40px;" onerror="this.style.display='none'">
+            <h5 class="modal-title" id="loginModalLabel">Masuk Dashboard</h5>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              {{ session('success') }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          @endif
+
+          @if (session('status'))
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+              {{ session('status') }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          @endif
+
+          @if ($errors->any())
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <strong>Login Gagal!</strong>
+              <ul class="mb-0 mt-2">
+                @foreach ($errors->all() as $error)
+                  <li>{{ $error }}</li>
+                @endforeach
+              </ul>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          @endif
+
+          <form method="POST" action="{{ route('login') }}" class="sarpras-login-form">
+            @csrf
+
+            <div class="form-group mb-3">
+              <label class="form-label"><strong>Email / Username</strong></label>
+              <input id="login" type="text" class="form-control dz-username @error('login') is-invalid @enderror"
+                     name="login" value="{{ old('login') }}" required autofocus placeholder="Masukkan username atau email anda">
+              @error('login')
+                <div class="invalid-feedback d-block">{{ $message }}</div>
+              @enderror
+            </div>
+
+            <div class="form-group mb-3">
+              <label class="form-label"><strong>Password</strong></label>
+              <div class="position-relative">
+                <input id="password" type="password" autocomplete="current-password"
+                       class="form-control dz-password @error('password') is-invalid @enderror"
+                       name="password" required placeholder="Masukkan password anda">
+                <span class="show-pass position-absolute top-50 end-0 me-2 translate-middle-y" style="cursor: pointer;">
+                  <span class="show"><i class="fa fa-eye-slash"></i></span>
+                  <span class="hide"><i class="fa fa-eye"></i></span>
+                </span>
+                @error('password')
+                  <div class="invalid-feedback d-block">{{ $message }}</div>
+                @enderror
+              </div>
+            </div>
+
+            <div class="form-group mb-4">
+              <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="form-check-input" name="remember" id="remember_modal" {{ old('remember') ? 'checked' : '' }}>
+                <label class="form-check-label" for="remember_modal">Ingat preferensi saya</label>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 btn-lg mb-2">Masuk Sekarang</button>
+
+            @if (Route::has('password.request'))
+              <div class="text-center">
+                <a href="{{ route('password.request') }}" class="btn btn-link small">Lupa password?</a>
+              </div>
+            @endif
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Handle show/hide password toggle in modal
+      const showPassElements = document.querySelectorAll('.show-pass');
+      
+      showPassElements.forEach(el => {
+        el.addEventListener('click', function() {
+          const passwordInput = this.closest('.position-relative').querySelector('input');
+          const show = this.querySelector('.show');
+          const hide = this.querySelector('.hide');
+          
+          if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            show.style.display = 'none';
+            hide.style.display = 'inline';
+          } else {
+            passwordInput.type = 'password';
+            show.style.display = 'inline';
+            hide.style.display = 'none';
+          }
+        });
+      });
+    });
+  </script>
 
 @endsection
