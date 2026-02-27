@@ -1,7 +1,7 @@
 <div class="nav-header">
     <a href="{{ route('dashboard') }}" class="brand-logo" aria-label="SARPRAS">
-        <img class="logo-abbr" src="{{ asset('evanto/assets/images/logo.avif') }}" alt="logo-abbr">
-        <img class="brand-title" src="{{ asset('evanto/assets/images/logo-text.avif') }}" alt="logo-title">
+        <img class="logo-abbr" src="{{ asset('evanto/assets/images/camera.svg') }}" alt="logo-abbr">
+        <img class="brand-title" src="{{ asset('evanto/assets/images/Logo Baju Pusdatin.png') }}" alt="logo-title">
     </a>
 
     <div class="nav-control">

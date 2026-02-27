@@ -26,8 +26,15 @@
 
 /* Header content alignment */
 .header .header-content {
-    padding-left: var(--sarpras-content-x);
+    /* Reserve space for hamburger/nav-control so page title does not overlap it */
+    padding-left: 5rem;
     padding-right: var(--sarpras-content-x);
+}
+
+@media (max-width: 767px) {
+    .header .header-content {
+        padding-left: 3.75rem;
+    }
 }
 
 .sarpras-header-collapse {
@@ -163,6 +170,80 @@
 
     #main-wrapper:not(.menu-toggle) .footer {
         padding-left: 19.25rem;
+    }
+
+    #main-wrapper.menu-toggle .sarpras-menu-title {
+        opacity: 0;
+        visibility: hidden;
+        height: 0;
+        margin: 0;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        overflow: hidden;
+    }
+
+    /* Disable default flyout panel on icon hover in collapsed sidebar */
+    #main-wrapper.menu-toggle .deznav .metismenu > li:hover > ul {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+    }
+
+    #main-wrapper.menu-toggle .sarpras-menu-list > li {
+        position: relative;
+    }
+
+    #main-wrapper.menu-toggle .sarpras-menu-list > li > .sarpras-menu-link::after {
+        content: attr(data-menu-label);
+        position: absolute;
+        left: calc(100% + 0.65rem);
+        top: 50%;
+        transform: translateY(-50%);
+        background: #ffffff;
+        color: #2f3241;
+        border: 1px solid #ececf4;
+        border-radius: 12px;
+        padding: 0.55rem 0.8rem;
+        font-size: 0.84rem;
+        font-weight: 600;
+        line-height: 1.2;
+        white-space: nowrap;
+        box-shadow: 0 12px 24px rgba(31, 36, 48, 0.14);
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: auto;
+        cursor: pointer;
+        z-index: 1001;
+    }
+
+    #main-wrapper.menu-toggle .sarpras-menu-list > li > .sarpras-menu-link::before {
+        content: "";
+        position: absolute;
+        left: calc(100% + 0.38rem);
+        top: 50%;
+        transform: translateY(-50%) rotate(45deg);
+        width: 0.55rem;
+        height: 0.55rem;
+        background: #ffffff;
+        border-left: 1px solid #ececf4;
+        border-top: 1px solid #ececf4;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: auto;
+        cursor: pointer;
+        z-index: 1000;
+    }
+
+    #main-wrapper.menu-toggle .sarpras-menu-list > li > .sarpras-menu-link:hover::after,
+    #main-wrapper.menu-toggle .sarpras-menu-list > li > .sarpras-menu-link:focus-visible::after,
+    #main-wrapper.menu-toggle .sarpras-menu-list > li > .sarpras-menu-link:hover::before,
+    #main-wrapper.menu-toggle .sarpras-menu-list > li > .sarpras-menu-link:focus-visible::before {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    #main-wrapper.menu-toggle .sarpras-menu-arrow {
+        display: none !important;
     }
 }
 

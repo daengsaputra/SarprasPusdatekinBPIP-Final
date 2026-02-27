@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
@@ -93,10 +94,38 @@ class LoginController extends Controller
     }
 
     /**
+     * The user has been authenticated.
+     */
+    protected function authenticated(Request $request, $user)
+    {
+        return redirect($this->redirectPath())->with('success', 'Berhasil login!');
+    }
+
+    /**
+     * Send the response after the user was authenticated.
+     */
+    protected function sendLoginResponse(Request $request)
+    {
+        $request->session()->regenerate();
+
+        return redirect($this->redirectPath())->with('success', 'Berhasil login!');
+    }
+
+    /**
+     * Send the response after the user was unsuccessfully authenticated.
+     */
+    protected function sendFailedLoginResponse(Request $request)
+    {
+        throw ValidationException::withMessages([
+            'login' => [trans('auth.failed')],
+        ])->redirectTo(route('login'));
+    }
+
+    /**
      * Redirect users to login page after logout.
      */
     protected function loggedOut($request)
     {
-        return redirect('/login');
+        return redirect('/login')->with('status', 'Logout berhasil. Sampai jumpa!');
     }
 }
