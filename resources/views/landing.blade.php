@@ -441,13 +441,17 @@
   
   .modal-login .modal-header {
     border-bottom: 1px solid color-mix(in srgb, var(--text-primary) 12%, transparent);
-    padding: 1.5rem;
+    padding: 2rem 1.5rem 1.5rem;
+    justify-content: center;
+    align-items: center;
   }
   
   .modal-login .modal-title {
     font-size: 1.35rem;
     font-weight: 700;
     color: var(--text-primary);
+    text-align: center;
+    margin: 0;
   }
   
   .modal-login .btn-close {
@@ -690,12 +694,10 @@
   <div class="modal fade modal-login" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
       <div class="modal-content">
-        <div class="modal-header">
-          <div class="d-flex align-items-center gap-3 ms-0">
-            <img src="{{ asset('evanto/assets/images/Logo Baju Pusdatin.png') }}" alt="SARPRAS" class="img-fluid" style="max-height:40px;" onerror="this.style.display='none'">
-            <h5 class="modal-title" id="loginModalLabel">Masuk Dashboard</h5>
-          </div>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-header border-0 position-relative text-center py-0" style="flex-direction: column;">
+          <button type="button" class="btn-close position-absolute end-0 top-0" data-bs-dismiss="modal" aria-label="Close" style="margin: 1rem;"></button>
+          <img src="{{ asset('evanto/assets/images/Logo Baju Pusdatin.png') }}" alt="SARPRAS" class="img-fluid mx-auto mb-2" style="max-height:50px;" onerror="this.style.display='none'">
+          <h5 class="modal-title" id="loginModalLabel">Masuk Dashboard</h5>
         </div>
         <div class="modal-body">
           @if (session('success'))
@@ -776,12 +778,10 @@
   <div class="modal fade modal-login" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
       <div class="modal-content">
-        <div class="modal-header">
-          <div class="d-flex align-items-center gap-3 ms-0">
-            <img src="{{ asset('evanto/assets/images/Logo Baju Pusdatin.png') }}" alt="SARPRAS" class="img-fluid" style="max-height:40px;" onerror="this.style.display='none'">
-            <h5 class="modal-title" id="forgotPasswordModalLabel">Lupa Password</h5>
-          </div>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-header border-0 position-relative text-center py-0" style="flex-direction: column;">
+          <button type="button" class="btn-close position-absolute end-0 top-0" data-bs-dismiss="modal" aria-label="Close" style="margin: 1rem;"></button>
+          <img src="{{ asset('evanto/assets/images/Logo Baju Pusdatin.png') }}" alt="SARPRAS" class="img-fluid mx-auto mb-2" style="max-height:50px;" onerror="this.style.display='none'">
+          <h5 class="modal-title" id="forgotPasswordModalLabel">Lupa Password</h5>
         </div>
         <div class="modal-body">
           <p class="text-muted mb-4">Masukkan email untuk menerima tautan reset password.</p>
