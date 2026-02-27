@@ -9,11 +9,11 @@ use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SettingController;
 
-// Custom logout route - redirect to home page instead of login
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
-
 // Registrasi rute autentikasi (login, register, logout)
 Auth::routes();
+
+// Override logout route - redirect to home page instead of login
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 // Rute utama ke landing page
 Route::get('/', [HomeController::class, 'root'])->name('root');
