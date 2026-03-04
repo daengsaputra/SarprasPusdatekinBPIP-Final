@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Asset;
+use App\Models\Loan;
 
 class HomeController extends Controller
 {
@@ -33,6 +34,26 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $totalBarang = (int) Asset::sum('quantity_total');
+        $totalBarangAset = (int) Asset::where('kind', Asset::KIND_INVENTORY)->sum('quantity_total');
+        $totalDipinjamHistoris = (int) Loan::sum('quantity');
+        $totalBarangKembali = (int) Loan::sum('quantity_returned');
+        $totalBarangDipinjam = max($totalDipinjamHistoris - $totalBarangKembali, 0);
+
+        $asetPercent = $totalBarang > 0 ? (int) round(($totalBarangAset / $totalBarang) * 100) : 0;
+        $dipinjamPercent = $totalBarang > 0 ? (int) round(($totalBarangDipinjam / $totalBarang) * 100) : 0;
+        $kembaliPercent = $totalDipinjamHistoris > 0
+            ? (int) round(($totalBarangKembali / $totalDipinjamHistoris) * 100)
+            : 0;
+
+        return view('home', compact(
+            'totalBarang',
+            'totalBarangAset',
+            'totalBarangDipinjam',
+            'totalBarangKembali',
+            'asetPercent',
+            'dipinjamPercent',
+            'kembaliPercent'
+        ));
     }
 }

@@ -16,12 +16,12 @@
                                         <img src="{{ asset('evanto/assets/images/card/1.avif') }}" alt="progress">
                                     </span>
                                     <div>
-                                        <p class="fs-14 mb-2">Weekly Progress</p>
-                                        <span class="title text-black fs-28 fw-semibold">42%</span>
+                                        <p class="fs-16 mb-2 fw-semibold text-black">Total Barang</p>
+                                        <span class="title text-black fs-32 fw-bold">{{ number_format($totalBarang, 0, ',', '.') }}</span>
                                     </div>
                                 </div>
                                 <div class="progress position-absolute bottom-0 start-0 w-100" style="height:5px;">
-                                    <div class="progress-bar bg-success rounded" style="width: 42%; height:5px;"></div>
+                                    <div class="progress-bar bg-success rounded" style="width: {{ $totalBarang > 0 ? 100 : 0 }}%; height:5px;"></div>
                                 </div>
                             </div>
                             <div class="effect bg-success"></div>
@@ -36,12 +36,12 @@
                                         <img src="{{ asset('evanto/assets/images/card/2.avif') }}" alt="running">
                                     </span>
                                     <div>
-                                        <p class="fs-14 mb-2">Weekly Running</p>
-                                        <span class="title text-black fs-28 fw-semibold">42km</span>
+                                        <p class="fs-16 mb-2 fw-semibold text-black">Total Barang Aset</p>
+                                        <span class="title text-black fs-32 fw-bold">{{ number_format($totalBarangAset, 0, ',', '.') }}</span>
                                     </div>
                                 </div>
                                 <div class="progress position-absolute bottom-0 start-0 w-100" style="height:5px;">
-                                    <div class="progress-bar bg-secondary rounded" style="width: 82%; height:5px;"></div>
+                                    <div class="progress-bar bg-secondary rounded" style="width: {{ $asetPercent }}%; height:5px;"></div>
                                 </div>
                             </div>
                             <div class="effect bg-secondary"></div>
@@ -56,12 +56,12 @@
                                         <img src="{{ asset('evanto/assets/images/card/3.avif') }}" alt="cycling">
                                     </span>
                                     <div>
-                                        <p class="fs-14 mb-2">Daily Cycling</p>
-                                        <span class="title text-black fs-28 fw-semibold">230 Km</span>
+                                        <p class="fs-16 mb-2 fw-semibold text-black">Barang Dipinjam</p>
+                                        <span class="title text-black fs-32 fw-bold">{{ number_format($totalBarangDipinjam, 0, ',', '.') }}</span>
                                     </div>
                                 </div>
                                 <div class="progress position-absolute bottom-0 start-0 w-100" style="height:5px;">
-                                    <div class="progress-bar bg-danger rounded" style="width: 90%; height:5px;"></div>
+                                    <div class="progress-bar bg-danger rounded" style="width: {{ $dipinjamPercent }}%; height:5px;"></div>
                                 </div>
                             </div>
                             <div class="effect bg-danger"></div>
@@ -76,12 +76,12 @@
                                         <img src="{{ asset('evanto/assets/images/card/4.webp') }}" alt="yoga">
                                     </span>
                                     <div>
-                                        <p class="fs-14 mb-2">Morning Yoga</p>
-                                        <span class="title text-black fs-28 fw-semibold">18:34:21</span>
+                                        <p class="fs-16 mb-2 fw-semibold text-black">Barang Kembali</p>
+                                        <span class="title text-black fs-32 fw-bold">{{ number_format($totalBarangKembali, 0, ',', '.') }}</span>
                                     </div>
                                 </div>
                                 <div class="progress position-absolute bottom-0 start-0 w-100" style="height:5px;">
-                                    <div class="progress-bar bg-warning rounded" style="width: 42%; height:5px;"></div>
+                                    <div class="progress-bar bg-warning rounded" style="width: {{ $kembaliPercent }}%; height:5px;"></div>
                                 </div>
                             </div>
                             <div class="effect bg-warning"></div>
