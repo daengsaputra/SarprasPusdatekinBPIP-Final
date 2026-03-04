@@ -34,15 +34,21 @@ Route::middleware('auth')->group(function () {
     Route::delete('/assets/{asset}/photo', [AssetController::class, 'destroyPhoto'])->name('assets.photo.destroy');
     Route::resource('assets', AssetController::class);
 
-    // Routes peminjaman
+    // Routes peminjaman (operasional)
+    Route::get('/loans', [LoanController::class, 'index'])->name('loans.index');
+    Route::get('/loans/create', [LoanController::class, 'create'])->name('loans.create');
     Route::post('/loans/batch', [LoanController::class, 'storeBatch'])->name('loans.store.batch');
+    Route::delete('/loans/{loan}', [LoanController::class, 'destroy'])->name('loans.destroy');
     Route::get('/loans/{loan}/return', [LoanController::class, 'returnForm'])->name('loans.return.form');
     Route::put('/loans/{loan}/return', [LoanController::class, 'returnUpdate'])->name('loans.return.update');
     Route::get('/loans/receipt/{batch}', [LoanController::class, 'receipt'])->name('loans.receipt');
     Route::get('/loans/{loan}/return-receipt', [LoanController::class, 'returnReceipt'])->name('loans.return.receipt');
-    Route::resource('loans', LoanController::class);
 
-    // Routes laporan
+    // Routes laporan (gabungan)
+    Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
+    Route::get('/reports/pdf', [ReportsController::class, 'pdf'])->name('reports.pdf');
+    Route::get('/reports/excel', [ReportsController::class, 'excel'])->name('reports.excel');
+    // Backward compatibility
     Route::get('/reports/loans', [ReportsController::class, 'loans'])->name('reports.loans');
     Route::get('/reports/loans/pdf', [ReportsController::class, 'loansPdf'])->name('reports.loans.pdf');
     Route::get('/reports/loans/excel', [ReportsController::class, 'loansExcel'])->name('reports.loans.excel');

@@ -8,7 +8,17 @@
   .receipt-wrapper .card { border-radius: 14px; border: 1px solid #e2e8f0; box-shadow: 0 12px 30px rgba(15,23,42,0.08); }
   .receipt-wrapper .card + .card { margin-top: 12px; }
   .meta-grid label { text-transform: uppercase; font-size: .65rem; letter-spacing: .05em; color: #64748b; }
-  .meta-grid .value { font-weight: 600; font-size: .95rem; color: #0f172a; }
+  .meta-grid .value {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+    font-size: .95rem;
+    color: #0f172a;
+  }
+  .meta-grid > div { min-width: 0; }
   .signature-box {
     min-height: 64px;
     display: flex;
@@ -46,16 +56,16 @@
       <div class="row g-3 meta-grid">
         <div class="col-md-6">
           <div class="text-uppercase text-muted small">Nama Peminjam</div>
-          <div class="value fw-semibold">{{ $loan->borrower_name }}</div>
+          <div class="value fw-semibold" title="{{ $loan->borrower_name }}">{{ $loan->borrower_name }}</div>
         </div>
         <div class="col-md-6">
           <div class="text-uppercase text-muted small">Unit Kerja</div>
-          <div class="value fw-semibold">{{ $loan->unit }}</div>
+          <div class="value fw-semibold" title="{{ $loan->unit }}">{{ $loan->unit }}</div>
         </div>
         @if($loan->borrower_contact)
         <div class="col-md-6">
           <div class="text-uppercase text-muted small">Kontak</div>
-          <div class="value">{{ $loan->borrower_contact }}</div>
+          <div class="value" title="{{ $loan->borrower_contact }}">{{ $loan->borrower_contact }}</div>
         </div>
         @endif
         <div class="col-md-3">
@@ -113,7 +123,6 @@
   </div>
 </div>
 @endsection
-
 
 
 

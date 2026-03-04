@@ -658,13 +658,6 @@
                   </div>
                 </div>
               </div>
-              @if($loan->batch_code)
-                <div class="d-flex justify-content-end mt-3">
-                  <a target="_blank" rel="noopener" href="{{ route('loans.receipt', ['batch' => $loan->batch_code, 'preview' => 1]) }}" class="btn btn-sm btn-outline-primary">
-                    Lihat Bukti Peminjaman (PDF)
-                  </a>
-                </div>
-              @endif
               @if($loan->late_days > 0)
                 <div class="loan-alert">Terlambat {{ $loan->late_days }} hari</div>
               @endif

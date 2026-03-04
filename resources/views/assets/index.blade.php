@@ -24,7 +24,40 @@
   }
   .asset-summary-label { text-transform:uppercase; letter-spacing:0.12em; color:#94a3b8; }
   .asset-summary-value { font-weight:700; color:#0f172a; }
-  .asset-filter-card, .min-w-full border border-gray-300 rounded-lg { background:#fff; border-radius:28px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 20px 45px rgba(15,23,42,0.08); padding:1.5rem 1.7rem; }
+  .asset-filter-card { background:#fff; border-radius:12px; border:1px solid rgba(148,163,184,0.16); padding:1rem; }
+  body[data-theme="dark"] .asset-filter-card { background:#111827; border-color:rgba(148,163,184,0.24); }
+  body[data-theme="dark"] .asset-filter-card .form-label,
+  body[data-theme="dark"] .asset-filter-card .form-check-label {
+    color: #e5e7eb;
+  }
+  body[data-theme="dark"] .asset-filter-card .form-control,
+  body[data-theme="dark"] .asset-filter-card .form-select {
+    background: #0b1220;
+    border-color: rgba(148,163,184,0.35);
+    color: #f8fafc;
+  }
+  body[data-theme="dark"] .asset-filter-card .form-control::placeholder {
+    color: #94a3b8;
+  }
+  body[data-theme="dark"] .asset-filter-card .form-control:focus,
+  body[data-theme="dark"] .asset-filter-card .form-select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 0.2rem rgba(59,130,246,0.2);
+  }
+  body[data-theme="dark"] .asset-filter-card .form-check-input {
+    background-color: #0b1220;
+    border-color: rgba(148,163,184,0.45);
+  }
+  body[data-theme="dark"] .asset-filter-card .btn-outline-secondary {
+    color: #e5e7eb;
+    border-color: rgba(148,163,184,0.45);
+  }
+  body[data-theme="dark"] .asset-filter-card .btn-outline-secondary:hover {
+    color: #0f172a;
+    background: #cbd5e1;
+    border-color: #cbd5e1;
+  }
+  .min-w-full border border-gray-300 rounded-lg { background:#fff; border-radius:20px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 20px 45px rgba(15,23,42,0.08); padding:1.5rem 1.7rem; }
   .min-w-full border border-gray-300 rounded-lg table thead th,
   .min-w-full border border-gray-300 rounded-lg table tbody td,
   .min-w-full border border-gray-300 rounded-lg .pagination,
@@ -134,14 +167,7 @@
     font-size: 1.2rem;
     cursor: pointer;
   }
-  .letter-wide { letter-spacing:0.12em; font-size:0.75rem; }
-  .asset-filter-card .form-label,
-  .asset-filter-card .form-control,
-  .asset-filter-card .form-select,
-  .asset-filter-card .form-check-label,
-  .asset-filter-card .btn {
-    font-size:0.75rem;
-  }
+  .asset-filter-card .form-label { font-size:0.75rem; }
   @media (max-width: 992px) { .asset-hero{flex-direction:column;} body[data-theme="light"] main.container{margin-left:0!important;} }
 </style>
 @endpush
@@ -167,38 +193,38 @@
   </section>
 
   <section class="asset-filter-card">
-    <form method="GET" action="{{ route($listRoute) }}" class="row g-2 align-items-end">
-      <input type="hidden" name="filter" value="1">
-      <div class="col-md-4">
-        <label class="form-label text-uppercase small fw-semibold letter-wide">Cari</label>
-        <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="kode / nama / deskripsi">
+    <form method="GET" action="{{ route($listRoute) }}" class="row g-3 align-items-end">
+      <div class="col-12 col-lg-4">
+        <label class="form-label">Cari</label>
+        <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="Kode / nama / deskripsi">
       </div>
-      <div class="col-md-3">
-        <label class="form-label text-uppercase small fw-semibold letter-wide">Kategori</label>
+      <div class="col-12 col-md-4 col-lg-3">
+        <label class="form-label">Kategori</label>
         <select name="category" class="form-select">
-          <option value="">-- semua --</option>
+          <option value="">Semua</option>
           @foreach(($categories ?? []) as $cat)
             <option value="{{ $cat }}" {{ request('category')===$cat?'selected':'' }}>{{ $cat }}</option>
           @endforeach
         </select>
       </div>
-      <div class="col-md-3">
-        <label class="form-label text-uppercase small fw-semibold letter-wide">Status</label>
+      <div class="col-12 col-md-4 col-lg-3">
+        <label class="form-label">Status</label>
         <select name="status" class="form-select">
           <option value="" {{ $statusValue === '' ? 'selected' : '' }}>Semua</option>
           <option value="active" {{ $statusValue === 'active' ? 'selected' : '' }}>Aktif</option>
           <option value="inactive" {{ $statusValue === 'inactive' ? 'selected' : '' }}>Nonaktif</option>
         </select>
       </div>
-      <div class="col-md-2">
-        <label class="form-label text-uppercase small fw-semibold letter-wide d-block">Ketersediaan</label>
+      <div class="col-12 col-md-4 col-lg-2">
+        <label class="form-label d-block">Ketersediaan</label>
         <div class="form-check">
           <input class="form-check-input" type="checkbox" name="available" value="1" id="chkAvail" {{ $availableChecked ? 'checked' : '' }}>
           <label class="form-check-label" for="chkAvail">Hanya stok tersedia</label>
         </div>
       </div>
-      <div class="col-md-2">
-        <button class="btn btn-primary w-100" type="submit">Terapkan</button>
+      <div class="col-12 d-flex gap-2">
+        <button class="btn btn-primary" type="submit">Terapkan</button>
+        <a href="{{ route($listRoute) }}" class="btn btn-outline-secondary">Reset</a>
       </div>
     </form>
   </section>

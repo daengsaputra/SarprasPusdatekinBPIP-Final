@@ -116,6 +116,9 @@
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1.5rem;
   }
+  .receipt-meta__grid > div {
+    min-width: 0;
+  }
   .receipt-meta__label {
     font-size: 0.7rem;
     letter-spacing: 0.15em;
@@ -125,6 +128,11 @@
     font-weight: 600;
   }
   .receipt-meta__value {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-size: 1rem;
     color: #111827;
     font-weight: 600;
@@ -253,22 +261,22 @@
     <div class="receipt-meta__grid">
       <div>
         <div class="receipt-meta__label">Nama Peminjam</div>
-        <div class="receipt-meta__value">{{ $borrower }}</div>
+        <div class="receipt-meta__value" title="{{ $borrower }}">{{ $borrower }}</div>
       </div>
       <div>
         <div class="receipt-meta__label">Unit Kerja</div>
-        <div class="receipt-meta__value">{{ $unit }}</div>
+        <div class="receipt-meta__value" title="{{ $unit }}">{{ $unit }}</div>
       </div>
       @if($activity_name)
       <div>
         <div class="receipt-meta__label">Nama Kegiatan</div>
-        <div class="receipt-meta__value">{{ $activity_name }}</div>
+        <div class="receipt-meta__value" title="{{ $activity_name }}">{{ $activity_name }}</div>
       </div>
       @endif
       @if($contact)
       <div>
         <div class="receipt-meta__label">Kontak</div>
-        <div class="receipt-meta__value">{{ $contact }}</div>
+        <div class="receipt-meta__value" title="{{ $contact }}">{{ $contact }}</div>
       </div>
       @endif
       <div>

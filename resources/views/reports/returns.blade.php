@@ -98,7 +98,7 @@
       <td>{{ $row->borrower_name }}</td>
       <td>{{ $row->quantity }}</td>
       <td>
-        <a class="btn btn-sm btn-outline-secondary" target="_blank" href="{{ route('loans.return.receipt', ['loan' => $row->id, 'preview' => 1]) }}">Bukti Kembali</a>
+        <span class="text-muted small">Tidak tersedia</span>
       </td>
     </tr>
   @empty

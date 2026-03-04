@@ -34,7 +34,12 @@ class Loan extends Model
         'quantity_returned' => 'integer',
     ];
 
-    protected $appends = ['quantity_remaining'];
+    protected $appends = [
+        'quantity_remaining',
+        'request_photo_paths',
+        'loan_photo_paths',
+        'return_photo_paths',
+    ];
 
     public function asset(): BelongsTo
     {
@@ -46,5 +51,40 @@ class Loan extends Model
         $qty = (int) $this->quantity;
         $returned = (int) $this->quantity_returned;
         return max($qty - $returned, 0);
+    }
+
+    public function getRequestPhotoPathsAttribute(): array
+    {
+        return $this->normalizeAttachmentPaths($this->request_photo_path);
+    }
+
+    public function getLoanPhotoPathsAttribute(): array
+    {
+        return $this->normalizeAttachmentPaths($this->loan_photo_path);
+    }
+
+    public function getReturnPhotoPathsAttribute(): array
+    {
+        return $this->normalizeAttachmentPaths($this->return_photo_path);
+    }
+
+    protected function normalizeAttachmentPaths($value): array
+    {
+        if (!$value) {
+            return [];
+        }
+        if (is_array($value)) {
+            return array_values(array_filter($value));
+        }
+        if (!is_string($value)) {
+            return [];
+        }
+
+        $decoded = json_decode($value, true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+            return array_values(array_filter($decoded));
+        }
+
+        return [$value];
     }
 }

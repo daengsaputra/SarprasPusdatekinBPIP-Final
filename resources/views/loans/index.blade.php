@@ -14,13 +14,50 @@
   .loan-summary-label { text-transform:uppercase; letter-spacing:0.15em; font-size:0.62rem; color:#94a3b8; }
   .loan-summary-value { font-size:1.35rem; font-weight:700; color:#0f172a; }
   .loan-filter-card, .loan-table-card { background:#fff; border-radius:28px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 20px 45px rgba(15,23,42,0.08); padding:1.5rem 1.7rem; }
+  .loan-filter-form {
+    display: grid;
+    grid-template-columns: minmax(230px, 1.4fr) repeat(4, minmax(150px, 1fr)) auto;
+    gap: 1rem;
+    align-items: end;
+  }
+  .loan-filter-field { min-width: 0; }
+  .loan-filter-actions {
+    display: flex;
+    align-items: end;
+    gap: 0.6rem;
+    justify-content: flex-end;
+    min-width: 180px;
+  }
+  .loan-filter-actions .btn {
+    min-width: 86px;
+    border-radius: 12px;
+  }
   .loan-table-card { padding:1.2rem 1.4rem; }
+  .loan-date-field .input-group-text {
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+    background: #f8fafc;
+    color: #64748b;
+  }
+  .loan-date-field .form-control {
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+  }
   .loan-group { border:1px solid rgba(226,232,240,0.9); border-radius:24px; padding:1rem 1.3rem; margin-bottom:1rem; background:#fafbff; box-shadow:0 18px 35px rgba(15,23,42,0.06); }
   .loan-group__meta { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:0.5rem 1.5rem; padding-bottom:1rem; border-bottom:1px solid rgba(148,163,184,0.25); }
-  .loan-group__meta-item { display:flex; flex-direction:column; gap:0.12rem; }
+  .loan-group__meta-item { display:flex; flex-direction:column; gap:0.12rem; min-width:0; }
   .loan-group__meta-label { text-transform:uppercase; font-size:0.68rem; letter-spacing:0.12em; color:#94a3b8; }
-  .loan-group__meta-value { font-size:0.95rem; font-weight:700; color:#0f172a; white-space:nowrap; }
-  .loan-group__meta-value.is-wrap { white-space:normal; font-weight:600; line-height:1.4; }
+  .loan-group__meta-value {
+    display:block;
+    max-width:100%;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    font-size:0.95rem;
+    font-weight:700;
+    color:#0f172a;
+  }
+  .loan-group__meta-value.is-wrap { font-weight:600; }
   .loan-attachments { display:flex; flex-wrap:wrap; gap:0.4rem; }
   .loan-attachment-chip { display:inline-flex; align-items:center; gap:0.25rem; padding:0.22rem 0.75rem; border-radius:999px; border:1px solid rgba(59,130,246,0.35); font-size:0.72rem; text-decoration:none; color:#2563eb; background:rgba(59,130,246,0.08); transition:transform .25s cubic-bezier(0.34,1.56,0.64,1); transform:scale(0.96); }
   .loan-attachment-chip:hover { transform:scale(1); border-color:rgba(59,130,246,0.55); box-shadow:0 8px 18px rgba(59,130,246,0.2); }
@@ -35,8 +72,24 @@
   .loan-table-card table tbody td { vertical-align:top; }
   .loan-table-card table td[rowspan] { border-bottom:none; }
   .loan-asset-cell { min-width:200px; }
-  .loan-asset-name { display:block; font-weight:600; color:#0f172a; white-space:normal; word-break:break-word; }
-  .loan-asset-code { display:block; font-size:0.78rem; color:#64748b; }
+  .loan-asset-name {
+    display:block;
+    max-width:260px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    font-weight:600;
+    color:#0f172a;
+  }
+  .loan-asset-code {
+    display:block;
+    max-width:260px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    font-size:0.78rem;
+    color:#64748b;
+  }
   .loan-table-pagination { margin-top:1.2rem; display:flex; justify-content:flex-end; }
   .loan-attachment-modal { position:fixed; inset:0; background:rgba(15,23,42,0.65); display:flex; justify-content:center; align-items:center; padding:1.5rem; opacity:0; pointer-events:none; transition:opacity .25s ease; z-index:2000; }
   .loan-attachment-modal.is-visible { opacity:1; pointer-events:auto; }
@@ -48,6 +101,9 @@
   @media (max-width: 768px) {
     .loan-hero { flex-direction:column; }
     .loan-group__header { flex-direction:column; }
+    .loan-filter-form { grid-template-columns: 1fr; }
+    .loan-filter-actions { justify-content: stretch; }
+    .loan-filter-actions .btn { flex: 1; }
   }
 </style>
 @endpush
@@ -96,12 +152,12 @@
   </section>
 
   <section class="loan-filter-card">
-    <form action="{{ route('loans.index') }}" method="GET" class="row g-3 align-items-end">
-      <div class="col-md-3">
+    <form action="{{ route('loans.index') }}" method="GET" class="loan-filter-form">
+      <div class="loan-filter-field">
         <label class="form-label text-uppercase small fw-semibold letter-spacing-wide">Pencarian</label>
         <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="Nama peminjam / aset">
       </div>
-      <div class="col-md-2">
+      <div class="loan-filter-field">
         <label class="form-label text-uppercase small fw-semibold letter-spacing-wide">Status</label>
         <select name="status" class="form-select">
           <option value="">Semua</option>
@@ -110,7 +166,7 @@
           @endforeach
         </select>
       </div>
-      <div class="col-md-2">
+      <div class="loan-filter-field">
         <label class="form-label text-uppercase small fw-semibold letter-spacing-wide">Unit</label>
         <select name="unit" class="form-select">
           <option value="">Semua</option>
@@ -119,19 +175,23 @@
           @endforeach
         </select>
       </div>
-      <div class="col-md-2">
+      <div class="loan-filter-field loan-date-field">
         <label class="form-label text-uppercase small fw-semibold letter-spacing-wide">Dari</label>
-        <input type="date" name="from" value="{{ request('from') }}" class="form-control">
+        <div class="input-group">
+          <span class="input-group-text"><i class="fa fa-calendar-alt"></i></span>
+          <input type="date" id="filter_from" name="from" value="{{ request('from') }}" class="form-control" lang="id">
+        </div>
       </div>
-      <div class="col-md-2">
+      <div class="loan-filter-field loan-date-field">
         <label class="form-label text-uppercase small fw-semibold letter-spacing-wide">Sampai</label>
-        <input type="date" name="to" value="{{ request('to') }}" class="form-control">
+        <div class="input-group">
+          <span class="input-group-text"><i class="fa fa-calendar-alt"></i></span>
+          <input type="date" id="filter_to" name="to" value="{{ request('to') }}" class="form-control" lang="id">
+        </div>
       </div>
-      <div class="col-md-1 d-grid">
-        <button class="btn btn-primary" type="submit">Cari</button>
-      </div>
-      <div class="col-md-1 d-grid">
+      <div class="loan-filter-actions">
         <a href="{{ route('loans.index') }}" class="btn btn-outline-secondary">Reset</a>
+        <button class="btn btn-primary" type="submit">Cari</button>
       </div>
     </form>
   </section>
@@ -142,9 +202,9 @@
       @forelse($groupedLoans as $batchCode => $batchLoans)
         @php($firstLoan = $batchLoans->first())
         @php($attachments = [
-          'ND / Helpdesk' => $firstLoan->request_photo_path,
-          'Serah Terima' => $firstLoan->loan_photo_path,
-          'Pengembalian' => $firstLoan->return_photo_path,
+          'ND / Helpdesk' => $firstLoan->request_photo_paths,
+          'Serah Terima' => $firstLoan->loan_photo_paths,
+          'Pengembalian' => $firstLoan->return_photo_paths,
         ])
         @php($sequenceNumber = 'P' . str_pad($loop->iteration, 4, '0', STR_PAD_LEFT))
         <article class="loan-group">
@@ -155,11 +215,11 @@
             </div>
             <div class="loan-group__meta-item">
               <span class="loan-group__meta-label">Nama Peminjam</span>
-              <span class="loan-group__meta-value">{{ $firstLoan->borrower_name }}</span>
+              <span class="loan-group__meta-value" title="{{ $firstLoan->borrower_name }}">{{ $firstLoan->borrower_name }}</span>
             </div>
             <div class="loan-group__meta-item">
               <span class="loan-group__meta-label">Nama Kegiatan</span>
-              <span class="loan-group__meta-value is-wrap">{{ $firstLoan->activity_name ?: '-' }}</span>
+              <span class="loan-group__meta-value is-wrap" title="{{ $firstLoan->activity_name ?: '-' }}">{{ $firstLoan->activity_name ?: '-' }}</span>
             </div>
             <div class="loan-group__meta-item">
               <span class="loan-group__meta-label">Tanggal Pinjam</span>
@@ -204,10 +264,17 @@
                     @if($loop->first)
                       <td rowspan="{{ $batchLoans->count() }}">
                         <div class="loan-attachments">
-                          @foreach($attachments as $label => $path)
-                            @if($path)
-                              <button type="button" class="loan-attachment-chip" data-attachment="{{ asset('storage/'.$path) }}" data-label="{{ $label }}">Foto {{ $label }}</button>
-                            @endif
+                          @foreach($attachments as $label => $paths)
+                            @foreach(($paths ?? []) as $i => $path)
+                              <button
+                                type="button"
+                                class="loan-attachment-chip"
+                                data-attachment="{{ asset('storage/'.$path) }}"
+                                data-label="{{ $label }}{{ count($paths) > 1 ? ' #'.($i + 1) : '' }}"
+                              >
+                                Foto {{ $label }}{{ count($paths) > 1 ? ' #'.($i + 1) : '' }}
+                              </button>
+                            @endforeach
                           @endforeach
                         </div>
                       </td>
@@ -262,6 +329,11 @@
 @endsection
 
 @push('scripts')
+@if(session('clear_loan_draft'))
+<script>
+  try { sessionStorage.removeItem('loan_create_draft_v1'); } catch (e) {}
+</script>
+@endif
 @if(session('receipt_batch'))
 <script>
   (function(){
@@ -315,6 +387,29 @@
         closeModal();
       }
     });
+  })();
+</script>
+<script>
+  (function () {
+    const fromInput = document.getElementById('filter_from');
+    const toInput = document.getElementById('filter_to');
+    if (!fromInput || !toInput) return;
+
+    const syncToMin = () => {
+      if (!fromInput.value) {
+        toInput.removeAttribute('min');
+        return;
+      }
+      toInput.min = fromInput.value;
+      if (!toInput.value) {
+        toInput.value = fromInput.value;
+      } else if (toInput.value < fromInput.value) {
+        toInput.value = fromInput.value;
+      }
+    };
+
+    fromInput.addEventListener('change', syncToMin);
+    syncToMin();
   })();
 </script>
 @endpush

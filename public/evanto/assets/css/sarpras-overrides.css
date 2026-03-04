@@ -2,6 +2,21 @@
 :root {
     --sarpras-content-x: 1.5rem;
     --sarpras-content-y: 1.5rem;
+    --sarpras-font-family: "Poppins", sans-serif;
+}
+
+html,
+body,
+.app-main,
+#main-wrapper,
+h1, h2, h3, h4, h5, h6,
+p, span, a, li, label, small, strong,
+input, textarea, select, button,
+.btn, .form-control, .form-select,
+.table, .table th, .table td,
+.navbar, .nav-link, .dropdown-item,
+.card, .card-title, .card-body {
+    font-family: var(--sarpras-font-family) !important;
 }
 
 @media (min-width: 992px) {

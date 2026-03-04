@@ -28,18 +28,24 @@ class ReportsController extends Controller
         };
     }
 
-    private function buildLoanQuery(Request $request, Carbon $start, Carbon $end, bool $returnsOnly = false)
+    private function resolveType(Request $request): string
+    {
+        $type = (string) $request->query('type', 'all');
+        return in_array($type, ['all', 'loans', 'returns'], true) ? $type : 'all';
+    }
+
+    private function buildReportQuery(Request $request, Carbon $start, Carbon $end, string $type)
     {
         $search = trim((string) $request->query('q'));
         $unit = $request->query('unit');
         $status = $request->query('status');
 
-        $dateColumn = $returnsOnly ? 'return_date_actual' : 'loan_date';
+        $dateColumn = $type === 'returns' ? 'return_date_actual' : 'loan_date';
 
         return Loan::query()
             ->with('asset')
-            ->when($returnsOnly, fn($q) => $q->where('status', 'returned'))
-            ->when(!$returnsOnly && $status, fn($q) => $q->where('status', $status))
+            ->when($type === 'returns', fn($q) => $q->where('status', 'returned'))
+            ->when($type !== 'returns' && $status, fn($q) => $q->where('status', $status))
             ->when($unit, fn($q) => $q->where('unit', $unit))
             ->when($search, function ($query) use ($search) {
                 $pattern = '%' . $search . '%';
@@ -53,7 +59,7 @@ class ReportsController extends Controller
             ->whereBetween($dateColumn, [$start->toDateTimeString(), $end->toDateTimeString()]);
     }
 
-    private function applySorting($query, string $sort, string $dir, bool $returnsOnly = false)
+    private function applySorting($query, string $sort, string $dir, string $type)
     {
         $map = [
             'loan_date' => 'loan_date',
@@ -62,6 +68,7 @@ class ReportsController extends Controller
             'quantity' => 'quantity',
             'borrower_name' => 'borrower_name',
             'unit' => 'unit',
+            'status' => 'status',
         ];
 
         if ($sort === 'asset') {
@@ -71,23 +78,22 @@ class ReportsController extends Controller
         } elseif (array_key_exists($sort, $map)) {
             $query->orderBy($map[$sort], $dir);
         } else {
-            $query->orderBy($returnsOnly ? 'return_date_actual' : 'loan_date', 'desc');
+            $query->orderBy($type === 'returns' ? 'return_date_actual' : 'loan_date', 'desc');
         }
 
         return $query;
     }
 
-    public function loans(Request $request)
+    public function index(Request $request)
     {
         [$rangeKey, $start, $end, $rangeLabel] = $this->resolveRange($request);
-
-        $sort = $request->query('sort', 'loan_date');
+        $type = $this->resolveType($request);
+        $sort = $request->query('sort', $type === 'returns' ? 'return_date_actual' : 'loan_date');
         $dir = $request->query('dir', 'desc') === 'asc' ? 'asc' : 'desc';
 
-        $baseQuery = $this->buildLoanQuery($request, $start, $end);
-        $tableQuery = $this->applySorting(clone $baseQuery, $sort, $dir);
-
-        $loans = $tableQuery->paginate(15)->withQueryString();
+        $baseQuery = $this->buildReportQuery($request, $start, $end, $type);
+        $tableQuery = $this->applySorting(clone $baseQuery, $sort, $dir, $type);
+        $records = $tableQuery->paginate(15)->withQueryString();
 
         $summary = [
             'periode' => $rangeLabel,
@@ -95,100 +101,89 @@ class ReportsController extends Controller
             'end' => $end->toDateString(),
             'total_transaksi' => (clone $baseQuery)->count(),
             'total_jumlah' => (clone $baseQuery)->sum('quantity'),
+            'total_dikembalikan' => (clone $baseQuery)->where('status', 'returned')->count(),
         ];
 
-        $units = config('bpip.units', []);
-
-        return view('reports.loans', [
-            'records' => $loans,
+        return view('reports.index', [
+            'records' => $records,
             'summary' => $summary,
             'rangeKey' => $rangeKey,
             'start' => $start,
             'end' => $end,
-            'units' => $units,
+            'units' => config('bpip.units', []),
             'filters' => $request->all(),
             'sort' => $sort,
             'dir' => $dir,
+            'type' => $type,
         ]);
+    }
+
+    public function pdf(Request $request)
+    {
+        [$rangeKey, $start, $end] = $this->resolveRange($request);
+        $type = $this->resolveType($request);
+        $rows = $this->buildReportQuery($request, $start, $end, $type)
+            ->orderBy($type === 'returns' ? 'return_date_actual' : 'loan_date')
+            ->get();
+
+        $title = match ($type) {
+            'loans' => 'Laporan Peminjaman',
+            'returns' => 'Laporan Pengembalian',
+            default => 'Laporan Peminjaman & Pengembalian',
+        };
+
+        $pdf = Pdf::loadView('reports.pdf.loans', [
+            'rows' => $rows,
+            'title' => $title,
+            'period' => [$start->toDateString(), $end->toDateString()],
+        ])->setPaper('a4', 'portrait');
+
+        return $pdf->download('laporan-' . $type . '-' . $start->format('Ymd') . '-' . $end->format('Ymd') . '.pdf');
+    }
+
+    public function excel(Request $request)
+    {
+        [$rangeKey, $start, $end] = $this->resolveRange($request);
+        $type = $this->resolveType($request);
+        $rows = $this->buildReportQuery($request, $start, $end, $type)
+            ->orderBy($type === 'returns' ? 'return_date_actual' : 'loan_date')
+            ->get();
+
+        return $this->streamCsv($rows, 'laporan-' . $type, ['Tanggal Pinjam', 'Tanggal Kembali', 'Aset', 'Peminjam', 'Unit', 'Status', 'Jumlah', 'Rencana Kembali']);
+    }
+
+    public function loans(Request $request)
+    {
+        return redirect()->route('reports.index', array_merge($request->query(), ['type' => 'loans']));
     }
 
     public function returns(Request $request)
     {
-        [$rangeKey, $start, $end, $rangeLabel] = $this->resolveRange($request);
-
-        $sort = $request->query('sort', 'return_date_actual');
-        $dir = $request->query('dir', 'desc') === 'asc' ? 'asc' : 'desc';
-
-        $baseQuery = $this->buildLoanQuery($request, $start, $end, true);
-        $tableQuery = $this->applySorting(clone $baseQuery, $sort, $dir, true);
-
-        $returns = $tableQuery->paginate(15)->withQueryString();
-
-        $summary = [
-            'periode' => $rangeLabel,
-            'start' => $start->toDateString(),
-            'end' => $end->toDateString(),
-            'total_transaksi' => (clone $baseQuery)->count(),
-            'total_jumlah' => (clone $baseQuery)->sum('quantity'),
-        ];
-
-        $units = config('bpip.units', []);
-
-        return view('reports.returns', [
-            'records' => $returns,
-            'summary' => $summary,
-            'rangeKey' => $rangeKey,
-            'start' => $start,
-            'end' => $end,
-            'units' => $units,
-            'filters' => $request->all(),
-            'sort' => $sort,
-            'dir' => $dir,
-        ]);
+        return redirect()->route('reports.index', array_merge($request->query(), ['type' => 'returns']));
     }
 
     public function loansPdf(Request $request)
     {
-        [$rangeKey, $start, $end] = $this->resolveRange($request);
-        $rows = $this->buildLoanQuery($request, $start, $end)->orderBy('loan_date')->get();
-
-        $pdf = Pdf::loadView('reports.pdf.loans', [
-            'rows' => $rows,
-            'title' => 'Laporan Peminjaman',
-            'period' => [$start->toDateString(), $end->toDateString()],
-        ])->setPaper('a4', 'portrait');
-
-        return $pdf->download("laporan-peminjaman-{$start->format('Ymd')}-{$end->format('Ymd')}.pdf");
+        $request->merge(['type' => 'loans']);
+        return $this->pdf($request);
     }
 
     public function returnsPdf(Request $request)
     {
-        [$rangeKey, $start, $end] = $this->resolveRange($request);
-        $rows = $this->buildLoanQuery($request, $start, $end, true)->orderBy('return_date_actual')->get();
-
-        $pdf = Pdf::loadView('reports.pdf.returns', [
-            'rows' => $rows,
-            'title' => 'Laporan Pengembalian',
-            'period' => [$start->toDateString(), $end->toDateString()],
-        ])->setPaper('a4', 'portrait');
-
-        return $pdf->download("laporan-pengembalian-{$start->format('Ymd')}-{$end->format('Ymd')}.pdf");
+        $request->merge(['type' => 'returns']);
+        return $this->pdf($request);
     }
 
     public function loansExcel(Request $request)
     {
-        [$rangeKey, $start, $end] = $this->resolveRange($request);
-        $rows = $this->buildLoanQuery($request, $start, $end)->orderBy('loan_date')->get();
-
-        return $this->streamCsv($rows, 'laporan-peminjaman', ['Tanggal', 'Aset', 'Peminjam', 'Unit', 'Status', 'Jumlah', 'Rencana Kembali', 'Kembali']);
+        $request->merge(['type' => 'loans']);
+        return $this->excel($request);
     }
 
     public function returnsExcel(Request $request)
     {
-        [$rangeKey, $start, $end] = $this->resolveRange($request);
-        $rows = $this->buildLoanQuery($request, $start, $end, true)->orderBy('return_date_actual')->get();
-
-        return $this->streamCsv($rows, 'laporan-pengembalian', ['Tanggal Peminjaman', 'Aset', 'Peminjam', 'Unit', 'Jumlah', 'Rencana Kembali', 'Kembali']);
+        $request->merge(['type' => 'returns']);
+        return $this->excel($request);
     }
 
     private function streamCsv($rows, string $basename, array $headers)
@@ -201,13 +196,13 @@ class ReportsController extends Controller
             foreach ($rows as $row) {
                 fputcsv($handle, [
                     optional($row->loan_date)->format('Y-m-d'),
-                    $row->asset->name ?? '-',
+                    optional($row->return_date_actual)->format('Y-m-d'),
+                    ($row->asset->code ?? '-') . ' - ' . ($row->asset->name ?? '-'),
                     $row->borrower_name,
                     $row->unit,
                     $row->status,
                     $row->quantity,
                     optional($row->return_date_planned)->format('Y-m-d'),
-                    optional($row->return_date_actual)->format('Y-m-d'),
                 ]);
             }
             fclose($handle);

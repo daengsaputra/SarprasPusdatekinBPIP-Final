@@ -28,23 +28,16 @@
 
             <li class="menu-title sarpras-menu-title">OPERASIONAL</li>
             <li class="{{ request()->routeIs('loans.*') ? 'mm-active' : '' }}">
-                <a href="{{ route('loans.index') }}" class="ai-icon sarpras-menu-link {{ request()->routeIs('loans.*') ? 'active' : '' }}" data-menu-label="Peminjaman">
+                <a href="{{ route('loans.create') }}" class="ai-icon sarpras-menu-link {{ request()->routeIs('loans.*') ? 'active' : '' }}" data-menu-label="Peminjaman">
                     <i class="flaticon-381-notepad"></i>
                     <span class="nav-text">Peminjaman</span>
                     <i class="fa fa-angle-right sarpras-menu-arrow"></i>
                 </a>
             </li>
-            <li class="{{ request()->routeIs('reports.loans*') ? 'mm-active' : '' }}">
-                <a href="{{ route('reports.loans') }}" class="ai-icon sarpras-menu-link {{ request()->routeIs('reports.loans*') ? 'active' : '' }}" data-menu-label="Laporan Peminjaman">
+            <li class="{{ request()->routeIs('reports.*') ? 'mm-active' : '' }}">
+                <a href="{{ route('reports.index') }}" class="ai-icon sarpras-menu-link {{ request()->routeIs('reports.*') ? 'active' : '' }}" data-menu-label="Laporan">
                     <i class="flaticon-381-file-1"></i>
-                    <span class="nav-text">Laporan Peminjaman</span>
-                    <i class="fa fa-angle-right sarpras-menu-arrow"></i>
-                </a>
-            </li>
-            <li class="{{ request()->routeIs('reports.returns*') ? 'mm-active' : '' }}">
-                <a href="{{ route('reports.returns') }}" class="ai-icon sarpras-menu-link {{ request()->routeIs('reports.returns*') ? 'active' : '' }}" data-menu-label="Laporan Pengembalian">
-                    <i class="flaticon-381-repeat"></i>
-                    <span class="nav-text">Laporan Pengembalian</span>
+                    <span class="nav-text">Laporan</span>
                     <i class="fa fa-angle-right sarpras-menu-arrow"></i>
                 </a>
             </li>

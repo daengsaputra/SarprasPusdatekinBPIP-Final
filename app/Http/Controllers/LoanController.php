@@ -122,8 +122,10 @@ class LoanController extends Controller
             'loan_date' => 'required|date',
             'return_date_planned' => 'nullable|date|after_or_equal:loan_date',
             'notes' => 'nullable|string',
-            'loan_photo' => $this->attachmentRule(true),
-            'request_photo' => $this->attachmentRule(true),
+            'loan_photo' => $this->attachmentArrayRule(true),
+            'loan_photo.*' => $this->attachmentItemRule(),
+            'request_photo' => $this->attachmentArrayRule(true),
+            'request_photo.*' => $this->attachmentItemRule(),
         ]);
         $asset = Asset::findOrFail($validated['asset_id']);
         if ($asset->kind !== Asset::KIND_LOANABLE) {
@@ -136,28 +138,30 @@ class LoanController extends Controller
         $loanData = $validated;
         unset($loanData['loan_photo'], $loanData['request_photo']);
 
-        $loanPhotoPath = null;
-        $requestPhotoPath = null;
+        $loanPhotoPaths = [];
+        $requestPhotoPaths = [];
 
         try {
-            $loanPhotoPath = $this->storeAttachment($request->file('loan_photo'), 'loan-proofs');
-            $requestPhotoPath = $this->storeAttachment($request->file('request_photo'), 'loan-requests');
+            $loanPhotoPaths = $this->storeAttachments($request->file('loan_photo'), 'loan-proofs');
+            $requestPhotoPaths = $this->storeAttachments($request->file('request_photo'), 'loan-requests');
 
             $loan = Loan::create($loanData + [
                 'status' => 'borrowed',
                 'quantity_returned' => 0,
-                'loan_photo_path' => $loanPhotoPath,
-                'request_photo_path' => $requestPhotoPath,
+                'loan_photo_path' => json_encode($loanPhotoPaths),
+                'request_photo_path' => json_encode($requestPhotoPaths),
             ]);
 
             $asset->decrement('quantity_available', $validated['quantity']);
         } catch (\Throwable $e) {
-            $this->deleteAttachment($loanPhotoPath);
-            $this->deleteAttachment($requestPhotoPath);
+            $this->deleteAttachment($loanPhotoPaths);
+            $this->deleteAttachment($requestPhotoPaths);
             throw $e;
         }
 
-        return redirect()->route('loans.index')->with('success', 'Peminjaman berhasil dicatat.');
+        return redirect()->route('loans.index')
+            ->with('success', 'Peminjaman berhasil dicatat.')
+            ->with('clear_loan_draft', true);
     }
 
     // Store multiple items in one submission (cart-style)
@@ -171,22 +175,24 @@ class LoanController extends Controller
             'loan_date' => 'required|date',
             'return_date_planned' => 'nullable|date|after_or_equal:loan_date',
             'notes' => 'nullable|string',
-            'loan_photo' => $this->attachmentRule(true),
-            'request_photo' => $this->attachmentRule(true),
+            'loan_photo' => $this->attachmentArrayRule(true),
+            'loan_photo.*' => $this->attachmentItemRule(),
+            'request_photo' => $this->attachmentArrayRule(true),
+            'request_photo.*' => $this->attachmentItemRule(),
         ]);
 
         $loanData = $data;
         unset($loanData['loan_photo'], $loanData['request_photo']);
 
-        $loanPhotoPath = null;
-        $requestPhotoPath = null;
+        $loanPhotoPaths = [];
+        $requestPhotoPaths = [];
 
         try {
-            $loanPhotoPath = $this->storeAttachment($request->file('loan_photo'), 'loan-proofs');
-            $requestPhotoPath = $this->storeAttachment($request->file('request_photo'), 'loan-requests');
+            $loanPhotoPaths = $this->storeAttachments($request->file('loan_photo'), 'loan-proofs');
+            $requestPhotoPaths = $this->storeAttachments($request->file('request_photo'), 'loan-requests');
         } catch (\Throwable $e) {
-            $this->deleteAttachment($loanPhotoPath);
-            $this->deleteAttachment($requestPhotoPath);
+            $this->deleteAttachment($loanPhotoPaths);
+            $this->deleteAttachment($requestPhotoPaths);
             throw $e;
         }
 
@@ -212,7 +218,7 @@ class LoanController extends Controller
 
         $batch = 'PJ'.now()->format('YmdHis');
         try {
-            DB::transaction(function () use ($loanData, $items, $batch, $loanPhotoPath, $requestPhotoPath) {
+            DB::transaction(function () use ($loanData, $items, $batch, $loanPhotoPaths, $requestPhotoPaths) {
             foreach ($items as $item) {
                 $asset = Asset::lockForUpdate()->findOrFail($item['asset_id']);
                 if ($asset->kind !== Asset::KIND_LOANABLE) {
@@ -234,21 +240,22 @@ class LoanController extends Controller
                     'return_date_planned' => $loanData['return_date_planned'] ?? null,
                     'status' => 'borrowed',
                     'notes' => $loanData['notes'] ?? null,
-                    'loan_photo_path' => $loanPhotoPath,
-                    'request_photo_path' => $requestPhotoPath,
+                    'loan_photo_path' => json_encode($loanPhotoPaths),
+                    'request_photo_path' => json_encode($requestPhotoPaths),
                 ]);
                 $asset->decrement('quantity_available', $item['quantity']);
             }
         });
         } catch (\Throwable $e) {
-            $this->deleteAttachment($loanPhotoPath);
-            $this->deleteAttachment($requestPhotoPath);
+            $this->deleteAttachment($loanPhotoPaths);
+            $this->deleteAttachment($requestPhotoPaths);
             throw $e;
         }
 
         return redirect()->route('loans.index')
             ->with('success', 'Peminjaman berhasil dicatat. Bukti siap dicetak.')
-            ->with('receipt_batch', $batch);
+            ->with('receipt_batch', $batch)
+            ->with('clear_loan_draft', true);
     }
 
     /**
@@ -307,7 +314,7 @@ class LoanController extends Controller
             'return_date_actual' => 'required|date|after_or_equal:' . $loan->loan_date->format('Y-m-d'),
             'return_quantity' => 'required|integer|min:1|max:' . $maxReturnable,
             'notes' => 'nullable|string',
-            'return_photo' => $this->attachmentRule(true),
+            'return_photo' => array_merge(['required'], $this->attachmentItemRule()),
         ]);
 
         $returnPhotoPath = null;
@@ -369,9 +376,9 @@ class LoanController extends Controller
 
         $first = $items->first();
         $attachments = [
-            'ND / Helpdesk' => $first->request_photo_path,
-            'Serah Terima' => $first->loan_photo_path,
-            'Pengembalian' => $first->return_photo_path,
+            'ND / Helpdesk' => $this->parseAttachmentPaths($first->request_photo_path)[0] ?? null,
+            'Serah Terima' => $this->parseAttachmentPaths($first->loan_photo_path)[0] ?? null,
+            'Pengembalian' => $this->parseAttachmentPaths($first->return_photo_path)[0] ?? null,
         ];
 
         $data = [
@@ -424,32 +431,65 @@ class LoanController extends Controller
         return $pdf->stream('bukti-pengembalian-'.$loan->id.'.pdf');
     }
 
-    protected function attachmentRule(bool $required = false): array
+    protected function attachmentArrayRule(bool $required = false): array
+    {
+        $rule = ['array', 'max:5'];
+        if ($required) {
+            array_unshift($rule, 'required');
+            array_splice($rule, 1, 0, 'min:1');
+        } else {
+            array_unshift($rule, 'nullable');
+        }
+        return $rule;
+    }
+
+    protected function attachmentItemRule(): array
     {
         $mimes = config('bpip.loan_attachment_mimes', ['jpg', 'jpeg', 'png', 'webp']);
         $mimes = is_array($mimes) ? implode(',', $mimes) : (string) $mimes;
         $max = (int) config('bpip.loan_attachment_max_kb', 4096);
 
-        $rule = ['image', 'mimes:' . $mimes, 'max:' . $max];
-        if ($required) {
-            array_unshift($rule, 'required');
-        } else {
-            array_unshift($rule, 'nullable');
+        return ['image', 'mimes:' . $mimes, 'max:' . $max];
+    }
+
+    protected function storeAttachments($files, string $directory): array
+    {
+        if (!$files) {
+            return [];
+        }
+        $list = is_array($files) ? $files : [$files];
+        $paths = [];
+        foreach ($list as $file) {
+            if ($file instanceof UploadedFile) {
+                $paths[] = $file->store($directory, 'public');
+            }
+        }
+        return $paths;
+    }
+
+    protected function parseAttachmentPaths($value): array
+    {
+        if (!$value) {
+            return [];
+        }
+        if (is_array($value)) {
+            return array_values(array_filter($value));
+        }
+        if (!is_string($value)) {
+            return [];
         }
 
-        return $rule;
+        $decoded = json_decode($value, true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+            return array_values(array_filter($decoded));
+        }
+        return [$value];
     }
 
-    protected function storeAttachment(?UploadedFile $file, string $directory): ?string
+    protected function deleteAttachment($paths): void
     {
-        return $file ? $file->store($directory, 'public') : null;
-    }
-
-    protected function deleteAttachment(?string $path): void
-    {
-        if ($path) {
+        foreach ($this->parseAttachmentPaths($paths) as $path) {
             Storage::disk('public')->delete($path);
         }
     }
 }
-
