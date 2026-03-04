@@ -131,12 +131,12 @@
           </div>
           <div class="row g-2">
             <div class="col-6">
-              <label class="form-label">Tanggal Pinjam</label>
-              <input type="date" name="loan_date" value="{{ now()->format('Y-m-d') }}" class="form-control" required>
+              <label for="loan_date" class="form-label">Tanggal Pinjam</label>
+              <input type="date" id="loan_date" name="loan_date" value="{{ old('loan_date', now()->format('Y-m-d')) }}" class="form-control" required>
             </div>
             <div class="col-6">
-              <label class="form-label">Rencana Kembali</label>
-              <input type="date" name="return_date_planned" class="form-control">
+              <label for="return_date_planned" class="form-label">Rencana Kembali</label>
+              <input type="date" id="return_date_planned" name="return_date_planned" value="{{ old('return_date_planned') }}" class="form-control">
             </div>
           </div>
           <div class="mb-2 mt-2">
@@ -240,6 +240,7 @@
   });
 
   initFileDropzones();
+  initDateFieldFocusFix();
 
   function initFileDropzones() {
     const zones = document.querySelectorAll('[data-file-drop]');
@@ -279,6 +280,29 @@
       });
       input?.addEventListener('change', setFileName);
       setFileName();
+    });
+  }
+
+  function initDateFieldFocusFix() {
+    const loanDate = document.getElementById('loan_date');
+    const returnDate = document.getElementById('return_date_planned');
+    const returnLabel = document.querySelector('label[for="return_date_planned"]');
+    if (!loanDate || !returnDate) return;
+
+    const focusDateInput = (input) => {
+      input.focus({ preventScroll: true });
+      if (typeof input.showPicker === 'function') {
+        try { input.showPicker(); } catch (_) {}
+      }
+    };
+
+    returnDate.addEventListener('pointerdown', () => loanDate.blur());
+    returnDate.addEventListener('focus', () => loanDate.blur());
+
+    returnLabel?.addEventListener('click', (e) => {
+      e.preventDefault();
+      loanDate.blur();
+      setTimeout(() => focusDateInput(returnDate), 0);
     });
   }
 </script>

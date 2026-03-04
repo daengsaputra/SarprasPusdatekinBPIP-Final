@@ -36,6 +36,8 @@ class HomeController extends Controller
     {
         $totalBarang = (int) Asset::sum('quantity_total');
         $totalBarangAset = (int) Asset::where('kind', Asset::KIND_INVENTORY)->sum('quantity_total');
+        $totalPeminjaman = (int) Loan::count();
+        $totalPengembalian = (int) Loan::where('quantity_returned', '>', 0)->count();
         $totalDipinjamHistoris = (int) Loan::sum('quantity');
         $totalBarangKembali = (int) Loan::sum('quantity_returned');
         $totalBarangDipinjam = max($totalDipinjamHistoris - $totalBarangKembali, 0);
@@ -49,6 +51,8 @@ class HomeController extends Controller
         return view('home', compact(
             'totalBarang',
             'totalBarangAset',
+            'totalPeminjaman',
+            'totalPengembalian',
             'totalBarangDipinjam',
             'totalBarangKembali',
             'asetPercent',

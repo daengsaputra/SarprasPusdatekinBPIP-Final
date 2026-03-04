@@ -56,13 +56,7 @@
                             </div>
                         </div>
                     </li>
-                    <li class="nav-item dropdown notification_dropdown d-none d-lg-flex">
-                        <a class="nav-link dz-fullscreen" aria-label="Fullscreen">
-                            <svg id="icon-full" viewBox="0 0 24 24" width="24" height="24" stroke="var(--bs-primary)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
-                            </svg>
-                        </a>
-                    </li>
+                    
                     <li class="nav-item dropdown header-profile">
                         <a class="nav-link" href="javascript:void(0)" role="button" data-bs-toggle="dropdown">
                             <img src="{{ asset('evanto/assets/images/avatar/small/avatar1.webp') }}" width="20" alt="user">
@@ -93,3 +87,4 @@
         </nav>
     </div>
 </header>
+
