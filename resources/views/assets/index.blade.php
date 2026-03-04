@@ -137,18 +137,22 @@
     visibility: visible;
   }
   .asset-photo-panel {
-    position: relative;
+    position: fixed;
+    left: 50%;
+    top: 50%;
     background: #fff;
     border-radius: 24px;
     padding: 1rem;
     box-shadow: 0 40px 90px rgba(15,23,42,0.35);
-    transform: scale(0.92);
+    transform: translate(-50%, -50%) scale(0.92);
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     max-width: min(980px, 92vw);
     width: 100%;
+    max-height: 90vh;
+    overflow: auto;
   }
   .asset-photo-modal.is-visible .asset-photo-panel {
-    transform: scale(1);
+    transform: translate(-50%, -50%) scale(1);
   }
   .asset-photo-label {
     text-align: center;
@@ -345,6 +349,9 @@
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const modal = document.querySelector('[data-photo-modal]');
+    if (modal && modal.parentElement !== document.body) {
+      document.body.appendChild(modal);
+    }
     const closeBtn = modal?.querySelector('[data-photo-close]');
     const labelBox = modal?.querySelector('[data-photo-label]');
     const showPhotoModal = (src, label = '') => {

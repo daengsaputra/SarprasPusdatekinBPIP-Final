@@ -65,16 +65,22 @@
   .loan-alert { border-radius:18px; border:1px solid rgba(59,130,246,0.25); background:rgba(59,130,246,0.08); padding:0.9rem 1.2rem; display:flex; justify-content:space-between; align-items:center; color:#0f172a; }
   .loan-alert.alert-success { border-color:rgba(16,185,129,0.35); background:rgba(209,250,229,0.9); }
   .letter-spacing-wide { letter-spacing:0.22em; }
-  .loan-table-card table { width:100%; border-collapse:separate; border-spacing:0; table-layout:auto; }
+  .loan-table-card table { width:100%; border-collapse:separate; border-spacing:0; table-layout:fixed; }
   .loan-table-card table thead th { text-transform:uppercase; letter-spacing:0.08em; color:#64748b; font-size:0.76rem; white-space:nowrap; }
   .loan-table-card table th,
   .loan-table-card table td { padding:0.65rem 0.75rem; }
   .loan-table-card table tbody td { vertical-align:top; }
   .loan-table-card table td[rowspan] { border-bottom:none; }
-  .loan-asset-cell { min-width:200px; }
+  .loan-col-asset { width: 22%; }
+  .loan-col-status { width: 10%; }
+  .loan-col-plan { width: 12%; }
+  .loan-col-attach { width: 28%; }
+  .loan-col-return { width: 10%; }
+  .loan-col-action { width: 18%; }
+  .loan-asset-cell { min-width:0; }
   .loan-asset-name {
     display:block;
-    max-width:260px;
+    max-width:100%;
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
@@ -83,27 +89,60 @@
   }
   .loan-asset-code {
     display:block;
-    max-width:260px;
+    max-width:100%;
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
     font-size:0.78rem;
     color:#64748b;
   }
+  .loan-cell-text {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .loan-attachments {
+    display:flex;
+    flex-wrap:wrap;
+    gap:0.4rem;
+    max-height: 96px;
+    overflow: auto;
+    padding-right: 2px;
+  }
+  .loan-actions {
+    display:flex;
+    flex-wrap:wrap;
+    gap:0.35rem;
+    justify-content:flex-start;
+  }
+  .loan-actions .btn,
+  .loan-actions form .btn {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
   .loan-table-pagination { margin-top:1.2rem; display:flex; justify-content:flex-end; }
   .loan-attachment-modal { position:fixed; inset:0; background:rgba(15,23,42,0.65); display:flex; justify-content:center; align-items:center; padding:1.5rem; opacity:0; pointer-events:none; transition:opacity .25s ease; z-index:2000; }
   .loan-attachment-modal.is-visible { opacity:1; pointer-events:auto; }
   .loan-attachment-modal__body {
+    position: fixed;
+    left: 50%;
+    top: 50%;
     background:#fff;
     border-radius:24px;
     padding:1rem;
     box-shadow:0 30px 70px rgba(15,23,42,0.25);
     max-width:min(980px, 92vw);
     width:100%;
-    transform:scale(0.88);
+    max-height: 90vh;
+    overflow: auto;
+    transform: translate(-50%, -50%) scale(0.88);
     transition:transform .32s cubic-bezier(0.34,1.56,0.64,1);
   }
-  .loan-attachment-modal.is-visible .loan-attachment-modal__body { transform:scale(1); }
+  .loan-attachment-modal.is-visible .loan-attachment-modal__body { transform: translate(-50%, -50%) scale(1); }
   .loan-attachment-modal__label { text-align:center; font-size:16px; font-weight:700; color:#0f172a; margin-bottom:0.5rem; }
   .loan-attachment-modal__body img {
     width:100%;
@@ -130,7 +169,7 @@
 <div class="loan-shell">
   @if(session('receipt_batch'))
     @php($batch = session('receipt_batch'))
-    <div class="loan-alert alert-success">
+    <div class="loan-alert alert-success" id="loanSuccessAlert">
       <div>Peminjaman berhasil. Bukti peminjaman siap dicetak.</div>
       <div class="loan-actions">
         <a class="btn btn-sm btn-primary" target="_blank" href="{{ route('loans.receipt', ['batch' => $batch, 'preview' => 1]) }}">Cetak Bukti</a>
@@ -244,6 +283,14 @@
           </div>
           <div class="table-responsive">
             <table class="table align-middle mb-0">
+              <colgroup>
+                <col class="loan-col-asset">
+                <col class="loan-col-status">
+                <col class="loan-col-plan">
+                <col class="loan-col-attach">
+                <col class="loan-col-return">
+                <col class="loan-col-action">
+              </colgroup>
               <thead>
                 <tr>
                   <th>Aset</th>
@@ -276,7 +323,7 @@
                       @endif
                     </td>
                     <td><span class="badge {{ $badgeClass }}">{{ $statusLabel }}</span></td>
-                    <td>{{ $loan->return_date_planned?->format('d M Y') ?? '-' }}</td>
+                    <td><span class="loan-cell-text">{{ $loan->return_date_planned?->format('d M Y') ?? '-' }}</span></td>
                     @if($loop->first)
                       <td rowspan="{{ $batchLoans->count() }}">
                         <div class="loan-attachments">
@@ -295,7 +342,7 @@
                         </div>
                       </td>
                     @endif
-                    <td>{{ $loan->return_date_actual?->format('d M Y') ?? '-' }}</td>
+                    <td><span class="loan-cell-text">{{ $loan->return_date_actual?->format('d M Y') ?? '-' }}</span></td>
                     <td>
                       <div class="loan-actions">
                         @if($loan->status!=='returned')
@@ -353,6 +400,10 @@
 @if(session('receipt_batch'))
 <script>
   (function(){
+    var alertEl = document.getElementById('loanSuccessAlert');
+    if (alertEl) {
+      setTimeout(function(){ alertEl.remove(); }, 5000);
+    }
     var url = @json(route('loans.receipt', ['batch' => session('receipt_batch'), 'preview' => 1]));
     setTimeout(function(){ window.open(url, '_blank'); }, 300);
   })();
@@ -370,6 +421,9 @@
   (function(){
     const modal = document.getElementById('loanAttachmentModal');
     if(!modal) return;
+    if (modal.parentElement !== document.body) {
+      document.body.appendChild(modal);
+    }
     const labelEl = document.getElementById('attachmentModalLabel');
     const imgEl = document.getElementById('attachmentModalImage');
 
