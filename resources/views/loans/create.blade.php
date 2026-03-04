@@ -3,6 +3,15 @@
 
 @push('styles')
 <style>
+  body[data-theme="light"] { background:#eef2ff; }
+  .loan-create-shell .card {
+    border-radius: 22px;
+    border: 1px solid rgba(148,163,184,0.16);
+    box-shadow: 0 14px 34px rgba(15,23,42,0.08);
+  }
+  .loan-create-shell .card-body {
+    padding: 1rem 1.1rem;
+  }
   .list-aset { max-height: 480px; overflow:auto; }
   .status-dot { width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px }
   .dot-green{ background:#10b981 }
@@ -64,12 +73,155 @@
     --bs-btn-padding-x: .5rem;
     --bs-btn-font-size: .72rem;
   }
+  .loan-confirm-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(7px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .2s ease, visibility .2s ease;
+    z-index: 2100;
+  }
+  .loan-confirm-modal.is-visible {
+    opacity: 1;
+    visibility: visible;
+  }
+  .loan-confirm-modal__card {
+    width: min(560px, 94vw);
+    background: #fff;
+    border-radius: 22px;
+    border: 1px solid rgba(148,163,184,0.22);
+    box-shadow: 0 24px 56px rgba(15,23,42,0.2);
+    padding: 1.25rem 1.35rem;
+    transform: scale(.85);
+    transition: transform .24s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .loan-confirm-modal.is-visible .loan-confirm-modal__card { transform: scale(1); }
+  .loan-confirm-modal__title { font-weight: 700; font-size: 1.8rem; color: #0f172a; margin-bottom: .3rem; }
+  .loan-confirm-modal__text { color: #475569; margin-bottom: 1rem; font-size: 1.1rem; line-height: 1.45; }
+  .loan-confirm-modal__actions { display: flex; justify-content: flex-end; gap: .55rem; }
+  .loan-confirm-modal__actions .btn { min-width: 110px; }
+  .loan-form-warning {
+    display: none;
+    margin-top: .65rem;
+    padding: .55rem .7rem;
+    border-radius: 10px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.28);
+    color: #b91c1c;
+    font-size: .86rem;
+    font-weight: 600;
+    transform-origin: top center;
+  }
+  .loan-form-warning.is-visible { display: block; }
+  .loan-form-warning.is-animate {
+    animation: loanWarningPop .22s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .loan-center-warning {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(.86);
+    z-index: 2250;
+    width: min(560px, 92vw);
+    border-radius: 14px;
+    padding: .85rem 1rem;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    background: rgba(254, 242, 242, 0.98);
+    color: #991b1b;
+    box-shadow: 0 24px 54px rgba(15,23,42,0.2);
+    text-align: center;
+    font-size: .95rem;
+    font-weight: 700;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .18s ease, visibility .18s ease, transform .22s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .loan-center-warning-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 2240;
+    background: rgba(15, 23, 42, 0.22);
+    backdrop-filter: blur(5px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .18s ease, visibility .18s ease;
+  }
+  .loan-center-warning-backdrop.is-visible {
+    opacity: 1;
+    visibility: visible;
+  }
+  .loan-center-warning.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  .upload-preview-warning {
+    display: none;
+    margin-top: .5rem;
+    padding: .5rem .65rem;
+    border-radius: 10px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.28);
+    color: #b91c1c;
+    font-size: .82rem;
+    font-weight: 600;
+    transform-origin: top center;
+  }
+  .upload-preview-warning.is-visible { display: block; }
+  .upload-preview-warning.is-animate {
+    animation: loanWarningPop .22s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes loanWarningPop {
+    0% { transform: scale(.86); opacity: .6; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .loan-toast {
+    position: fixed;
+    top: 22px;
+    right: 22px;
+    z-index: 2200;
+    min-width: 260px;
+    max-width: min(420px, 92vw);
+    padding: .7rem .85rem;
+    border-radius: 12px;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    background: rgba(254, 242, 242, 0.98);
+    color: #991b1b;
+    box-shadow: 0 18px 42px rgba(15,23,42,0.16);
+    transform: translateY(-12px) scale(.97);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform .18s ease, opacity .18s ease;
+    font-size: .88rem;
+    font-weight: 600;
+  }
+  .loan-toast.is-visible {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  .loan-toast__title {
+    font-size: .8rem;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: #b91c1c;
+    margin-bottom: .12rem;
+  }
+  @media (max-width: 576px) {
+    .loan-toast { top: 14px; right: 14px; left: 14px; max-width: none; }
+  }
 </style>
 @endpush
 
 @section('content')
 <main class="content-body">
 <div class="container-fluid">
+<div class="loan-create-shell">
 <h1 class="h5 mb-3">Pilih barang yang akan dipinjam</h1>
 
 <div class="row g-3">
@@ -136,6 +288,7 @@
         <form id="batchForm" method="POST" action="{{ route('loans.store.batch') }}" enctype="multipart/form-data">
           @csrf
           <input type="hidden" name="items" id="itemsField">
+          <div class="loan-form-warning mb-2" id="loanFormWarning">Wajib isi form peminjaman terlebih dahulu.</div>
 
           <div class="mb-2">
             <label class="form-label">Nama Peminjam</label>
@@ -144,7 +297,7 @@
           </div>
           <div class="mb-2">
             <label class="form-label">Kontak Peminjam</label>
-            <input type="text" name="borrower_contact" class="form-control">
+            <input type="text" name="borrower_contact" class="form-control" required>
           </div>
           <div class="mb-2">
             <label class="form-label">Unit Kerja BPIP</label>
@@ -173,7 +326,7 @@
               <label for="return_date_planned" class="form-label">Rencana Kembali</label>
               <div class="input-group">
                 <span class="input-group-text">🗓️</span>
-                <input type="date" id="return_date_planned" name="return_date_planned" value="{{ old('return_date_planned') }}" class="form-control">
+                <input type="date" id="return_date_planned" name="return_date_planned" value="{{ old('return_date_planned') }}" class="form-control" required>
               </div>
               <div class="date-quick-actions">
                 <button type="button" class="btn btn-outline-secondary" data-date-preset="today">Hari ini</button>
@@ -201,6 +354,7 @@
               </div>
             </div>
             <ul class="file-drop__list mt-2" data-file-drop-list></ul>
+            <div class="upload-preview-warning" id="requestPhotoWarn">Wajib upload Foto ND/Helpdesk Pengajuan.</div>
             <div class="form-text">Unggah dokumentasi ND/helpdesk (wajib, JPG/PNG/WebP, maks {{ number_format(((int) config('bpip.loan_attachment_max_kb', 4096)) / 1024, 1) }} MB per file, maks 5 file).</div>
             @error('request_photo')<div class="invalid-feedback">{{ $message }}</div>@enderror
             @error('request_photo.*')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
@@ -224,6 +378,7 @@
               </div>
             </div>
             <ul class="file-drop__list mt-2" data-file-drop-list></ul>
+            <div class="upload-preview-warning" id="loanPhotoWarn">Wajib upload Foto Serah Terima.</div>
             <div class="form-text">Gunakan foto bukti serah terima saat barang keluar (wajib, JPG/PNG/WebP, maks {{ number_format(((int) config('bpip.loan_attachment_max_kb', 4096)) / 1024, 1) }} MB per file, maks 5 file).</div>
             @error('loan_photo')<div class="invalid-feedback">{{ $message }}</div>@enderror
             @error('loan_photo.*')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
@@ -232,14 +387,32 @@
             <label class="form-label">Catatan</label>
             <textarea name="notes" class="form-control" rows="2"></textarea>
           </div>
-          <button class="btn btn-success w-100" type="submit">Simpan</button>
-          <a class="btn btn-secondary w-100 mt-2" href="{{ route('loans.index') }}">Batal</a>
+          <button class="btn btn-success w-100" id="saveLoanBtn" type="button">Simpan</button>
+          <button class="btn btn-secondary w-100 mt-2" id="cancelLoanBtn" type="button" data-cancel-href="{{ route('loans.index') }}">Batal</button>
         </form>
       </div>
     </div>
   </div>
 </div>
 
+<div class="loan-confirm-modal" id="loanConfirmModal" aria-hidden="true">
+  <div class="loan-confirm-modal__card">
+    <div class="loan-confirm-modal__title" id="loanConfirmTitle">Konfirmasi</div>
+    <div class="loan-confirm-modal__text" id="loanConfirmText">Apakah anda yakin?</div>
+    <div class="loan-confirm-modal__actions">
+      <button type="button" class="btn btn-outline-secondary btn-sm" id="loanConfirmNo">Tidak</button>
+      <button type="button" class="btn btn-primary btn-sm" id="loanConfirmYes">Ya</button>
+    </div>
+  </div>
+</div>
+<div class="loan-toast" id="loanToast" role="status" aria-live="polite">
+  <div class="loan-toast__title">Perhatian</div>
+  <div id="loanToastText">Wajib isi form peminjaman.</div>
+</div>
+<div class="loan-center-warning-backdrop" id="loanCenterWarningBackdrop"></div>
+<div class="loan-center-warning" id="loanCenterWarning">Wajib isi form peminjaman dan upload foto wajib.</div>
+
+</div>
 </div>
 </main>
 @endsection
@@ -252,6 +425,28 @@
   const itemsField = document.getElementById('itemsField');
   const batchForm = document.getElementById('batchForm');
   const searchInput = document.getElementById('search');
+  const saveLoanBtn = document.getElementById('saveLoanBtn');
+  const cancelLoanBtn = document.getElementById('cancelLoanBtn');
+  const loanConfirmModal = document.getElementById('loanConfirmModal');
+  const loanConfirmTitle = document.getElementById('loanConfirmTitle');
+  const loanConfirmText = document.getElementById('loanConfirmText');
+  const loanConfirmYes = document.getElementById('loanConfirmYes');
+  const loanConfirmNo = document.getElementById('loanConfirmNo');
+  const loanFormWarning = document.getElementById('loanFormWarning');
+  const requestPhotoInput = document.getElementById('requestPhotoInput');
+  const loanPhotoInput = document.getElementById('loanPhotoInput');
+  const requestPhotoWarn = document.getElementById('requestPhotoWarn');
+  const loanPhotoWarn = document.getElementById('loanPhotoWarn');
+  const loanToast = document.getElementById('loanToast');
+  const loanToastText = document.getElementById('loanToastText');
+  const loanCenterWarningBackdrop = document.getElementById('loanCenterWarningBackdrop');
+  const loanCenterWarning = document.getElementById('loanCenterWarning');
+  const params = new URLSearchParams(window.location.search);
+  const forceFresh = params.get('fresh') === '1';
+  let confirmAction = null;
+  let submitConfirmed = false;
+  let toastTimer = null;
+  let centerWarningTimer = null;
   const trackedFieldNames = [
     'borrower_name',
     'borrower_contact',
@@ -356,14 +551,185 @@
     saveDraft();
   });
 
-  // Submit transform: stringified items to array
-  batchForm?.addEventListener('submit', (e)=>{
-    if(cart.length===0){ e.preventDefault(); alert('Pilih minimal satu item.'); }
-    else {
-      // name="items" needs to be JSON string; controller expects array via $request->validate
-      // Laravel will parse it as string; we handle in controller by decoding automatically via Request casting not available
-      // So keep as string and decode in controller? Simpler: use hidden multiple input fields
+  function openConfirmModal({ title, message, onYes }) {
+    confirmAction = typeof onYes === 'function' ? onYes : null;
+    if (loanConfirmTitle) loanConfirmTitle.textContent = title || 'Konfirmasi';
+    if (loanConfirmText) loanConfirmText.textContent = message || 'Apakah anda yakin?';
+    loanConfirmModal?.classList.add('is-visible');
+    loanConfirmModal?.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeConfirmModal() {
+    loanConfirmModal?.classList.remove('is-visible');
+    loanConfirmModal?.setAttribute('aria-hidden', 'true');
+  }
+
+  function showToast(message) {
+    if (!loanToast) return;
+    if (loanToastText) {
+      loanToastText.textContent = message || 'Terjadi kesalahan.';
     }
+    loanToast.classList.add('is-visible');
+    window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => {
+      loanToast.classList.remove('is-visible');
+    }, 2600);
+  }
+
+  function showCenterWarning(message) {
+    if (!loanCenterWarning) return;
+    loanCenterWarning.textContent = message || 'Wajib isi form peminjaman dan upload foto wajib.';
+    loanCenterWarningBackdrop?.classList.add('is-visible');
+    loanCenterWarning.classList.add('is-visible');
+    window.clearTimeout(centerWarningTimer);
+    centerWarningTimer = window.setTimeout(() => {
+      loanCenterWarningBackdrop?.classList.remove('is-visible');
+      loanCenterWarning.classList.remove('is-visible');
+    }, 2400);
+  }
+
+  function showFormWarning(message) {
+    if (!loanFormWarning) return;
+    loanFormWarning.textContent = message;
+    loanFormWarning.classList.add('is-visible');
+    loanFormWarning.classList.remove('is-animate');
+    void loanFormWarning.offsetWidth;
+    loanFormWarning.classList.add('is-animate');
+  }
+
+  function hideFormWarning() {
+    loanFormWarning?.classList.remove('is-visible');
+  }
+
+  function showUploadWarning(el, message) {
+    if (!el) return;
+    el.textContent = message;
+    el.classList.add('is-visible');
+    el.classList.remove('is-animate');
+    void el.offsetWidth;
+    el.classList.add('is-animate');
+  }
+
+  function hideUploadWarning(el) {
+    el?.classList.remove('is-visible');
+  }
+
+  function validateUploads() {
+    let valid = true;
+    if (!requestPhotoInput?.files?.length) {
+      showUploadWarning(requestPhotoWarn, 'Wajib upload Foto ND/Helpdesk Pengajuan.');
+      valid = false;
+    } else {
+      hideUploadWarning(requestPhotoWarn);
+    }
+
+    if (!loanPhotoInput?.files?.length) {
+      showUploadWarning(loanPhotoWarn, 'Wajib upload Foto Serah Terima.');
+      valid = false;
+    } else {
+      hideUploadWarning(loanPhotoWarn);
+    }
+
+    return valid;
+  }
+
+  loanConfirmYes?.addEventListener('click', () => {
+    const action = confirmAction;
+    closeConfirmModal();
+    confirmAction = null;
+    if (action) action();
+  });
+  loanConfirmNo?.addEventListener('click', () => {
+    closeConfirmModal();
+    confirmAction = null;
+  });
+  loanConfirmModal?.addEventListener('click', (e) => {
+    if (e.target === loanConfirmModal) {
+      closeConfirmModal();
+      confirmAction = null;
+    }
+  });
+  document.addEventListener('keyup', (e) => {
+    if (e.key === 'Escape' && loanConfirmModal?.classList.contains('is-visible')) {
+      closeConfirmModal();
+      confirmAction = null;
+    }
+  });
+
+  saveLoanBtn?.addEventListener('click', () => {
+    if (!batchForm) return;
+    const uploadValid = validateUploads();
+    const invalidForm = !batchForm.checkValidity();
+    const emptyCart = cart.length === 0;
+    if (invalidForm || emptyCart || !uploadValid) {
+      if (invalidForm && emptyCart && !uploadValid) {
+        showFormWarning('Wajib isi form peminjaman, pilih minimal satu barang, dan upload foto wajib.');
+        showToast('Lengkapi form, pilih barang, dan upload foto wajib.');
+      } else if (invalidForm && emptyCart) {
+        showFormWarning('Wajib isi form peminjaman dan pilih minimal satu barang');
+        showToast('Lengkapi form dan pilih minimal satu barang.');
+      } else if (invalidForm && !uploadValid) {
+        showFormWarning('Wajib isi form peminjaman dan upload foto wajib.');
+        showCenterWarning('Wajib isi form peminjaman dan upload foto wajib.');
+        showToast('Lengkapi form dan upload foto wajib.');
+      } else if (emptyCart && !uploadValid) {
+        showFormWarning('Pilih minimal satu barang dan upload foto wajib.');
+        showToast('Pilih barang dan upload foto wajib.');
+      } else if (invalidForm) {
+        showFormWarning('Wajib isi form peminjaman terlebih dahulu.');
+        showToast('Wajib isi form peminjaman.');
+      } else {
+        if (emptyCart) {
+          showFormWarning('Pilih minimal satu barang peminjaman terlebih dahulu.');
+          showToast('Pilih minimal satu item barang.');
+        } else {
+          showFormWarning('Upload foto wajib belum lengkap.');
+          showToast('Upload foto wajib belum lengkap.');
+        }
+      }
+      if (invalidForm) {
+        batchForm.reportValidity();
+        const invalidField = batchForm.querySelector(':invalid');
+        invalidField?.focus();
+      }
+      return;
+    }
+    hideFormWarning();
+    batchForm.requestSubmit();
+  });
+  cancelLoanBtn?.addEventListener('click', () => {
+    const href = cancelLoanBtn.getAttribute('data-cancel-href');
+    openConfirmModal({
+      title: 'Batalkan Peminjaman',
+      message: 'Apakah anda yakin ingin batal dan keluar dari halaman ini?',
+      onYes: () => { if (href) window.location.href = href; }
+    });
+  });
+
+  // Submit transform + confirm save
+  batchForm?.addEventListener('submit', (e)=>{
+    if(cart.length===0){
+      e.preventDefault();
+      showFormWarning('Pilih minimal satu barang peminjaman terlebih dahulu.');
+      showToast('Pilih minimal satu item barang.');
+      return;
+    }
+    if (!validateUploads()) {
+      e.preventDefault();
+      showFormWarning('Upload foto wajib belum lengkap.');
+      showToast('Upload foto wajib belum lengkap.');
+      return;
+    }
+    if (submitConfirmed) { submitConfirmed = false; return; }
+    e.preventDefault();
+    openConfirmModal({
+      title: 'Simpan Peminjaman',
+      message: 'Apakah anda yakin ingin menyimpan data peminjaman ini?',
+      onYes: () => {
+        submitConfirmed = true;
+        batchForm.requestSubmit();
+      }
+    });
   });
 
   trackedFieldNames.forEach((name) => {
@@ -373,7 +739,17 @@
     field.addEventListener('change', saveDraft);
   });
 
-  restoreDraft();
+  if (forceFresh) {
+    try {
+      sessionStorage.removeItem(DRAFT_KEY);
+      params.delete('fresh');
+      const cleanQuery = params.toString();
+      const cleanUrl = `${window.location.pathname}${cleanQuery ? `?${cleanQuery}` : ''}`;
+      window.history.replaceState({}, '', cleanUrl);
+    } catch (_) {}
+  } else {
+    restoreDraft();
+  }
   renderCart();
 
   initFileDropzones();
@@ -404,6 +780,8 @@
           if (listEl) listEl.innerHTML = '';
           return;
         }
+        if (input?.id === 'requestPhotoInput') hideUploadWarning(requestPhotoWarn);
+        if (input?.id === 'loanPhotoInput') hideUploadWarning(loanPhotoWarn);
         if (nameEl) nameEl.textContent = `${buffer.length} file dipilih`;
         if (listEl) {
           listEl.innerHTML = buffer.map((file, idx) => `
@@ -550,14 +928,6 @@
     const applyMinReturnDate = () => {
       if (!loanDate.value) return;
       returnDate.min = loanDate.value;
-
-      if (!returnDate.value) {
-        const nextDay = new Date(`${loanDate.value}T00:00:00`);
-        if (!Number.isNaN(nextDay.getTime())) {
-          nextDay.setDate(nextDay.getDate() + 1);
-          returnDate.value = toIso(nextDay);
-        }
-      }
       if (returnDate.value && returnDate.value < loanDate.value) {
         returnDate.value = loanDate.value;
       }

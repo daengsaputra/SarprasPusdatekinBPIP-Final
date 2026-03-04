@@ -115,12 +115,12 @@ class LoanController extends Controller
         $validated = $request->validate([
             'asset_id' => 'required|exists:assets,id',
             'borrower_name' => 'required|string|max:255',
-            'borrower_contact' => 'nullable|string|max:255',
+            'borrower_contact' => 'required|string|max:255',
             'unit' => ['required','string', \Illuminate\Validation\Rule::in(config('bpip.units'))],
             'activity_name' => 'required|string|max:255',
             'quantity' => 'required|integer|min:1',
             'loan_date' => 'required|date',
-            'return_date_planned' => 'nullable|date|after_or_equal:loan_date',
+            'return_date_planned' => 'required|date|after_or_equal:loan_date',
             'notes' => 'nullable|string',
             'loan_photo' => $this->attachmentArrayRule(true),
             'loan_photo.*' => $this->attachmentItemRule(),
@@ -169,11 +169,11 @@ class LoanController extends Controller
     {
         $data = $request->validate([
             'borrower_name' => 'required|string|max:255',
-            'borrower_contact' => 'nullable|string|max:255',
+            'borrower_contact' => 'required|string|max:255',
             'unit' => ['required','string', \Illuminate\Validation\Rule::in(config('bpip.units'))],
             'activity_name' => 'required|string|max:255',
             'loan_date' => 'required|date',
-            'return_date_planned' => 'nullable|date|after_or_equal:loan_date',
+            'return_date_planned' => 'required|date|after_or_equal:loan_date',
             'notes' => 'nullable|string',
             'loan_photo' => $this->attachmentArrayRule(true),
             'loan_photo.*' => $this->attachmentItemRule(),

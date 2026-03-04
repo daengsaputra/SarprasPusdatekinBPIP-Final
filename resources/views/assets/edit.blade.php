@@ -106,8 +106,8 @@
         @error('photo')<div class="invalid-feedback">{{ $message }}</div>@enderror
         <input type="text" id="photoFileName" class="form-control mt-2" value="{{ $photoFileName }}" readonly>
         <div class="form-text">Format: {{ implode(', ', config('bpip.asset_photo_mimes', config('bpip.user_photo_mimes'))) }}. Maks {{ (int) config('bpip.asset_photo_max_kb', config('bpip.user_photo_max_kb')) }} KB.</div>
-        @if($asset->photo)
-          <img src="{{ asset('storage/'.$asset->photo) }}" alt="Foto aset" class="mt-2 rounded-3 border" style="width:120px;height:120px;object-fit:cover;">
+        @if($asset->photo_url)
+          <img src="{{ $asset->photo_url }}" alt="Foto aset" class="mt-2 rounded-3 border" style="width:120px;height:120px;object-fit:cover;">
         @endif
       </div>
       <div>

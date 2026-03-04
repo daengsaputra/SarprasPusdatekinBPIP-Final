@@ -231,17 +231,17 @@
                                 </a>
                             </li>
                             <li class="mb-2">
-                                <a href="#" class="btn btn-light btn-sm w-100 text-start">
-                                    <i class="fas fa-handshake me-2"></i> Peminjaman
+                                <a href="{{ route('loans.create', ['fresh' => 1]) }}" class="btn btn-light btn-sm w-100 text-start">
+                                    <i class="fas fa-handshake me-2"></i> Tambah Peminjaman
                                 </a>
                             </li>
                             <li class="mb-2">
-                                <a href="#" class="btn btn-light btn-sm w-100 text-start">
+                                <a href="{{ route('users.index') }}" class="btn btn-light btn-sm w-100 text-start">
                                     <i class="fas fa-users me-2"></i> Manajemen User
                                 </a>
                             </li>
                             <li>
-                                <a href="#" class="btn btn-light btn-sm w-100 text-start">
+                                <a href="{{ route('settings.landing') }}" class="btn btn-light btn-sm w-100 text-start">
                                     <i class="fas fa-cog me-2"></i> Pengaturan
                                 </a>
                             </li>

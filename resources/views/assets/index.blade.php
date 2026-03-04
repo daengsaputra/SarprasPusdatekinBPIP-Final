@@ -13,8 +13,8 @@
 <style>
   body[data-theme="light"] { background: #eef2ff; }
   .asset-shell { display:flex; flex-direction:column; gap:1.5rem; padding-bottom:3rem; }
-  .asset-hero { display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.7rem; padding:0.65rem 0.9rem; border-radius:10px; background:linear-gradient(120deg, rgba(59,130,246,0.08), #ffffff 65%); border:1px solid rgba(148,163,184,0.1); box-shadow:0 6px 18px rgba(15,23,42,0.06); }
-  .asset-hero__title { font-size:clamp(1.05rem,1.6vw,1.25rem); font-weight:700; color:#0f172a; margin-bottom:.15rem; }
+  .asset-hero { display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.9rem; padding:1.1rem 1.2rem; border-radius:20px; background:linear-gradient(120deg, rgba(59,130,246,0.1), #ffffff 70%); border:1px solid rgba(148,163,184,0.14); box-shadow:0 12px 28px rgba(15,23,42,0.08); }
+  .asset-hero__title { font-size:clamp(1.15rem,1.8vw,1.45rem); font-weight:700; color:#0f172a; margin-bottom:.2rem; }
   .asset-summary-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem; }
   .asset-summary-card { background:#fff; border-radius:22px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 18px 38px rgba(15,23,42,0.08); padding:1.2rem 1.4rem; }
   .asset-summary-label,
@@ -24,7 +24,18 @@
   }
   .asset-summary-label { text-transform:uppercase; letter-spacing:0.12em; color:#94a3b8; }
   .asset-summary-value { font-weight:700; color:#0f172a; }
-  .asset-filter-card { background:#fff; border-radius:12px; border:1px solid rgba(148,163,184,0.16); padding:1rem; }
+  .asset-filter-card { background:#fff; border-radius:20px; border:1px solid rgba(148,163,184,0.16); padding:1.15rem; box-shadow:0 12px 28px rgba(15,23,42,0.08); }
+  .asset-filter-form {
+    display:grid;
+    grid-template-columns:minmax(220px,1.3fr) repeat(3,minmax(170px,1fr));
+    gap:0.9rem;
+    align-items:end;
+  }
+  .asset-filter-actions {
+    grid-column: 1 / -1;
+    display:flex;
+    gap:0.55rem;
+  }
   body[data-theme="dark"] .asset-filter-card { background:#111827; border-color:rgba(148,163,184,0.24); }
   body[data-theme="dark"] .asset-filter-card .form-label,
   body[data-theme="dark"] .asset-filter-card .form-check-label {
@@ -57,16 +68,16 @@
     background: #cbd5e1;
     border-color: #cbd5e1;
   }
-  .min-w-full border border-gray-300 rounded-lg { background:#fff; border-radius:20px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 20px 45px rgba(15,23,42,0.08); padding:1.5rem 1.7rem; }
-  .min-w-full border border-gray-300 rounded-lg table thead th,
-  .min-w-full border border-gray-300 rounded-lg table tbody td,
-  .min-w-full border border-gray-300 rounded-lg .pagination,
-  .min-w-full border border-gray-300 rounded-lg .pagination a,
-  .min-w-full border border-gray-300 rounded-lg .pagination span {
+  .asset-table-card { background:#fff; border-radius:20px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 20px 45px rgba(15,23,42,0.08); padding:1.25rem 1.35rem; }
+  .asset-table-card table thead th,
+  .asset-table-card table tbody td,
+  .asset-table-card .pagination,
+  .asset-table-card .pagination a,
+  .asset-table-card .pagination span {
     font-size:0.75rem;
   }
-  .min-w-full border border-gray-300 rounded-lg table thead th { text-transform:uppercase; letter-spacing:0.08em; color:#64748b; }
-  .min-w-full border border-gray-300 rounded-lg table tbody td { vertical-align:middle; }
+  .asset-table-card table thead th { text-transform:uppercase; letter-spacing:0.08em; color:#64748b; }
+  .asset-table-card table tbody td { vertical-align:middle; }
   .asset-actions { display:flex; flex-wrap:wrap; gap:0.35rem; }
   .asset-actions .btn {
     border-radius: 12px;
@@ -133,7 +144,7 @@
     box-shadow: 0 40px 90px rgba(15,23,42,0.35);
     transform: scale(0.92);
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    max-width: min(540px, 90vw);
+    max-width: min(980px, 92vw);
     width: 100%;
   }
   .asset-photo-modal.is-visible .asset-photo-panel {
@@ -149,8 +160,9 @@
   .asset-photo-panel img {
     width: 100%;
     border-radius: 18px;
-    object-fit: cover;
-    max-height: 70vh;
+    object-fit: contain;
+    max-height: min(72vh, 680px);
+    background: #f8fafc;
   }
   .asset-photo-close {
     position: absolute;
@@ -168,7 +180,12 @@
     cursor: pointer;
   }
   .asset-filter-card .form-label { font-size:0.75rem; }
-  @media (max-width: 992px) { .asset-hero{flex-direction:column;} body[data-theme="light"] main.container{margin-left:0!important;} }
+  @media (max-width: 992px) {
+    .asset-hero { flex-direction:column; }
+    .asset-filter-form { grid-template-columns:1fr; }
+    .asset-filter-actions { grid-column:auto; }
+    body[data-theme="light"] main.container{margin-left:0!important;}
+  }
 </style>
 @endpush
 
@@ -193,12 +210,12 @@
   </section>
 
   <section class="asset-filter-card">
-    <form method="GET" action="{{ route($listRoute) }}" class="row g-3 align-items-end">
-      <div class="col-12 col-lg-4">
+    <form method="GET" action="{{ route($listRoute) }}" class="asset-filter-form">
+      <div>
         <label class="form-label">Cari</label>
         <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="Kode / nama / deskripsi">
       </div>
-      <div class="col-12 col-md-4 col-lg-3">
+      <div>
         <label class="form-label">Kategori</label>
         <select name="category" class="form-select">
           <option value="">Semua</option>
@@ -207,7 +224,7 @@
           @endforeach
         </select>
       </div>
-      <div class="col-12 col-md-4 col-lg-3">
+      <div>
         <label class="form-label">Status</label>
         <select name="status" class="form-select">
           <option value="" {{ $statusValue === '' ? 'selected' : '' }}>Semua</option>
@@ -215,21 +232,21 @@
           <option value="inactive" {{ $statusValue === 'inactive' ? 'selected' : '' }}>Nonaktif</option>
         </select>
       </div>
-      <div class="col-12 col-md-4 col-lg-2">
+      <div>
         <label class="form-label d-block">Ketersediaan</label>
         <div class="form-check">
           <input class="form-check-input" type="checkbox" name="available" value="1" id="chkAvail" {{ $availableChecked ? 'checked' : '' }}>
           <label class="form-check-label" for="chkAvail">Hanya stok tersedia</label>
         </div>
       </div>
-      <div class="col-12 d-flex gap-2">
+      <div class="asset-filter-actions">
         <button class="btn btn-primary" type="submit">Terapkan</button>
         <a href="{{ route($listRoute) }}" class="btn btn-outline-secondary">Reset</a>
       </div>
     </form>
   </section>
 
-  <section class="min-w-full border border-gray-300 rounded-lg">
+  <section class="asset-table-card">
     <div class="table-responsive">
       <table class="table align-middle">
         <thead>
@@ -286,8 +303,8 @@
                     @else
                       <span class="text-muted small">BAST -</span>
                     @endif
-                    @if($asset->photo)
-                      <button type="button" class="btn btn-sm asset-photo-btn" data-photo-view="{{ asset('storage/'.$asset->photo) }}" data-photo-label="{{ $asset->name }}">
+                    @if($asset->photo_url)
+                      <button type="button" class="btn btn-sm asset-photo-btn" data-photo-view="{{ $asset->photo_url }}" data-photo-label="{{ $asset->name }}">
                         <span class="asset-photo-btn__icon">&#128247;</span>
                         <span>Foto</span>
                       </button>

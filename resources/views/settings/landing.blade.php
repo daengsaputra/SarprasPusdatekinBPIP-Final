@@ -3,6 +3,15 @@
 
 @push('styles')
 <style>
+  body[data-theme="light"] { background:#eef2ff; }
+  .landing-settings-shell { display:flex; flex-direction:column; gap:1.1rem; padding-bottom:2.2rem; }
+  .landing-settings-hero {
+    background:linear-gradient(120deg, rgba(59,130,246,0.1), #fff 70%);
+    border:1px solid rgba(148,163,184,0.16);
+    border-radius:22px;
+    padding:1.15rem 1.3rem;
+    box-shadow:0 12px 28px rgba(15,23,42,0.08);
+  }
   .settings-card {
     background: #fff;
     border-radius: 22px;
@@ -66,11 +75,12 @@
 @section('content')
 <main class="content-body">
 <div class="container-fluid">
-<div class="d-flex justify-content-between align-items-start mb-4">
+<div class="landing-settings-shell">
+<div class="landing-settings-hero d-flex justify-content-between align-items-start flex-wrap gap-3">
   <div>
     <p class="text-uppercase text-muted small mb-1" style="letter-spacing:0.25em;">Pengaturan</p>
-    <h1 class="h4 mb-0">Video Landing Page</h1>
-    <p class="text-muted mb-0">Atur video hero yang akan tampil pada halaman publik.</p>
+    <h1 class="h4 mb-0">Landing Page</h1>
+    <p class="text-muted mb-0">Atur video hero dan tema landing publik dengan tampilan terbaru.</p>
   </div>
   <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary">Kembali ke Dashboard</a>
 </div>
@@ -145,6 +155,7 @@
     <button type="reset" class="btn btn-light border">Reset Form</button>
   </div>
 </form>
+</div>
 </div>
 </main>
 @endsection

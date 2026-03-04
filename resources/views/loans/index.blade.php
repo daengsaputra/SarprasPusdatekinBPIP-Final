@@ -93,10 +93,26 @@
   .loan-table-pagination { margin-top:1.2rem; display:flex; justify-content:flex-end; }
   .loan-attachment-modal { position:fixed; inset:0; background:rgba(15,23,42,0.65); display:flex; justify-content:center; align-items:center; padding:1.5rem; opacity:0; pointer-events:none; transition:opacity .25s ease; z-index:2000; }
   .loan-attachment-modal.is-visible { opacity:1; pointer-events:auto; }
-  .loan-attachment-modal__body { background:#fff; border-radius:24px; padding:1rem; box-shadow:0 30px 70px rgba(15,23,42,0.25); max-width:640px; width:100%; transform:scale(0.88); transition:transform .32s cubic-bezier(0.34,1.56,0.64,1); }
+  .loan-attachment-modal__body {
+    background:#fff;
+    border-radius:24px;
+    padding:1rem;
+    box-shadow:0 30px 70px rgba(15,23,42,0.25);
+    max-width:min(980px, 92vw);
+    width:100%;
+    transform:scale(0.88);
+    transition:transform .32s cubic-bezier(0.34,1.56,0.64,1);
+  }
   .loan-attachment-modal.is-visible .loan-attachment-modal__body { transform:scale(1); }
   .loan-attachment-modal__label { text-align:center; font-size:16px; font-weight:700; color:#0f172a; margin-bottom:0.5rem; }
-  .loan-attachment-modal__body img { width:100%; height:auto; border-radius:16px; display:block; }
+  .loan-attachment-modal__body img {
+    width:100%;
+    max-height:min(72vh, 680px);
+    border-radius:16px;
+    display:block;
+    object-fit:contain;
+    background:#f8fafc;
+  }
   .loan-attachment-modal__close { border:none; background:transparent; font-size:1.6rem; line-height:1; color:#475569; margin-bottom:0.5rem; cursor:pointer; display:inline-flex; align-items:center; justify-content:flex-end; width:100%; }
   @media (max-width: 768px) {
     .loan-hero { flex-direction:column; }
@@ -128,7 +144,7 @@
       <div class="loan-hero__title">Daftar Peminjaman</div>
       <div class="loan-hero__subtitle">Pantau setiap aset yang keluar-masuk beserta bukti fotonya.</div>
       <div class="loan-hero__cta">
-        <a href="{{ route('loans.create') }}" class="btn btn-primary px-4 d-flex align-items-center gap-2">
+        <a href="{{ route('loans.create', ['fresh' => 1]) }}" class="btn btn-primary px-4 d-flex align-items-center gap-2">
           <span class="fs-5">+</span>
           <span>Tambah Peminjaman</span>
         </a>

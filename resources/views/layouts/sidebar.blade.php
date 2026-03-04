@@ -28,7 +28,7 @@
 
             <li class="menu-title sarpras-menu-title">OPERASIONAL</li>
             <li class="{{ request()->routeIs('loans.*') ? 'mm-active' : '' }}">
-                <a href="{{ route('loans.create') }}" class="ai-icon sarpras-menu-link {{ request()->routeIs('loans.*') ? 'active' : '' }}" data-menu-label="Peminjaman">
+                <a href="{{ route('loans.index') }}" class="ai-icon sarpras-menu-link {{ request()->routeIs('loans.*') ? 'active' : '' }}" data-menu-label="Peminjaman">
                     <i class="flaticon-381-notepad"></i>
                     <span class="nav-text">Peminjaman</span>
                     <i class="fa fa-angle-right sarpras-menu-arrow"></i>

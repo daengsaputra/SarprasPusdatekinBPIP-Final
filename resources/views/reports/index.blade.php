@@ -5,30 +5,63 @@
 @php($rangeLabel = $range === 'week' ? 'Seminggu' : ($range === 'year' ? 'Setahun' : 'Sebulan'))
 @extends('layouts.app')
 
+@push('styles')
+<style>
+  body[data-theme="light"] { background:#eef2ff; }
+  .reports-shell { display:flex; flex-direction:column; gap:1.2rem; padding-bottom:2.2rem; }
+  .reports-hero {
+    display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.9rem;
+    padding:1.2rem 1.35rem; border-radius:22px;
+    background:linear-gradient(120deg, rgba(59,130,246,0.1), #fff 70%);
+    border:1px solid rgba(148,163,184,0.15); box-shadow:0 12px 28px rgba(15,23,42,0.08);
+  }
+  .reports-filter-card, .reports-table-card {
+    background:#fff; border:1px solid rgba(148,163,184,0.15); border-radius:22px;
+    box-shadow:0 12px 28px rgba(15,23,42,0.08); padding:1rem 1.15rem;
+  }
+  .reports-filter-form { display:grid; grid-template-columns:repeat(6,minmax(130px,1fr)) auto; gap:.75rem; align-items:end; }
+  .reports-filter-actions { display:flex; gap:.5rem; }
+  .reports-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:.8rem; }
+  .reports-stat { background:#fff; border-radius:14px; border:1px solid rgba(148,163,184,0.18); padding:.75rem .9rem; }
+  .reports-table-card table th { text-transform:uppercase; letter-spacing:.08em; font-size:.74rem; color:#64748b; }
+  .reports-table-card table td { font-size:.84rem; vertical-align:middle; }
+  @media (max-width: 992px) {
+    .reports-filter-form { grid-template-columns:1fr; }
+    .reports-filter-actions { justify-content:stretch; }
+    .reports-filter-actions .btn { flex:1; }
+  }
+</style>
+@endpush
+
 @section('content')
 <main class="content-body">
 <div class="container-fluid">
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="h4 mb-0">Laporan Peminjaman & Pengembalian</h1>
-  <div class="d-flex align-items-center gap-2">
-    <div class="dropdown">
-      <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-        Periode: {{ $rangeLabel }}
-      </button>
-      <ul class="dropdown-menu dropdown-menu-end">
-        <li><a class="dropdown-item" href="{{ route('reports.index', array_merge(request()->all(), ['range' => 'week'])) }}">Seminggu</a></li>
-        <li><a class="dropdown-item" href="{{ route('reports.index', array_merge(request()->all(), ['range' => 'month'])) }}">Sebulan</a></li>
-        <li><a class="dropdown-item" href="{{ route('reports.index', array_merge(request()->all(), ['range' => 'year'])) }}">Setahun</a></li>
-      </ul>
+<div class="reports-shell">
+  <section class="reports-hero">
+    <div>
+      <h1 class="h4 mb-1">Laporan Peminjaman & Pengembalian</h1>
+      <p class="text-muted mb-0">Ringkasan transaksi sarpras dengan filter periode dan ekspor cepat.</p>
     </div>
-    <a class="btn btn-outline-primary btn-sm" href="{{ route('reports.excel', request()->all()) }}">Export Excel</a>
-    <a class="btn btn-primary btn-sm" href="{{ route('reports.pdf', request()->all()) }}">Download PDF</a>
-  </div>
-</div>
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <div class="dropdown">
+        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          Periode: {{ $rangeLabel }}
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" href="{{ route('reports.index', array_merge(request()->all(), ['range' => 'week'])) }}">Seminggu</a></li>
+          <li><a class="dropdown-item" href="{{ route('reports.index', array_merge(request()->all(), ['range' => 'month'])) }}">Sebulan</a></li>
+          <li><a class="dropdown-item" href="{{ route('reports.index', array_merge(request()->all(), ['range' => 'year'])) }}">Setahun</a></li>
+        </ul>
+      </div>
+      <a class="btn btn-outline-primary btn-sm" href="{{ route('reports.excel', request()->all()) }}">Export Excel</a>
+      <a class="btn btn-primary btn-sm" href="{{ route('reports.pdf', request()->all()) }}">Download PDF</a>
+    </div>
+  </section>
 
-<form method="GET" class="row g-2 align-items-end mb-3">
+<section class="reports-filter-card">
+<form method="GET" class="reports-filter-form">
   <input type="hidden" name="range" value="custom">
-  <div class="col-md-2">
+  <div>
     <label class="form-label">Jenis Laporan</label>
     <select name="type" class="form-select">
       <option value="all" {{ $type==='all'?'selected':'' }}>Semua</option>
@@ -36,19 +69,19 @@
       <option value="returns" {{ $type==='returns'?'selected':'' }}>Pengembalian</option>
     </select>
   </div>
-  <div class="col-md-2">
+  <div>
     <label class="form-label">Dari</label>
     <input type="date" name="start" value="{{ request('start', $start->toDateString()) }}" class="form-control">
   </div>
-  <div class="col-md-2">
+  <div>
     <label class="form-label">Sampai</label>
     <input type="date" name="end" value="{{ request('end', $end->toDateString()) }}" class="form-control">
   </div>
-  <div class="col-md-2">
+  <div>
     <label class="form-label">Cari</label>
     <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="aset/peminjam">
   </div>
-  <div class="col-md-2">
+  <div>
     <label class="form-label">Unit Kerja</label>
     <select name="unit" class="form-select">
       <option value="">Semua</option>
@@ -57,7 +90,7 @@
       @endforeach
     </select>
   </div>
-  <div class="col-md-2">
+  <div>
     <label class="form-label">Status</label>
     <select name="status" class="form-select">
       <option value="">Semua</option>
@@ -66,42 +99,34 @@
       <option value="returned" {{ request('status')==='returned'?'selected':'' }}>Kembali</option>
     </select>
   </div>
-  <div class="col-md-2">
-    <button class="btn btn-primary w-100" type="submit">Terapkan</button>
-  </div>
-  <div class="col-md-2">
-    <a class="btn btn-outline-secondary w-100" href="{{ route('reports.index') }}">Reset</a>
+  <div class="reports-filter-actions">
+    <a class="btn btn-outline-secondary" href="{{ route('reports.index') }}">Reset</a>
+    <button class="btn btn-primary" type="submit">Terapkan</button>
   </div>
 </form>
+</section>
 
-<div class="row g-3 mb-3">
-  <div class="col-md-3">
-    <div class="card"><div class="card-body">
+<section class="reports-stats">
+  <div class="reports-stat">
       <div class="text-muted small">Periode</div>
       <div class="fw-bold">{{ $summary['periode'] }}</div>
       <div class="small">{{ $summary['start'] }} s/d {{ $summary['end'] }}</div>
-    </div></div>
   </div>
-  <div class="col-md-3">
-    <div class="card"><div class="card-body">
+  <div class="reports-stat">
       <div class="text-muted small">Total Transaksi</div>
       <div class="fs-4 fw-bold">{{ $summary['total_transaksi'] }}</div>
-    </div></div>
   </div>
-  <div class="col-md-3">
-    <div class="card"><div class="card-body">
+  <div class="reports-stat">
       <div class="text-muted small">Total Jumlah Barang</div>
       <div class="fs-4 fw-bold">{{ $summary['total_jumlah'] }}</div>
-    </div></div>
   </div>
-  <div class="col-md-3">
-    <div class="card"><div class="card-body">
+  <div class="reports-stat">
       <div class="text-muted small">Total Sudah Kembali</div>
       <div class="fs-4 fw-bold">{{ $summary['total_dikembalikan'] }}</div>
-    </div></div>
   </div>
-</div>
+</section>
 
+<section class="reports-table-card">
 <div class="table-responsive">
 <table class="table table-striped align-middle">
   <thead>
@@ -146,6 +171,8 @@
 </div>
 
 {{ $rows->links() }}
+</section>
+</div>
 </div>
 </main>
 @endsection

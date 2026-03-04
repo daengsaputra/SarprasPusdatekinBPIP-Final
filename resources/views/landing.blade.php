@@ -591,8 +591,8 @@
             <div class="asset-item">
               <div class="d-flex align-items-center flex-grow-1 min-w-0">
                 <div class="asset-thumb">
-                  @if($asset->photo)
-                    <img src="{{ asset('storage/'.$asset->photo) }}" alt="Foto {{ $asset->name }}">
+                  @if($asset->photo_url)
+                    <img src="{{ $asset->photo_url }}" alt="Foto {{ $asset->name }}">
                   @else
                     {{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($asset->name ?? '?', 0, 1)) }}
                   @endif
