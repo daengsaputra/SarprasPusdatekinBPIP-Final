@@ -13,17 +13,32 @@
 <style>
   body[data-theme="light"] { background: #eef2ff; }
   .asset-shell { display:flex; flex-direction:column; gap:1.5rem; padding-bottom:3rem; }
-  .asset-hero { display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.9rem; padding:1.1rem 1.2rem; border-radius:20px; background:linear-gradient(120deg, rgba(59,130,246,0.1), #ffffff 70%); border:1px solid rgba(148,163,184,0.14); box-shadow:0 12px 28px rgba(15,23,42,0.08); }
-  .asset-hero__title { font-size:clamp(1.15rem,1.8vw,1.45rem); font-weight:700; color:#0f172a; margin-bottom:.2rem; }
-  .asset-summary-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem; }
-  .asset-summary-card { background:#fff; border-radius:22px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 18px 38px rgba(15,23,42,0.08); padding:1.2rem 1.4rem; }
+  .asset-hero { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.9rem; padding:1.35rem 1.6rem; border-radius:24px; background:linear-gradient(120deg, rgba(59,130,246,0.12), #ffffff 70%); border:1px solid rgba(148,163,184,0.1); box-shadow:0 12px 35px rgba(15,23,42,0.08); }
+  .asset-hero__title { font-size:clamp(1.15rem,2.2vw,1.65rem); font-weight:700; color:#0f172a; margin-bottom:0.2rem; }
+  .asset-hero__subtitle { color:#475569; font-size:0.9rem; }
+  .asset-hero__cta { display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; margin-top:0.85rem; }
+  .asset-hero__cta small { color:#64748b; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; }
+  .asset-hero__stats { display:flex; flex-wrap:wrap; gap:0.75rem; }
+  .asset-summary-card { background:#fff; border-radius:18px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 14px 32px rgba(15,23,42,0.08); padding:0.9rem 1.2rem; min-width:160px; }
   .asset-summary-label,
   .asset-summary-value,
   .asset-summary-card p {
     font-size: 0.75rem;
   }
-  .asset-summary-label { text-transform:uppercase; letter-spacing:0.12em; color:#94a3b8; }
-  .asset-summary-value { font-weight:700; color:#0f172a; }
+  .asset-summary-label { text-transform:uppercase; letter-spacing:0.15em; font-size:0.62rem; color:#94a3b8; }
+  .asset-summary-value { font-size:1.35rem; font-weight:700; color:#0f172a; }
+  .asset-add-btn {
+    background: #0ea5e9;
+    border-color: #0ea5e9;
+    color: #fff;
+    border-radius: 12px;
+  }
+  .asset-add-btn:hover,
+  .asset-add-btn:focus {
+    background: #0284c7;
+    border-color: #0284c7;
+    color: #fff;
+  }
   .asset-filter-card { background:#fff; border-radius:20px; border:1px solid rgba(148,163,184,0.16); padding:1.15rem; box-shadow:0 12px 28px rgba(15,23,42,0.08); }
   .asset-filter-form {
     display:grid;
@@ -196,20 +211,40 @@
 @section('content')
 @php($statusValue = request('status', ''))
 @php($availableChecked = request('available') === '1')
+@php($assetTotal = method_exists($assets, 'total') ? $assets->total() : $assets->count())
+@php($assetShown = $assets->count())
+@php($assetPage = method_exists($assets, 'currentPage') ? $assets->currentPage() : 1)
 <main class="content-body">
 <div class="container-fluid">
 <div class="asset-shell">
   <section class="asset-hero">
     <div>
-      <p class="text-uppercase text-muted small mb-1" style="letter-spacing:0.25em;">{{ $isLoanable ? 'Barang Peminjaman' : 'Barang Aset' }}</p>
-      <h1 class="asset-hero__title">{{ $title }}</h1>
-      <p class="text-muted mb-0">Kelola data sarpras dengan filter cepat, ekspor/impor Excel, serta aksi edit langsung di tabel.</p>
-    </div>
-    <div class="d-flex flex-wrap gap-2 align-items-center">
+      <div class="asset-hero__title">{{ $title }}</div>
+      <div class="asset-hero__subtitle">Kelola data sarpras dengan filter cepat, ekspor-impor Excel, serta aksi edit langsung di tabel.</div>
       @auth
-        <a href="{{ $importUrl }}" class="btn btn-primary w-1">Import Excel <span></span></a>
-        <a href="{{ $createUrl }}" class="btn btn-primary px-4">+ Tambah {{ $isLoanable ? 'Barang Peminjaman' : 'Aset' }} <span>&rsaquo;</span></a>
+        <div class="asset-hero__cta">
+          <a href="{{ $createUrl }}" class="btn asset-add-btn px-4 d-flex align-items-center gap-2">
+            <span class="fs-5">+</span>
+            <span>Tambah {{ $isLoanable ? 'Barang' : 'Aset' }}</span>
+          </a>
+          <a href="{{ $importUrl }}" class="btn btn-outline-primary">Import Excel</a>
+          <small>{{ $isLoanable ? 'Data barang peminjaman' : 'Data aset inventaris' }}</small>
+        </div>
       @endauth
+    </div>
+    <div class="asset-hero__stats">
+      <div class="asset-summary-card">
+        <div class="asset-summary-label">Total data</div>
+        <div class="asset-summary-value">{{ number_format($assetTotal) }}</div>
+      </div>
+      <div class="asset-summary-card">
+        <div class="asset-summary-label">Ditampilkan</div>
+        <div class="asset-summary-value">{{ number_format($assetShown) }}</div>
+      </div>
+      <div class="asset-summary-card">
+        <div class="asset-summary-label">Halaman</div>
+        <div class="asset-summary-value">{{ number_format($assetPage) }}</div>
+      </div>
     </div>
   </section>
 

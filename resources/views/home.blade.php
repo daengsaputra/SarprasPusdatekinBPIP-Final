@@ -94,19 +94,22 @@
                 <div class="card">
                     <div class="card-header d-sm-flex justify-content-sm-between d-block pb-0 border-0">
                         <div class="pb-3 pb-sm-0">
-                            <h4 class="card-title">Plan List</h4>
-                            <p class="fs-13 mb-0">Lorem ipsum dolor sit amet, consectetur</p>
+                            <h4 class="card-title">Tren Peminjaman &amp; Pengembalian</h4>
+                            <p class="fs-13 mb-0">Ringkasan transaksi minggu ini (Min-Sab).</p>
                         </div>
-                        <div class="dropdown mb-3">
-                            <button type="button" class="btn rounded btn-primary light" data-bs-toggle="dropdown">Running</button>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <a class="dropdown-item" href="javascript:void(0)">Running</a>
-                                <a class="dropdown-item" href="javascript:void(0)">Cycling</a>
-                            </div>
+                        <div class="mb-3 d-flex gap-2 flex-wrap">
+                            <span class="badge light badge-primary">Peminjaman: {{ number_format($weeklyLoanTotal, 0, ',', '.') }}</span>
+                            <span class="badge light badge-success">Pengembalian: {{ number_format($weeklyReturnTotal, 0, ',', '.') }}</span>
                         </div>
                     </div>
                     <div class="card-body pt-0 pb-0">
-                        <div id="chartBar"></div>
+                        <div
+                            id="chartLoanReturn"
+                            data-labels='@json($weeklyLabels)'
+                            data-loans='@json($weeklyLoanSeries)'
+                            data-returns='@json($weeklyReturnSeries)'
+                        ></div>
+                        <div id="chartBar" class="d-none" aria-hidden="true"></div>
                     </div>
                 </div>
             </div>
@@ -209,4 +212,92 @@
 
 @push('script')
 <script src="{{ asset('evanto/assets/js/dashboard/dashboard-1.js') }}"></script>
+<script>
+  (function () {
+    function renderLoanReturnChart() {
+      var chartEl = document.querySelector('#chartLoanReturn');
+      if (!chartEl || typeof ApexCharts === 'undefined') {
+        return;
+      }
+
+      var labels = [];
+      var loans = [];
+      var returns = [];
+      try {
+        labels = JSON.parse(chartEl.dataset.labels || '[]');
+        loans = JSON.parse(chartEl.dataset.loans || '[]');
+        returns = JSON.parse(chartEl.dataset.returns || '[]');
+      } catch (e) {
+        labels = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+        loans = [0, 0, 0, 0, 0, 0, 0];
+        returns = [0, 0, 0, 0, 0, 0, 0];
+      }
+
+      chartEl.innerHTML = '';
+      if (window.loanReturnChart && typeof window.loanReturnChart.destroy === 'function') {
+        window.loanReturnChart.destroy();
+      }
+
+      window.loanReturnChart = new ApexCharts(chartEl, {
+        series: [
+          { name: 'Peminjaman', data: loans },
+          { name: 'Pengembalian', data: returns }
+        ],
+        chart: {
+          type: 'line',
+          height: 300,
+          toolbar: { show: false },
+          zoom: { enabled: false }
+        },
+        stroke: {
+          width: [3, 3],
+          curve: 'smooth'
+        },
+        colors: ['#3b5cf6', '#22c55e'],
+        markers: {
+          size: 4,
+          strokeWidth: 2
+        },
+        grid: {
+          borderColor: '#e5e7eb',
+          strokeDashArray: 4
+        },
+        dataLabels: {
+          enabled: false
+        },
+        xaxis: {
+          categories: labels,
+          labels: { style: { fontSize: '12px' } }
+        },
+        yaxis: {
+          min: 0,
+          forceNiceScale: true,
+          labels: {
+            formatter: function (val) { return Math.round(val); }
+          }
+        },
+        legend: {
+          position: 'top',
+          horizontalAlign: 'left'
+        },
+        tooltip: {
+          y: {
+            formatter: function (val) { return val + ' transaksi'; }
+          }
+        }
+      });
+
+      window.loanReturnChart.render();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', renderLoanReturnChart);
+    } else {
+      renderLoanReturnChart();
+    }
+
+    // Override chart template script if it renders late
+    setTimeout(renderLoanReturnChart, 350);
+  })();
+</script>
 @endpush

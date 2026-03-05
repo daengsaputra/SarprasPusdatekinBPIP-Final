@@ -62,7 +62,7 @@
                             <img src="{{ asset('evanto/assets/images/avatar/small/avatar1.webp') }}" width="20" alt="user">
                             <div class="header-info">
                                 <span class="name text-black">{{ auth()->user()->name ?? 'User' }}</span>
-                                <small>Administrator</small>
+                                <small>{{ auth()->user()?->role_label ?? 'Pengguna' }}</small>
                             </div>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">

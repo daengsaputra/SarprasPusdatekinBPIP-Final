@@ -10,11 +10,19 @@
   body[data-theme="light"] { background:#eef2ff; }
   .reports-shell { display:flex; flex-direction:column; gap:1.2rem; padding-bottom:2.2rem; }
   .reports-hero {
-    display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.9rem;
-    padding:1.2rem 1.35rem; border-radius:22px;
-    background:linear-gradient(120deg, rgba(59,130,246,0.1), #fff 70%);
-    border:1px solid rgba(148,163,184,0.15); box-shadow:0 12px 28px rgba(15,23,42,0.08);
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.9rem;
+    padding:1.35rem 1.6rem; border-radius:24px;
+    background:linear-gradient(120deg, rgba(59,130,246,0.12), #fff 70%);
+    border:1px solid rgba(148,163,184,0.1); box-shadow:0 12px 35px rgba(15,23,42,0.08);
   }
+  .reports-hero__title { font-size:clamp(1.15rem,2.2vw,1.65rem); font-weight:700; color:#0f172a; margin-bottom:0.2rem; }
+  .reports-hero__subtitle { color:#475569; font-size:0.9rem; }
+  .reports-hero__cta { display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; margin-top:0.85rem; }
+  .reports-hero__cta small { color:#64748b; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; }
+  .reports-hero__stats { display:flex; flex-wrap:wrap; gap:0.75rem; }
+  .reports-summary-card { background:#fff; border-radius:18px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 14px 32px rgba(15,23,42,0.08); padding:0.9rem 1.2rem; min-width:160px; }
+  .reports-summary-label { text-transform:uppercase; letter-spacing:0.15em; font-size:0.62rem; color:#94a3b8; }
+  .reports-summary-value { font-size:1.35rem; font-weight:700; color:#0f172a; }
   .reports-filter-card, .reports-table-card {
     background:#fff; border:1px solid rgba(148,163,184,0.15); border-radius:22px;
     box-shadow:0 12px 28px rgba(15,23,42,0.08); padding:1rem 1.15rem;
@@ -39,22 +47,37 @@
 <div class="reports-shell">
   <section class="reports-hero">
     <div>
-      <h1 class="h4 mb-1">Laporan Peminjaman & Pengembalian</h1>
-      <p class="text-muted mb-0">Ringkasan transaksi sarpras dengan filter periode dan ekspor cepat.</p>
-    </div>
-    <div class="d-flex align-items-center gap-2 flex-wrap">
-      <div class="dropdown">
-        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-          Periode: {{ $rangeLabel }}
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item" href="{{ route('reports.index', array_merge(request()->all(), ['range' => 'week'])) }}">Seminggu</a></li>
-          <li><a class="dropdown-item" href="{{ route('reports.index', array_merge(request()->all(), ['range' => 'month'])) }}">Sebulan</a></li>
-          <li><a class="dropdown-item" href="{{ route('reports.index', array_merge(request()->all(), ['range' => 'year'])) }}">Setahun</a></li>
-        </ul>
+      <div class="reports-hero__title">Laporan Peminjaman & Pengembalian</div>
+      <div class="reports-hero__subtitle">Ringkasan transaksi sarpras dengan filter periode dan ekspor cepat.</div>
+      <div class="reports-hero__cta">
+        <div class="dropdown">
+          <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Periode: {{ $rangeLabel }}
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="{{ route('reports.index', array_merge(request()->all(), ['range' => 'week'])) }}">Seminggu</a></li>
+            <li><a class="dropdown-item" href="{{ route('reports.index', array_merge(request()->all(), ['range' => 'month'])) }}">Sebulan</a></li>
+            <li><a class="dropdown-item" href="{{ route('reports.index', array_merge(request()->all(), ['range' => 'year'])) }}">Setahun</a></li>
+          </ul>
+        </div>
+        <a class="btn btn-outline-primary btn-sm" href="{{ route('reports.excel', request()->all()) }}">Export Excel</a>
+        <a class="btn btn-primary btn-sm" href="{{ route('reports.pdf', request()->all()) }}">Download PDF</a>
+        <small>Filter periode & unduh laporan cepat</small>
       </div>
-      <a class="btn btn-outline-primary btn-sm" href="{{ route('reports.excel', request()->all()) }}">Export Excel</a>
-      <a class="btn btn-primary btn-sm" href="{{ route('reports.pdf', request()->all()) }}">Download PDF</a>
+    </div>
+    <div class="reports-hero__stats">
+      <div class="reports-summary-card">
+        <div class="reports-summary-label">Total transaksi</div>
+        <div class="reports-summary-value">{{ number_format((int) ($summary['total_transaksi'] ?? 0)) }}</div>
+      </div>
+      <div class="reports-summary-card">
+        <div class="reports-summary-label">Total jumlah</div>
+        <div class="reports-summary-value">{{ number_format((int) ($summary['total_jumlah'] ?? 0)) }}</div>
+      </div>
+      <div class="reports-summary-card">
+        <div class="reports-summary-label">Sudah kembali</div>
+        <div class="reports-summary-value">{{ number_format((int) ($summary['total_dikembalikan'] ?? 0)) }}</div>
+      </div>
     </div>
   </section>
 

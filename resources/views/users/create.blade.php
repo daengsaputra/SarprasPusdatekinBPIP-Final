@@ -24,8 +24,9 @@
           <div class="col-12 col-md-6">
             <label class="form-label">Role</label>
             <select name="role" class="form-select @error('role') is-invalid @enderror" required>
-              <option value="petugas" {{ old('role')==='petugas' ? 'selected' : '' }}>Petugas</option>
-              <option value="admin" {{ old('role')==='admin' ? 'selected' : '' }}>Admin</option>
+              <option value="{{ \App\Models\User::ROLE_PEMINJAM }}" {{ old('role', \App\Models\User::ROLE_PEMINJAM)===\App\Models\User::ROLE_PEMINJAM ? 'selected' : '' }}>{{ \App\Models\User::ROLE_LABELS[\App\Models\User::ROLE_PEMINJAM] }}</option>
+              <option value="{{ \App\Models\User::ROLE_PETUGAS }}" {{ old('role')===\App\Models\User::ROLE_PETUGAS ? 'selected' : '' }}>{{ \App\Models\User::ROLE_LABELS[\App\Models\User::ROLE_PETUGAS] }}</option>
+              <option value="{{ \App\Models\User::ROLE_SUPER_ADMIN }}" {{ old('role')===\App\Models\User::ROLE_SUPER_ADMIN ? 'selected' : '' }}>{{ \App\Models\User::ROLE_LABELS[\App\Models\User::ROLE_SUPER_ADMIN] }}</option>
             </select>
             @error('role')<div class="invalid-feedback">{{ $message }}</div>@enderror
           </div>

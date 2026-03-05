@@ -16,14 +16,14 @@ class AdminUserSeeder extends Seeder
             [
                 'email' => 'daeng@example.com',
                 'password' => Hash::make('1234'),
-                'role' => 'admin',
+                'role' => User::ROLE_SUPER_ADMIN,
             ]
         );
 
         // Ensure password is up to date if user existed
         if (!Hash::check('1234', $user->password)) {
             $user->password = Hash::make('1234');
-            $user->role = 'admin';
+            $user->role = User::ROLE_SUPER_ADMIN;
             $user->save();
         }
 
@@ -33,12 +33,12 @@ class AdminUserSeeder extends Seeder
             [
                 'email' => 'naufal@example.com',
                 'password' => Hash::make('12345'),
-                'role' => 'petugas',
+                'role' => User::ROLE_PETUGAS,
             ]
         );
         if (!Hash::check('12345', $u1->password)) {
             $u1->password = Hash::make('12345');
-            $u1->role = 'petugas';
+            $u1->role = User::ROLE_PETUGAS;
             $u1->save();
         }
 
@@ -48,13 +48,28 @@ class AdminUserSeeder extends Seeder
             [
                 'email' => 'wahyu@example.com',
                 'password' => Hash::make('12345'),
-                'role' => 'petugas',
+                'role' => User::ROLE_PETUGAS,
             ]
         );
         if (!Hash::check('12345', $u2->password)) {
             $u2->password = Hash::make('12345');
-            $u2->role = 'petugas';
+            $u2->role = User::ROLE_PETUGAS;
             $u2->save();
+        }
+
+        // Pegawai / peminjam contoh
+        $u3 = User::firstOrCreate(
+            ['name' => 'pegawai'],
+            [
+                'email' => 'pegawai@example.com',
+                'password' => Hash::make('12345'),
+                'role' => User::ROLE_PEMINJAM,
+            ]
+        );
+        if (!Hash::check('12345', $u3->password)) {
+            $u3->password = Hash::make('12345');
+            $u3->role = User::ROLE_PEMINJAM;
+            $u3->save();
         }
     }
 }

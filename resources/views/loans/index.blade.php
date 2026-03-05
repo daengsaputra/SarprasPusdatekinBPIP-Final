@@ -10,6 +10,18 @@
   .loan-hero__subtitle { color:#475569; font-size:0.9rem; }
   .loan-hero__cta { display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; margin-top:0.85rem; }
   .loan-hero__cta small { color:#64748b; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; }
+  .loan-add-btn {
+    background: #0ea5e9;
+    border-color: #0ea5e9;
+    color: #fff;
+    border-radius: 12px;
+  }
+  .loan-add-btn:hover,
+  .loan-add-btn:focus {
+    background: #0284c7;
+    border-color: #0284c7;
+    color: #fff;
+  }
   .loan-summary-card { background:#fff; border-radius:18px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 14px 32px rgba(15,23,42,0.08); padding:0.9rem 1.2rem; min-width:160px; }
   .loan-summary-label { text-transform:uppercase; letter-spacing:0.15em; font-size:0.62rem; color:#94a3b8; }
   .loan-summary-value { font-size:1.35rem; font-weight:700; color:#0f172a; }
@@ -183,7 +195,7 @@
       <div class="loan-hero__title">Daftar Peminjaman</div>
       <div class="loan-hero__subtitle">Pantau setiap aset yang keluar-masuk beserta bukti fotonya.</div>
       <div class="loan-hero__cta">
-        <a href="{{ route('loans.create', ['fresh' => 1]) }}" class="btn btn-primary px-4 d-flex align-items-center gap-2">
+        <a href="{{ route('loans.create', ['fresh' => 1]) }}" class="btn loan-add-btn px-4 d-flex align-items-center gap-2">
           <span class="fs-5">+</span>
           <span>Tambah Peminjaman</span>
         </a>

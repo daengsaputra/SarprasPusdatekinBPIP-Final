@@ -4,6 +4,7 @@
 @push('styles')
 <style>
   body[data-theme="light"] { background:#eef2ff; }
+  .loan-create-shell { position: relative; }
   .loan-create-shell .card {
     border-radius: 22px;
     border: 1px solid rgba(148,163,184,0.16);
@@ -76,36 +77,92 @@
   .loan-confirm-modal {
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, 0.45);
-    backdrop-filter: blur(7px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    place-items: center;
     padding: 1rem;
+    background:
+      radial-gradient(circle at center, rgba(15, 23, 42, 0.08) 0%, rgba(15, 23, 42, 0.34) 65%, rgba(15, 23, 42, 0.5) 100%);
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
     opacity: 0;
     visibility: hidden;
-    transition: opacity .2s ease, visibility .2s ease;
-    z-index: 2100;
+    pointer-events: none;
+    transition: opacity .22s ease, visibility .22s ease;
+    z-index: 99999;
   }
   .loan-confirm-modal.is-visible {
     opacity: 1;
     visibility: visible;
+    pointer-events: auto;
   }
   .loan-confirm-modal__card {
-    width: min(560px, 94vw);
-    background: #fff;
-    border-radius: 22px;
-    border: 1px solid rgba(148,163,184,0.22);
-    box-shadow: 0 24px 56px rgba(15,23,42,0.2);
-    padding: 1.25rem 1.35rem;
-    transform: scale(.85);
-    transition: transform .24s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    width: min(840px, 94vw);
+    background: #ffffff;
+    border-radius: 34px;
+    border: 1px solid rgba(226,232,240,0.95);
+    box-shadow: 0 30px 70px rgba(15,23,42,0.24);
+    padding: 2rem 2rem 1.8rem;
+    transform: translate(-50%, -50%) scale(.84);
+    opacity: 0;
+    transition: transform .24s cubic-bezier(0.34, 1.56, 0.64, 1), opacity .2s ease;
   }
-  .loan-confirm-modal.is-visible .loan-confirm-modal__card { transform: scale(1); }
-  .loan-confirm-modal__title { font-weight: 700; font-size: 1.8rem; color: #0f172a; margin-bottom: .3rem; }
-  .loan-confirm-modal__text { color: #475569; margin-bottom: 1rem; font-size: 1.1rem; line-height: 1.45; }
-  .loan-confirm-modal__actions { display: flex; justify-content: flex-end; gap: .55rem; }
-  .loan-confirm-modal__actions .btn { min-width: 110px; }
+  .loan-confirm-modal.is-visible .loan-confirm-modal__card {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  .loan-confirm-modal__title {
+    font-weight: 700;
+    font-size: clamp(2rem, 2.8vw, 3.2rem);
+    line-height: 1.12;
+    color: #0f172a;
+    margin-bottom: .55rem;
+  }
+  .loan-confirm-modal__text {
+    color: #475569;
+    margin-bottom: 1.45rem;
+    font-size: clamp(1.12rem, 1.7vw, 1.4rem);
+    line-height: 1.35;
+    max-width: 760px;
+  }
+  .loan-confirm-modal__actions { display: flex; justify-content: flex-end; gap: .75rem; }
+  .loan-confirm-modal__btn {
+    min-width: 166px;
+    height: 58px;
+    border-radius: 18px;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .loan-confirm-modal__btn--no {
+    background: #fff;
+    color: #7c3aed;
+    border: 2px solid #8b5cf6;
+  }
+  .loan-confirm-modal__btn--no:hover,
+  .loan-confirm-modal__btn--no:focus {
+    background: #f5f3ff;
+    color: #6d28d9;
+    border-color: #7c3aed;
+  }
+  .loan-confirm-modal__btn--yes {
+    background: #3949ab;
+    border-color: #3949ab;
+    color: #fff;
+  }
+  .loan-confirm-modal__btn--yes:hover,
+  .loan-confirm-modal__btn--yes:focus {
+    background: #324296;
+    border-color: #324296;
+    color: #fff;
+  }
+  @media (max-width: 768px) {
+    .loan-confirm-modal__card { border-radius: 24px; padding: 1.4rem 1.1rem 1.2rem; }
+    .loan-confirm-modal__actions { justify-content: stretch; }
+    .loan-confirm-modal__btn { min-width: 0; flex: 1; height: 50px; font-size: 1rem; border-radius: 14px; }
+  }
   .loan-form-warning {
     display: none;
     margin-top: .65rem;
@@ -400,8 +457,8 @@
     <div class="loan-confirm-modal__title" id="loanConfirmTitle">Konfirmasi</div>
     <div class="loan-confirm-modal__text" id="loanConfirmText">Apakah anda yakin?</div>
     <div class="loan-confirm-modal__actions">
-      <button type="button" class="btn btn-outline-secondary btn-sm" id="loanConfirmNo">Tidak</button>
-      <button type="button" class="btn btn-primary btn-sm" id="loanConfirmYes">Ya</button>
+      <button type="button" class="btn loan-confirm-modal__btn loan-confirm-modal__btn--no" id="loanConfirmNo">Tidak</button>
+      <button type="button" class="btn loan-confirm-modal__btn loan-confirm-modal__btn--yes" id="loanConfirmYes">Ya</button>
     </div>
   </div>
 </div>
@@ -557,6 +614,7 @@
     if (loanConfirmText) loanConfirmText.textContent = message || 'Apakah anda yakin?';
     loanConfirmModal?.classList.add('is-visible');
     loanConfirmModal?.setAttribute('aria-hidden', 'false');
+    window.setTimeout(() => loanConfirmNo?.focus(), 60);
   }
 
   function closeConfirmModal() {

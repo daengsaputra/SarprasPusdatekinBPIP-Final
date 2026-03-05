@@ -6,12 +6,21 @@
   body[data-theme="light"] { background:#eef2ff; }
   .landing-settings-shell { display:flex; flex-direction:column; gap:1.1rem; padding-bottom:2.2rem; }
   .landing-settings-hero {
-    background:linear-gradient(120deg, rgba(59,130,246,0.1), #fff 70%);
-    border:1px solid rgba(148,163,184,0.16);
-    border-radius:22px;
-    padding:1.15rem 1.3rem;
-    box-shadow:0 12px 28px rgba(15,23,42,0.08);
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.9rem;
+    background:linear-gradient(120deg, rgba(59,130,246,0.12), #fff 70%);
+    border:1px solid rgba(148,163,184,0.1);
+    border-radius:24px;
+    padding:1.35rem 1.6rem;
+    box-shadow:0 12px 35px rgba(15,23,42,0.08);
   }
+  .landing-settings-title { font-size:clamp(1.15rem,2.2vw,1.65rem); font-weight:700; color:#0f172a; margin-bottom:0.2rem; }
+  .landing-settings-subtitle { color:#475569; font-size:0.9rem; }
+  .landing-settings-cta { display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; margin-top:0.85rem; }
+  .landing-settings-cta small { color:#64748b; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; }
+  .landing-settings-stats { display:flex; flex-wrap:wrap; gap:0.75rem; }
+  .landing-settings-summary-card { background:#fff; border-radius:18px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 14px 32px rgba(15,23,42,0.08); padding:0.9rem 1.2rem; min-width:160px; }
+  .landing-settings-summary-label { text-transform:uppercase; letter-spacing:0.15em; font-size:0.62rem; color:#94a3b8; }
+  .landing-settings-summary-value { font-size:1.35rem; font-weight:700; color:#0f172a; }
   .settings-card {
     background: #fff;
     border-radius: 22px;
@@ -73,16 +82,35 @@
 @endpush
 
 @section('content')
+@php($themeCount = is_countable($themes ?? null) ? count($themes) : 0)
+@php($hasVideo = filled($videoUrl ?? null))
+@php($activeThemeLabel = !empty($themes[$currentTheme]['label']) ? $themes[$currentTheme]['label'] : \\Illuminate\\Support\\Str::headline((string) $currentTheme))
 <main class="content-body">
 <div class="container-fluid">
 <div class="landing-settings-shell">
-<div class="landing-settings-hero d-flex justify-content-between align-items-start flex-wrap gap-3">
+<div class="landing-settings-hero">
   <div>
-    <p class="text-uppercase text-muted small mb-1" style="letter-spacing:0.25em;">Pengaturan</p>
-    <h1 class="h4 mb-0">Landing Page</h1>
-    <p class="text-muted mb-0">Atur video hero dan tema landing publik dengan tampilan terbaru.</p>
+    <div class="landing-settings-title">Pengaturan Landing</div>
+    <div class="landing-settings-subtitle">Atur video hero dan tema landing publik dengan tampilan terbaru.</div>
+    <div class="landing-settings-cta">
+      <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary">Kembali ke Dashboard</a>
+      <small>Konfigurasi tampilan halaman publik</small>
+    </div>
   </div>
-  <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary">Kembali ke Dashboard</a>
+  <div class="landing-settings-stats">
+    <div class="landing-settings-summary-card">
+      <div class="landing-settings-summary-label">Tema tersedia</div>
+      <div class="landing-settings-summary-value">{{ number_format($themeCount) }}</div>
+    </div>
+    <div class="landing-settings-summary-card">
+      <div class="landing-settings-summary-label">Video hero</div>
+      <div class="landing-settings-summary-value">{{ $hasVideo ? 'Aktif' : 'Kosong' }}</div>
+    </div>
+    <div class="landing-settings-summary-card">
+      <div class="landing-settings-summary-label">Tema aktif</div>
+      <div class="landing-settings-summary-value" style="font-size:1rem;">{{ $activeThemeLabel }}</div>
+    </div>
+  </div>
 </div>
 
 @if(session('status'))

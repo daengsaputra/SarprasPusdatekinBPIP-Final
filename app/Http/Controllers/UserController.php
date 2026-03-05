@@ -10,10 +10,24 @@ use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
+    private const ALLOWED_ROLES = [
+        User::ROLE_PEMINJAM,
+        User::ROLE_PETUGAS,
+        User::ROLE_SUPER_ADMIN,
+    ];
+
     public function index()
     {
         $users = User::orderByDesc('created_at')->paginate(12);
-        return view('users.index', compact('users'));
+        $roleCounts = User::query()
+            ->selectRaw('role, COUNT(*) as total')
+            ->groupBy('role')
+            ->pluck('total', 'role');
+
+        return view('users.index', [
+            'users' => $users,
+            'roleCounts' => $roleCounts,
+        ]);
     }
 
     public function create()
@@ -26,7 +40,7 @@ class UserController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:100|unique:users,name',
             'email' => 'required|email|max:150|unique:users,email',
-            'role' => 'required|in:admin,petugas',
+            'role' => 'required|in:'.implode(',', self::ALLOWED_ROLES),
             'password' => 'required|string|min:4|confirmed',
             'photo' => 'nullable|image|mimes:'.implode(',', config('bpip.user_photo_mimes')).'|max:'.(int) config('bpip.user_photo_max_kb'),
         ]);
@@ -58,7 +72,7 @@ class UserController extends Controller
         $data = $request->validate([
             'name' => "required|string|max:100|unique:users,name,{$user->id}",
             'email' => "required|email|max:150|unique:users,email,{$user->id}",
-            'role' => 'required|in:admin,petugas',
+            'role' => 'required|in:'.implode(',', self::ALLOWED_ROLES),
             'password' => 'nullable|string|min:4|confirmed',
             'photo' => 'nullable|image|mimes:'.implode(',', config('bpip.user_photo_mimes')).'|max:'.(int) config('bpip.user_photo_max_kb'),
         ]);
