@@ -8,6 +8,7 @@ use App\Http\Controllers\LoanController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\LandingMediaController;
 
 // Registrasi rute autentikasi (login, register, logout)
 Auth::routes();
@@ -17,13 +18,19 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 
 // Rute utama ke landing page
 Route::get('/', [HomeController::class, 'root'])->name('root');
+Route::get('/landing/video', [LandingMediaController::class, 'video'])->name('landing.video');
 
 // Public route: daftar barang peminjaman dapat dilihat tanpa login
-Route::get('/assets/loanable', [AssetController::class, 'loanable'])->name('assets.loanable');
+Route::get('/assets/loanable', [AssetController::class, 'loanable'])
+    ->middleware('page.enabled:assets_loanable')
+    ->name('assets.loanable');
 
 Route::middleware('auth')->group(function () {
     // Halaman dashboard
     Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
+    Route::get('/profile', function () {
+        return view('profile.show');
+    })->name('profile.show');
 
     // Backward compatibility
     Route::get('/home', [HomeController::class, 'index'])->name('home');
@@ -34,38 +41,47 @@ Route::middleware('auth')->group(function () {
     Route::post('/assets/import', [AssetController::class, 'import'])->name('assets.import');
     Route::get('/assets/template', [AssetController::class, 'exportTemplate'])->name('assets.template');
     Route::delete('/assets/{asset}/photo', [AssetController::class, 'destroyPhoto'])->name('assets.photo.destroy');
-    Route::resource('assets', AssetController::class);
+    Route::resource('assets', AssetController::class)->middleware('page.enabled:assets_inventory');
 
     // Routes peminjaman (operasional)
-    Route::get('/loans', [LoanController::class, 'index'])->name('loans.index');
-    Route::get('/loans/create', [LoanController::class, 'create'])->name('loans.create');
-    Route::post('/loans/batch', [LoanController::class, 'storeBatch'])->name('loans.store.batch');
-    Route::delete('/loans/{loan}', [LoanController::class, 'destroy'])->name('loans.destroy');
-    Route::get('/loans/{loan}/return', [LoanController::class, 'returnForm'])->name('loans.return.form');
-    Route::put('/loans/{loan}/return', [LoanController::class, 'returnUpdate'])->name('loans.return.update');
-    Route::get('/loans/receipt/{batch}', [LoanController::class, 'receipt'])->name('loans.receipt');
-    Route::get('/loans/{loan}/return-receipt', [LoanController::class, 'returnReceipt'])->name('loans.return.receipt');
+    Route::get('/loans', [LoanController::class, 'index'])->middleware('page.enabled:loans')->name('loans.index');
+    Route::get('/loans/create', [LoanController::class, 'create'])->middleware('page.enabled:loans')->name('loans.create');
+    Route::post('/loans/batch', [LoanController::class, 'storeBatch'])->middleware('page.enabled:loans')->name('loans.store.batch');
+    Route::delete('/loans/{loan}', [LoanController::class, 'destroy'])->middleware('page.enabled:loans')->name('loans.destroy');
+    Route::get('/loans/{loan}/return', [LoanController::class, 'returnForm'])->middleware('page.enabled:loans')->name('loans.return.form');
+    Route::put('/loans/{loan}/return', [LoanController::class, 'returnUpdate'])->middleware('page.enabled:loans')->name('loans.return.update');
+    Route::get('/loans/receipt/{batch}', [LoanController::class, 'receipt'])->middleware('page.enabled:loans')->name('loans.receipt');
+    Route::get('/loans/{loan}/return-receipt', [LoanController::class, 'returnReceipt'])->middleware('page.enabled:loans')->name('loans.return.receipt');
 
     // Routes laporan (gabungan)
-    Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
-    Route::get('/reports/pdf', [ReportsController::class, 'pdf'])->name('reports.pdf');
-    Route::get('/reports/excel', [ReportsController::class, 'excel'])->name('reports.excel');
+    Route::get('/reports', [ReportsController::class, 'index'])->middleware('page.enabled:reports')->name('reports.index');
+    Route::get('/reports/pdf', [ReportsController::class, 'pdf'])->middleware('page.enabled:reports')->name('reports.pdf');
+    Route::get('/reports/excel', [ReportsController::class, 'excel'])->middleware('page.enabled:reports')->name('reports.excel');
     // Backward compatibility
-    Route::get('/reports/loans', [ReportsController::class, 'loans'])->name('reports.loans');
-    Route::get('/reports/loans/pdf', [ReportsController::class, 'loansPdf'])->name('reports.loans.pdf');
-    Route::get('/reports/loans/excel', [ReportsController::class, 'loansExcel'])->name('reports.loans.excel');
-    Route::get('/reports/returns', [ReportsController::class, 'returns'])->name('reports.returns');
-    Route::get('/reports/returns/pdf', [ReportsController::class, 'returnsPdf'])->name('reports.returns.pdf');
-    Route::get('/reports/returns/excel', [ReportsController::class, 'returnsExcel'])->name('reports.returns.excel');
+    Route::get('/reports/loans', [ReportsController::class, 'loans'])->middleware('page.enabled:reports')->name('reports.loans');
+    Route::get('/reports/loans/pdf', [ReportsController::class, 'loansPdf'])->middleware('page.enabled:reports')->name('reports.loans.pdf');
+    Route::get('/reports/loans/excel', [ReportsController::class, 'loansExcel'])->middleware('page.enabled:reports')->name('reports.loans.excel');
+    Route::get('/reports/returns', [ReportsController::class, 'returns'])->middleware('page.enabled:reports')->name('reports.returns');
+    Route::get('/reports/returns/pdf', [ReportsController::class, 'returnsPdf'])->middleware('page.enabled:reports')->name('reports.returns.pdf');
+    Route::get('/reports/returns/excel', [ReportsController::class, 'returnsExcel'])->middleware('page.enabled:reports')->name('reports.returns.excel');
 
     // Routes administrasi anggota
-    Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset');
-    Route::delete('/users/{user}/photo', [UserController::class, 'destroyPhoto'])->name('users.photo.destroy');
-    Route::resource('users', UserController::class)->except('show');
+    Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->middleware('page.enabled:users')->name('users.reset');
+    Route::delete('/users/{user}/photo', [UserController::class, 'destroyPhoto'])->middleware('page.enabled:users')->name('users.photo.destroy');
+    Route::resource('users', UserController::class)->except('show')->middleware('page.enabled:users');
 
-    // Routes pengaturan landing
-    Route::get('/settings/landing', [SettingController::class, 'landing'])->name('settings.landing');
-    Route::post('/settings/landing', [SettingController::class, 'updateLanding'])->name('settings.landing.update');
+    Route::get('/settings/admin-menu', [SettingController::class, 'adminMenu'])
+        ->middleware('role:super_admin')
+        ->name('settings.admin-menu');
+    Route::post('/settings/admin-menu', [SettingController::class, 'updateAdminMenu'])
+        ->middleware('role:super_admin')
+        ->name('settings.admin-menu.update');
+    Route::post('/settings/admin-menu/logs/clear', [SettingController::class, 'clearAdminMenuLogs'])
+        ->middleware('role:super_admin')
+        ->name('settings.admin-menu.logs.clear');
+    Route::get('/settings/admin-menu/logs/export', [SettingController::class, 'exportAdminMenuLogs'])
+        ->middleware('role:super_admin')
+        ->name('settings.admin-menu.logs.export');
 });
 
 // Jika kamu membutuhkan route dinamis untuk menangani URL lainnya

@@ -17,6 +17,12 @@ class AssetController extends Controller
      */
     public function index(Request $request)
     {
+        if ($request->boolean('global_search')) {
+            return $this->renderList($request, [
+                'context' => 'inventory',
+            ]);
+        }
+
         return $this->renderList($request, [
             'context' => 'inventory',
             'kind' => Asset::KIND_INVENTORY,
@@ -42,7 +48,6 @@ class AssetController extends Controller
         $q = $request->input('q');
         $status = $request->input('status');
         $category = $request->input('category');
-        $availableOnly = $request->input('available') === '1';
         $sort = $request->input('sort');
         $dir = $request->input('dir', 'asc') === 'desc' ? 'desc' : 'asc';
         $perPage = (int) $request->input('per_page', 10);
@@ -74,10 +79,6 @@ class AssetController extends Controller
             $query->where('category', $category);
         }
 
-        if ($availableOnly) {
-            $query->where('quantity_available', '>', 0);
-        }
-
         if ($kind) {
             $query->where('kind', $kind);
         }
@@ -97,22 +98,30 @@ class AssetController extends Controller
             $query->orderBy('name');
         }
 
-        $assets = $query->paginate($perPage)->withQueryString();
+        $assets = $query->paginate($perPage);
 
         $append = [];
-        if ($availableOnly) {
-            $append['available'] = '1';
+        if ($q) {
+            $append['q'] = $q;
         }
         if ($status) {
             $append['status'] = $status;
         }
+        if ($category) {
+            $append['category'] = $category;
+        }
+        if ($sort) {
+            $append['sort'] = $sort;
+            $append['dir'] = $dir;
+        }
         if ($kind) {
             $append['kind'] = $kind;
         }
+        $append['per_page'] = $perPage;
+
         if ($append) {
             $assets->appends($append);
         }
-        $assets->appends(['per_page' => $perPage]);
 
         $categoriesQuery = Asset::whereNotNull('category');
         if ($kind) {
@@ -134,7 +143,6 @@ class AssetController extends Controller
             'q' => $q,
             'status' => $status,
             'category' => $category,
-            'availableOnly' => $availableOnly,
             'sort' => $sort,
             'dir' => $dir,
             'perPage' => $perPage,

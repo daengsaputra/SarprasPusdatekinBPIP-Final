@@ -654,17 +654,31 @@
 
   <div id="fitur" class="feature-row mt-5">
     <div class="feature-card">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="36" height="36"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M12 3c-3.866 0-7 3.134-7 7v4.5A2.5 2.5 0 0 0 7.5 17H9a3 3 0 0 0 6 0h1.5A2.5 2.5 0 0 0 19 14.5V10c0-3.866-3.134-7-7-7zm0 16a1 1 0 0 1-1-1h2a1 1 0 0 1-1 1z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="36" height="36" aria-hidden="true">
+        <rect x="3" y="3" width="18" height="18" rx="2.5" stroke-width="1.7"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M3 10h18M8 3v18M16 3v18"/>
+        <rect x="4.5" y="4.5" width="2.5" height="2.5" rx="0.6" fill="currentColor" opacity="0.55" stroke="none"/>
+        <rect x="17" y="12.5" width="2.5" height="2.5" rx="0.6" fill="currentColor" opacity="0.55" stroke="none"/>
+      </svg>
       <h5 class="feature-title mb-1">Inventaris Sarpras Terpusat</h5>
       <p class="feature-desc mb-0">Seluruh perangkat tercatat rapi dan mudah dipantau dari satu sistem.</p>
     </div>
     <div class="feature-card">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="36" height="36"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M12 6v6l3 3"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M21 12A9 9 0 1 1 3 12a9 9 0 0 1 18 0z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="36" height="36" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M4 7h6l2 2h8v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M10 13l2 2 4-4"/>
+      </svg>
       <h5 class="feature-title mb-1">Peminjaman Transparan</h5>
       <p class="feature-desc mb-0">Proses peminjaman jelas dengan pengingat otomatis jadwal pengembalian.</p>
     </div>
     <div class="feature-card">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="36" height="36"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M4 6h16M7 12h10M10 18h4"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="36" height="36" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M4 19h16"/>
+        <rect x="5" y="12" width="3" height="7" rx="0.7" fill="currentColor" opacity="0.45" stroke="none"/>
+        <rect x="10.5" y="9" width="3" height="10" rx="0.7" fill="currentColor" opacity="0.65" stroke="none"/>
+        <rect x="16" y="6" width="3" height="13" rx="0.7" fill="currentColor" opacity="0.85" stroke="none"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M5.5 8.5l4-3 3.5 2 4.5-3"/>
+      </svg>
       <h5 class="feature-title mb-1">Analitik Real-time</h5>
       <p class="feature-desc mb-0">Laporan pemakaian sarpras membantu pengambilan keputusan yang cepat.</p>
     </div>

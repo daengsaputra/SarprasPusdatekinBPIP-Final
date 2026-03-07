@@ -4,6 +4,28 @@
 @push('styles')
 <style>
   body { background: #f8fafc; }
+  body.return-receipt-preview-mode {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+  body.return-receipt-preview-mode .header,
+  body.return-receipt-preview-mode .nav-header,
+  body.return-receipt-preview-mode .deznav,
+  body.return-receipt-preview-mode .footer {
+    display: none !important;
+  }
+  body.return-receipt-preview-mode #main-wrapper {
+    padding-top: 0 !important;
+  }
+  body.return-receipt-preview-mode .content-body {
+    margin-left: 0 !important;
+    max-width: none;
+    width: 100%;
+    padding: 0 1rem;
+  }
+  body.return-receipt-preview-mode .receipt-wrapper {
+    margin-top: 0;
+  }
   .receipt-wrapper { max-width: 780px; margin: 0 auto; }
   .receipt-wrapper .card { border-radius: 14px; border: 1px solid #e2e8f0; box-shadow: 0 12px 30px rgba(15,23,42,0.08); }
   .receipt-wrapper .card + .card { margin-top: 12px; }
@@ -31,6 +53,7 @@
   }
   @media print {
     body { background: #fff; margin: 0; }
+    .header, .nav-header, .deznav, .footer { display: none !important; }
     .receipt-wrapper { max-width: 100%; padding: 0 12px; }
     .receipt-wrapper .card { box-shadow: none; border: 1px solid #d0d7e2; }
     .receipt-wrapper .btn { display: none !important; }
@@ -123,6 +146,14 @@
   </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    document.body.classList.add('return-receipt-preview-mode');
+  });
+</script>
+@endpush
 
 
 

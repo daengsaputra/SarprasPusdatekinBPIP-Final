@@ -8,7 +8,7 @@
 @push('styles')
 <style>
   body[data-theme="light"] { background:#eef2ff; }
-  .reports-shell { display:flex; flex-direction:column; gap:1.2rem; padding-bottom:2.2rem; }
+  .reports-shell { display:flex; flex-direction:column; gap:1.2rem; padding-bottom:2.2rem; min-width:0; }
   .reports-hero {
     display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.9rem;
     padding:1.35rem 1.6rem; border-radius:24px;
@@ -25,14 +25,53 @@
   .reports-summary-value { font-size:1.35rem; font-weight:700; color:#0f172a; }
   .reports-filter-card, .reports-table-card {
     background:#fff; border:1px solid rgba(148,163,184,0.15); border-radius:22px;
-    box-shadow:0 12px 28px rgba(15,23,42,0.08); padding:1rem 1.15rem; font-size:0.96rem;
+    box-shadow:0 12px 28px rgba(15,23,42,0.08); padding:1rem 1.15rem; font-size:0.96rem; min-width:0;
   }
-  .reports-filter-form { display:grid; grid-template-columns:repeat(6,minmax(130px,1fr)) auto; gap:.75rem; align-items:end; }
+  .reports-filter-form { display:grid; grid-template-columns:repeat(6,minmax(110px,1fr)) auto; gap:.75rem; align-items:end; min-width:0; }
+  .reports-date-field { min-width: 0; }
+  .reports-date-field .input-group-text {
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+    background: #f8fafc;
+    color: #64748b;
+    flex: 0 0 auto;
+  }
+  .reports-date-field .form-control {
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+    min-width: 0;
+  }
   .reports-filter-actions { display:flex; gap:.5rem; }
   .reports-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:.8rem; }
   .reports-stat { background:#fff; border-radius:14px; border:1px solid rgba(148,163,184,0.18); padding:.75rem .9rem; }
   .reports-table-card table th { text-transform:uppercase; letter-spacing:.08em; font-size:.86rem; color:#64748b; }
   .reports-table-card table td { font-size:.95rem; vertical-align:middle; }
+  @media (max-width: 1440px) {
+    .reports-filter-form {
+      grid-template-columns:repeat(4,minmax(120px,1fr));
+    }
+    .reports-filter-actions {
+      grid-column: 1 / -1;
+      justify-content: flex-end;
+    }
+  }
+  @media (max-width: 1200px) {
+    .reports-filter-form {
+      grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+    .reports-filter-card,
+    .reports-table-card {
+      padding:.9rem;
+      border-radius:18px;
+    }
+    .reports-filter-actions {
+      grid-column: 1 / -1;
+      justify-content: stretch;
+    }
+    .reports-filter-actions .btn {
+      flex: 1;
+    }
+  }
   @media (max-width: 992px) {
     .reports-filter-form { grid-template-columns:1fr; }
     .reports-filter-actions { justify-content:stretch; }
@@ -92,13 +131,19 @@
       <option value="returns" {{ $type==='returns'?'selected':'' }}>Pengembalian</option>
     </select>
   </div>
-  <div>
+  <div class="reports-date-field">
     <label class="form-label">Dari</label>
-    <input type="date" name="start" value="{{ request('start', $start->toDateString()) }}" class="form-control">
+    <div class="input-group">
+      <span class="input-group-text"><i class="fa fa-calendar-alt"></i></span>
+      <input type="date" name="start" id="reportStartDate" value="{{ request('start', $start->toDateString()) }}" class="form-control" lang="id">
+    </div>
   </div>
-  <div>
+  <div class="reports-date-field">
     <label class="form-label">Sampai</label>
-    <input type="date" name="end" value="{{ request('end', $end->toDateString()) }}" class="form-control">
+    <div class="input-group">
+      <span class="input-group-text"><i class="fa fa-calendar-alt"></i></span>
+      <input type="date" name="end" id="reportEndDate" value="{{ request('end', $end->toDateString()) }}" class="form-control" lang="id">
+    </div>
   </div>
   <div>
     <label class="form-label">Cari</label>
@@ -199,3 +244,31 @@
 </div>
 </main>
 @endsection
+
+@push('scripts')
+<script>
+  (function () {
+    const startInput = document.getElementById('reportStartDate');
+    const endInput = document.getElementById('reportEndDate');
+    if (!startInput || !endInput) {
+      return;
+    }
+
+    const syncEndMin = () => {
+      const startValue = startInput.value;
+      if (!startValue) {
+        endInput.removeAttribute('min');
+        return;
+      }
+      endInput.min = startValue;
+      if (!endInput.value || endInput.value < startValue) {
+        endInput.value = startValue;
+      }
+    };
+
+    startInput.addEventListener('change', syncEndMin);
+    syncEndMin();
+
+  })();
+</script>
+@endpush

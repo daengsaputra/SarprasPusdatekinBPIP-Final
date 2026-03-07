@@ -53,10 +53,18 @@ class AppServiceProvider extends ServiceProvider
             $activeTheme = SiteSetting::landingTheme();
             $activeSurfaces = SiteSetting::landingThemeSurfaces();
             $activeHeroVariant = SiteSetting::dashboardHeroVariant();
+            $adminPageToggles = SiteSetting::pageToggles();
+            $rolePageAccessMap = SiteSetting::rolePageAccess();
+            $adminBroadcast = SiteSetting::adminBroadcast();
+            $systemModeMeta = SiteSetting::currentSystemModeMeta();
 
             View::share('activeLandingTheme', $activeTheme);
             View::share('activeLandingThemeSurfaces', $activeSurfaces);
             View::share('activeHeroVariant', $activeHeroVariant);
+            View::share('adminPageToggles', $adminPageToggles);
+            View::share('rolePageAccessMap', $rolePageAccessMap);
+            View::share('adminBroadcastMessage', $adminBroadcast);
+            View::share('systemModeMeta', $systemModeMeta);
         }
     }
 }

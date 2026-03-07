@@ -17,17 +17,55 @@
             <div class="collapse navbar-collapse justify-content-between sarpras-header-collapse">
                 <div class="header-left sarpras-header-left">
                     <div class="dashboard_bar">{{ trim($__env->yieldContent('title', 'Dashboard')) }}</div>
+                    @if(!empty($systemModeMeta))
+                        <span class="badge bg-{{ $systemModeMeta['badge'] ?? 'secondary' }} ms-2">Mode: {{ $systemModeMeta['label'] ?? 'Unknown' }}</span>
+                    @endif
                 </div>
                 <ul class="navbar-nav header-right sarpras-header-right">
                     <li class="nav-item">
-                        <form>
+                        @php
+                            $isUsersPage = request()->is('users') || request()->is('users/*') || request()->routeIs('users.*');
+                            $isLoansPage = request()->is('loans') || request()->is('loans/*') || request()->routeIs('loans.*');
+                            $isReportsPage = request()->is('reports') || request()->is('reports/*') || request()->routeIs('reports.*');
+                            $isLoanableAssetPage = request()->is('assets/loanable') || request()->routeIs('assets.loanable');
+                            $isDashboardPage = request()->is('dashboard') || request()->is('home') || request()->routeIs('dashboard') || request()->routeIs('home');
+
+                            $searchRoute = 'assets.index';
+                            $searchPlaceholder = 'Cari kode, nama, atau deskripsi';
+                            $isAssetGlobalSearch = true;
+
+                            if ($isUsersPage || $isDashboardPage) {
+                                $searchRoute = 'users.index';
+                                $searchPlaceholder = 'Cari nama, email, atau role anggota';
+                                $isAssetGlobalSearch = false;
+                            } elseif ($isLoansPage) {
+                                $searchRoute = 'loans.index';
+                                $searchPlaceholder = 'Cari peminjam, kode, atau nama barang';
+                                $isAssetGlobalSearch = false;
+                            } elseif ($isReportsPage) {
+                                $searchRoute = 'reports.index';
+                                $searchPlaceholder = 'Cari peminjam, kode, atau nama barang';
+                                $isAssetGlobalSearch = false;
+                            } elseif ($isLoanableAssetPage) {
+                                $searchRoute = 'assets.loanable';
+                                $searchPlaceholder = 'Cari kode, nama, atau deskripsi';
+                                $isAssetGlobalSearch = false;
+                            }
+                        @endphp
+                        <form method="GET" action="{{ route($searchRoute) }}">
+                            @if($isAssetGlobalSearch)
+                                <input type="hidden" name="global_search" value="1">
+                            @endif
+                            @if($isReportsPage && request()->filled('type'))
+                                <input type="hidden" name="type" value="{{ request('type') }}">
+                            @endif
                             <div class="input-group search-area d-lg-inline-flex d-none me-3">
                                 <div class="input-group-append">
-                                    <button class="input-group-text rounded-0 rounded-start pe-2 border-0" type="button">
+                                    <button class="input-group-text rounded-0 rounded-start pe-2 border-0" type="submit" aria-label="Cari">
                                         <i class="flaticon-381-search-2"></i>
                                     </button>
                                 </div>
-                                <input type="text" class="form-control ps-2 border-0" placeholder="Search here" aria-label="Search">
+                                <input type="text" name="q" value="{{ request('q') }}" class="form-control ps-2 border-0" placeholder="{{ $searchPlaceholder }}" aria-label="Search" autocomplete="off">
                             </div>
                         </form>
                     </li>

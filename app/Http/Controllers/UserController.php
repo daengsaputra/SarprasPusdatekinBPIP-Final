@@ -16,10 +16,26 @@ class UserController extends Controller
         User::ROLE_SUPER_ADMIN,
     ];
 
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::orderByDesc('created_at')->paginate(12);
-        $roleCounts = User::query()
+        $q = trim((string) $request->query('q', ''));
+
+        $filteredUsersQuery = User::query()
+            ->when($q !== '', function ($query) use ($q) {
+                $pattern = '%' . $q . '%';
+                $query->where(function ($w) use ($pattern) {
+                    $w->where('name', 'like', $pattern)
+                        ->orWhere('email', 'like', $pattern)
+                        ->orWhere('role', 'like', $pattern);
+                });
+            });
+
+        $users = (clone $filteredUsersQuery)
+            ->orderByDesc('created_at')
+            ->paginate(12)
+            ->withQueryString();
+
+        $roleCounts = (clone $filteredUsersQuery)
             ->selectRaw('role, COUNT(*) as total')
             ->groupBy('role')
             ->pluck('total', 'role');
@@ -27,6 +43,7 @@ class UserController extends Controller
         return view('users.index', [
             'users' => $users,
             'roleCounts' => $roleCounts,
+            'q' => $q,
         ]);
     }
 

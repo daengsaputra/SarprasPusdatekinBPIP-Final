@@ -13,7 +13,7 @@
 @push('styles')
 <style>
   body[data-theme="light"] { background: #eef2ff; }
-  .asset-shell { display:flex; flex-direction:column; gap:1.5rem; padding-bottom:3rem; }
+  .asset-shell { display:flex; flex-direction:column; gap:1.5rem; padding-bottom:3rem; min-width:0; }
   .asset-hero { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.9rem; padding:1.35rem 1.6rem; border-radius:24px; background:linear-gradient(120deg, rgba(59,130,246,0.12), #ffffff 70%); border:1px solid rgba(148,163,184,0.1); box-shadow:0 12px 35px rgba(15,23,42,0.08); }
   .asset-hero__title { font-size:clamp(1.15rem,2.2vw,1.65rem); font-weight:700; color:#0f172a; margin-bottom:0.2rem; }
   .asset-hero__subtitle { color:#475569; font-size:0.9rem; }
@@ -35,12 +35,13 @@
     border-color: #0284c7;
     color: #fff;
   }
-  .asset-filter-card { background:#fff; border-radius:20px; border:1px solid rgba(148,163,184,0.16); padding:1.15rem; box-shadow:0 12px 28px rgba(15,23,42,0.08); }
+  .asset-filter-card { background:#fff; border-radius:20px; border:1px solid rgba(148,163,184,0.16); padding:1.15rem; box-shadow:0 12px 28px rgba(15,23,42,0.08); min-width:0; }
   .asset-filter-form {
     display:grid;
-    grid-template-columns:minmax(220px,1.3fr) repeat(3,minmax(170px,1fr));
+    grid-template-columns:minmax(180px,1.35fr) repeat(3,minmax(130px,1fr));
     gap:0.9rem;
     align-items:end;
+    min-width:0;
   }
   .asset-filter-actions {
     grid-column: 1 / -1;
@@ -102,7 +103,7 @@
     background: #cbd5e1;
     border-color: #cbd5e1;
   }
-  .asset-table-card { background:#fff; border-radius:20px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 20px 45px rgba(15,23,42,0.08); padding:1.25rem 1.35rem; }
+  .asset-table-card { background:#fff; border-radius:20px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 20px 45px rgba(15,23,42,0.08); padding:1.25rem 1.35rem; min-width:0; }
   .asset-table-card table thead th,
   .asset-table-card .pagination,
   .asset-table-card .pagination a,
@@ -262,6 +263,27 @@
   .asset-filter-card .form-control,
   .asset-filter-card .form-select,
   .asset-filter-card .form-check-label { font-size:0.96rem; }
+  @media (max-width: 1440px) {
+    .asset-filter-form {
+      grid-template-columns:minmax(170px,1.2fr) repeat(3,minmax(120px,1fr));
+    }
+  }
+  @media (max-width: 1200px) {
+    .asset-filter-card,
+    .asset-table-card {
+      padding: 1rem;
+      border-radius: 18px;
+    }
+    .asset-filter-form {
+      grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+    .asset-filter-actions {
+      justify-content: stretch;
+    }
+    .asset-filter-actions .btn {
+      flex: 1;
+    }
+  }
   @media (max-width: 992px) {
     .asset-hero { flex-direction:column; }
     .asset-filter-form { grid-template-columns:1fr; }
@@ -273,7 +295,6 @@
 
 @section('content')
 @php($statusValue = request('status', ''))
-@php($availableChecked = request('available') === '1')
 @php($assetTotal = method_exists($assets, 'total') ? $assets->total() : $assets->count())
 @php($assetShown = $assets->count())
 @php($assetPage = method_exists($assets, 'currentPage') ? $assets->currentPage() : 1)
@@ -339,13 +360,6 @@
           <option value="active" {{ $statusValue === 'active' ? 'selected' : '' }}>Aktif</option>
           <option value="inactive" {{ $statusValue === 'inactive' ? 'selected' : '' }}>Nonaktif</option>
         </select>
-      </div>
-      <div>
-        <label class="form-label d-block">Ketersediaan</label>
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" name="available" value="1" id="chkAvail" {{ $availableChecked ? 'checked' : '' }}>
-          <label class="form-check-label" for="chkAvail">Hanya stok tersedia</label>
-        </div>
       </div>
       @endif
       <div>

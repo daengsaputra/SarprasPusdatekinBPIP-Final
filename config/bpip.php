@@ -23,7 +23,7 @@ return [
     'loan_attachment_mimes' => explode(',', env('LOAN_ATTACHMENT_MIMES', 'jpg,jpeg,png,webp')),
 
     // Upload settings for landing hero video
-    'landing_video_max_kb' => env('LANDING_VIDEO_MAX_KB', 51200), // in KB (approx. 50 MB)
+    'landing_video_max_kb' => env('LANDING_VIDEO_MAX_KB', 71680), // in KB (approx. 70 MB)
     'landing_video_mimes' => explode(',', env('LANDING_VIDEO_MIMES', 'mp4,webm,ogg')),
 
     // Landing page themes

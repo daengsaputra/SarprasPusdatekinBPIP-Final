@@ -2,9 +2,66 @@
 
 @section('title', 'Dashboard')
 
+@push('styles')
+<style>
+    .dashboard-welcome-card {
+        border: 1px solid rgba(148, 163, 184, 0.28);
+        border-radius: 14px;
+        background: #ffffff;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+        padding: 0.85rem 1rem;
+    }
+    .dashboard-welcome-title {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 0.1rem;
+    }
+    .dashboard-welcome-sub {
+        font-size: 0.84rem;
+        color: #64748b;
+    }
+    .dashboard-clock {
+        border: 1px solid rgba(148, 163, 184, 0.28);
+        border-radius: 14px;
+        background: #ffffff;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+        padding: 0.85rem 1rem;
+    }
+    .dashboard-clock__label {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #64748b;
+        margin-bottom: 0.15rem;
+        font-weight: 600;
+    }
+    .dashboard-clock__value {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.25;
+    }
+</style>
+@endpush
+
 @section('content')
 <main class="content-body">
     <div class="container-fluid">
+        <div class="row g-3 mb-3 align-items-stretch">
+            <div class="col-lg-8">
+                <div class="dashboard-welcome-card h-100">
+                    <div class="dashboard-welcome-title">Selamat Datang di Sarpras Pusdatekin</div>
+                    <div class="dashboard-welcome-sub">Halo, {{ auth()->user()->name ?? 'User' }}. Pantau ringkasan sarpras dari dashboard ini.</div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="dashboard-clock h-100" aria-live="polite">
+                    <div class="dashboard-clock__label">Hari & Jam</div>
+                    <div class="dashboard-clock__value" id="dashboardClock">-</div>
+                </div>
+            </div>
+        </div>
         <div class="row">
             <div class="col-12">
                 <div class="row">
@@ -164,6 +221,30 @@
 
 @push('script')
 <script src="{{ asset('evanto/assets/js/dashboard/dashboard-1.js') }}"></script>
+<script>
+    (function () {
+        var clockEl = document.getElementById('dashboardClock');
+        if (!clockEl) return;
+
+        var formatter = new Intl.DateTimeFormat('id-ID', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false,
+        });
+
+        function tick() {
+            clockEl.textContent = formatter.format(new Date()).replace('.', ':');
+        }
+
+        tick();
+        setInterval(tick, 1000);
+    })();
+</script>
 <script>
   (function () {
     function renderLoanReturnChart() {

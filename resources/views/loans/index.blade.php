@@ -4,7 +4,7 @@
 @push('styles')
 <style>
   body[data-theme="light"] { background:#eef2ff; }
-  .loan-shell { display:flex; flex-direction:column; gap:1.5rem; padding-bottom:3rem; }
+  .loan-shell { display:flex; flex-direction:column; gap:1.5rem; padding-bottom:3rem; min-width:0; }
   .loan-hero { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.9rem; padding:1.35rem 1.6rem; border-radius:24px; background:linear-gradient(120deg, rgba(59,130,246,0.12), #ffffff 70%); border:1px solid rgba(148,163,184,0.1); box-shadow:0 12px 35px rgba(15,23,42,0.08); }
   .loan-hero__title { font-size:clamp(1.15rem,2.2vw,1.65rem); font-weight:700; color:#0f172a; margin-bottom:0.2rem; }
   .loan-hero__subtitle { color:#475569; font-size:0.9rem; }
@@ -25,12 +25,13 @@
   .loan-summary-card { background:#fff; border-radius:18px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 14px 32px rgba(15,23,42,0.08); padding:0.9rem 1.2rem; min-width:160px; }
   .loan-summary-label { text-transform:uppercase; letter-spacing:0.15em; font-size:0.62rem; color:#94a3b8; }
   .loan-summary-value { font-size:1.35rem; font-weight:700; color:#0f172a; }
-  .loan-filter-card, .loan-table-card { background:#fff; border-radius:28px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 20px 45px rgba(15,23,42,0.08); padding:1.5rem 1.7rem; font-size:0.96rem; }
+  .loan-filter-card, .loan-table-card { background:#fff; border-radius:28px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 20px 45px rgba(15,23,42,0.08); padding:1.5rem 1.7rem; font-size:0.96rem; min-width:0; }
   .loan-filter-form {
     display: grid;
-    grid-template-columns: minmax(230px, 1.4fr) repeat(4, minmax(150px, 1fr)) auto;
+    grid-template-columns: minmax(200px, 1.6fr) repeat(4, minmax(120px, 1fr)) auto;
     gap: 1rem;
     align-items: end;
+    min-width: 0;
   }
   .loan-filter-field { min-width: 0; }
   .loan-filter-actions {
@@ -38,7 +39,7 @@
     align-items: end;
     gap: 0.6rem;
     justify-content: flex-end;
-    min-width: 180px;
+    min-width: 0;
   }
   .loan-filter-actions .btn {
     min-width: 86px;
@@ -50,6 +51,20 @@
     border-bottom-left-radius: 12px;
     background: #f8fafc;
     color: #64748b;
+  }
+  .loan-date-field .input-group,
+  .loan-date-field .form-control {
+    min-width: 0;
+    width: 100%;
+  }
+  .loan-date-field .input-group {
+    flex-wrap: nowrap;
+  }
+  .loan-date-field .input-group-text {
+    flex: 0 0 auto;
+  }
+  .loan-date-field input[type="date"] {
+    min-width: 0;
   }
   .loan-date-field .form-control {
     border-top-right-radius: 12px;
@@ -165,6 +180,53 @@
     background:#f8fafc;
   }
   .loan-attachment-modal__close { border:none; background:transparent; font-size:1.6rem; line-height:1; color:#475569; margin-bottom:0.5rem; cursor:pointer; display:inline-flex; align-items:center; justify-content:flex-end; width:100%; }
+  @media (max-width: 1440px) {
+    .loan-filter-form {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .loan-filter-form .loan-filter-field:first-child {
+      grid-column: 1 / span 2;
+    }
+    .loan-filter-actions {
+      grid-column: 1 / -1;
+      justify-content: flex-end;
+    }
+  }
+  @media (max-width: 1200px) {
+    .loan-filter-card,
+    .loan-table-card {
+      padding: 1.1rem 1rem;
+      border-radius: 20px;
+    }
+    .loan-filter-form {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .loan-filter-form .loan-filter-field {
+      grid-column: auto;
+    }
+    .loan-filter-form .loan-filter-field:first-child {
+      grid-column: 1 / -1;
+    }
+    .loan-filter-actions {
+      grid-column: 1 / -1;
+      justify-content: stretch;
+    }
+    .loan-filter-actions .btn {
+      flex: 1;
+    }
+    .loan-table-card table {
+      table-layout: auto;
+    }
+  }
+  @media (max-width: 992px) {
+    .loan-group {
+      padding: 0.9rem;
+    }
+    .loan-group__meta {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.6rem 0.8rem;
+    }
+  }
   @media (max-width: 768px) {
     .loan-hero { flex-direction:column; }
     .loan-group__header { flex-direction:column; }
@@ -360,12 +422,12 @@
                         @if($loan->status!=='returned')
                           <a href="{{ route('loans.return.form', $loan) }}" class="btn btn-sm btn-outline-primary">Kembalikan</a>
                         @else
-                          <a href="{{ route('loans.return.receipt', ['loan' => $loan, 'preview' => 1]) }}" class="btn btn-sm btn-outline-secondary">Bukti Kembali</a>
+                          <a href="{{ route('loans.return.receipt', ['loan' => $loan, 'preview' => 1]) }}" class="btn btn-sm btn-outline-secondary" target="_blank" rel="noopener">Bukti Kembali</a>
                         @endif
                         @if($loan->batch_code)
-                          <a href="{{ route('loans.receipt', ['batch' => $loan->batch_code, 'preview' => 1]) }}" class="btn btn-sm btn-outline-secondary">Bukti Pinjam</a>
+                          <a href="{{ route('loans.receipt', ['batch' => $loan->batch_code, 'preview' => 1]) }}" class="btn btn-sm btn-outline-secondary" target="_blank" rel="noopener">Bukti Pinjam</a>
                         @else
-                          <a href="{{ route('loans.receipt', ['batch' => $loan->batch_code ?? $loan->id, 'preview' => 1]) }}" class="btn btn-sm btn-outline-secondary">Cetak</a>
+                          <a href="{{ route('loans.receipt', ['batch' => $loan->batch_code ?? $loan->id, 'preview' => 1]) }}" class="btn btn-sm btn-outline-secondary" target="_blank" rel="noopener">Cetak</a>
                         @endif
                         @if($loan->status==='returned')
                           <form method="POST" action="{{ route('loans.destroy', $loan) }}" onsubmit="return confirm('Hapus data peminjaman ini?')" class="d-inline">

@@ -74,95 +74,6 @@
     --bs-btn-padding-x: .5rem;
     --bs-btn-font-size: .72rem;
   }
-  .loan-confirm-modal {
-    position: fixed;
-    inset: 0;
-    display: grid;
-    place-items: center;
-    padding: 1rem;
-    background:
-      radial-gradient(circle at center, rgba(15, 23, 42, 0.08) 0%, rgba(15, 23, 42, 0.34) 65%, rgba(15, 23, 42, 0.5) 100%);
-    backdrop-filter: blur(7px);
-    -webkit-backdrop-filter: blur(7px);
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transition: opacity .22s ease, visibility .22s ease;
-    z-index: 99999;
-  }
-  .loan-confirm-modal.is-visible {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-  }
-  .loan-confirm-modal__card {
-    position: fixed;
-    left: 50%;
-    top: 50%;
-    width: min(840px, 94vw);
-    background: #ffffff;
-    border-radius: 34px;
-    border: 1px solid rgba(226,232,240,0.95);
-    box-shadow: 0 30px 70px rgba(15,23,42,0.24);
-    padding: 2rem 2rem 1.8rem;
-    transform: translate(-50%, -50%) scale(.84);
-    opacity: 0;
-    transition: transform .24s cubic-bezier(0.34, 1.56, 0.64, 1), opacity .2s ease;
-  }
-  .loan-confirm-modal.is-visible .loan-confirm-modal__card {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 1;
-  }
-  .loan-confirm-modal__title {
-    font-weight: 700;
-    font-size: clamp(2rem, 2.8vw, 3.2rem);
-    line-height: 1.12;
-    color: #0f172a;
-    margin-bottom: .55rem;
-  }
-  .loan-confirm-modal__text {
-    color: #475569;
-    margin-bottom: 1.45rem;
-    font-size: clamp(1.12rem, 1.7vw, 1.4rem);
-    line-height: 1.35;
-    max-width: 760px;
-  }
-  .loan-confirm-modal__actions { display: flex; justify-content: flex-end; gap: .75rem; }
-  .loan-confirm-modal__btn {
-    min-width: 166px;
-    height: 58px;
-    border-radius: 18px;
-    font-size: 2rem;
-    font-weight: 700;
-    line-height: 1;
-  }
-  .loan-confirm-modal__btn--no {
-    background: #fff;
-    color: #7c3aed;
-    border: 2px solid #8b5cf6;
-  }
-  .loan-confirm-modal__btn--no:hover,
-  .loan-confirm-modal__btn--no:focus {
-    background: #f5f3ff;
-    color: #6d28d9;
-    border-color: #7c3aed;
-  }
-  .loan-confirm-modal__btn--yes {
-    background: #3949ab;
-    border-color: #3949ab;
-    color: #fff;
-  }
-  .loan-confirm-modal__btn--yes:hover,
-  .loan-confirm-modal__btn--yes:focus {
-    background: #324296;
-    border-color: #324296;
-    color: #fff;
-  }
-  @media (max-width: 768px) {
-    .loan-confirm-modal__card { border-radius: 24px; padding: 1.4rem 1.1rem 1.2rem; }
-    .loan-confirm-modal__actions { justify-content: stretch; }
-    .loan-confirm-modal__btn { min-width: 0; flex: 1; height: 50px; font-size: 1rem; border-radius: 14px; }
-  }
   .loan-form-warning {
     display: none;
     margin-top: .65rem;
@@ -444,7 +355,7 @@
             <label class="form-label">Catatan</label>
             <textarea name="notes" class="form-control" rows="2"></textarea>
           </div>
-          <button class="btn btn-success w-100" id="saveLoanBtn" type="button">Simpan</button>
+          <button class="btn btn-success w-100" id="saveLoanBtn" type="button">Pinjam</button>
           <button class="btn btn-secondary w-100 mt-2" id="cancelLoanBtn" type="button" data-cancel-href="{{ route('loans.index') }}">Batal</button>
         </form>
       </div>
@@ -452,16 +363,12 @@
   </div>
 </div>
 
-<div class="loan-confirm-modal" id="loanConfirmModal" aria-hidden="true">
-  <div class="loan-confirm-modal__card">
-    <div class="loan-confirm-modal__title" id="loanConfirmTitle">Konfirmasi</div>
-    <div class="loan-confirm-modal__text" id="loanConfirmText">Apakah anda yakin?</div>
-    <div class="loan-confirm-modal__actions">
-      <button type="button" class="btn loan-confirm-modal__btn loan-confirm-modal__btn--no" id="loanConfirmNo">Tidak</button>
-      <button type="button" class="btn loan-confirm-modal__btn loan-confirm-modal__btn--yes" id="loanConfirmYes">Ya</button>
-    </div>
-  </div>
-</div>
+<x-confirm-modal
+  title="Konfirmasi"
+  default-message="Apakah anda yakin?"
+  confirm-text="Ya"
+  cancel-text="Tidak"
+/>
 <div class="loan-toast" id="loanToast" role="status" aria-live="polite">
   <div class="loan-toast__title">Perhatian</div>
   <div id="loanToastText">Wajib isi form peminjaman.</div>
@@ -484,11 +391,11 @@
   const searchInput = document.getElementById('search');
   const saveLoanBtn = document.getElementById('saveLoanBtn');
   const cancelLoanBtn = document.getElementById('cancelLoanBtn');
-  const loanConfirmModal = document.getElementById('loanConfirmModal');
-  const loanConfirmTitle = document.getElementById('loanConfirmTitle');
-  const loanConfirmText = document.getElementById('loanConfirmText');
-  const loanConfirmYes = document.getElementById('loanConfirmYes');
-  const loanConfirmNo = document.getElementById('loanConfirmNo');
+  const loanConfirmModal = document.querySelector('[data-confirm-modal]');
+  const loanConfirmTitle = loanConfirmModal?.querySelector('[data-confirm-title]');
+  const loanConfirmText = loanConfirmModal?.querySelector('[data-confirm-message]');
+  const loanConfirmYes = loanConfirmModal?.querySelector('[data-confirm-accept]');
+  const loanConfirmNo = loanConfirmModal?.querySelector('[data-confirm-cancel]');
   const loanFormWarning = document.getElementById('loanFormWarning');
   const requestPhotoInput = document.getElementById('requestPhotoInput');
   const loanPhotoInput = document.getElementById('loanPhotoInput');
@@ -614,12 +521,14 @@
     if (loanConfirmText) loanConfirmText.textContent = message || 'Apakah anda yakin?';
     loanConfirmModal?.classList.add('is-visible');
     loanConfirmModal?.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('app-confirm-modal-open');
     window.setTimeout(() => loanConfirmNo?.focus(), 60);
   }
 
   function closeConfirmModal() {
     loanConfirmModal?.classList.remove('is-visible');
     loanConfirmModal?.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('app-confirm-modal-open');
   }
 
   function showToast(message) {
@@ -781,8 +690,8 @@
     if (submitConfirmed) { submitConfirmed = false; return; }
     e.preventDefault();
     openConfirmModal({
-      title: 'Simpan Peminjaman',
-      message: 'Apakah anda yakin ingin menyimpan data peminjaman ini?',
+      title: 'Pinjam Barang',
+      message: 'Apakah anda yakin ingin memproses peminjaman ini?',
       onYes: () => {
         submitConfirmed = true;
         batchForm.requestSubmit();
@@ -818,9 +727,10 @@
     if (!zones.length) return;
 
     zones.forEach((zone) => {
+      const zoneScope = zone.parentElement || zone;
       const input = zone.querySelector('input[type="file"]');
       const nameEl = zone.querySelector('[data-file-drop-name]');
-      const listEl = zone.parentElement?.querySelector('[data-file-drop-list]');
+      const listEl = zoneScope.querySelector('[data-file-drop-list]');
       const maxKb = Number(input?.dataset?.maxKb || 4096);
       const maxFiles = Number(input?.dataset?.maxFiles || 5);
       let buffer = [];
@@ -906,7 +816,8 @@
         const actionEl = e.target.closest('[data-file-action]');
         const removeEl = e.target.closest('[data-remove-file]');
         const replaceEl = e.target.closest('[data-replace-file]');
-        if (actionEl || removeEl || replaceEl) return;
+        const fileInputEl = e.target.closest('input[type="file"]');
+        if (actionEl || removeEl || replaceEl || fileInputEl) return;
         if (!input) return;
         input.dataset.pickMode = 'append';
         input.click();
@@ -922,7 +833,7 @@
         input.dataset.pickMode = action === 'replace' ? 'replace' : 'append';
         input.click();
       });
-      zone.addEventListener('click', (e) => {
+      zoneScope.addEventListener('click', (e) => {
         const replaceBtn = e.target.closest('[data-replace-file]');
         if (!replaceBtn) return;
         const idx = Number(replaceBtn.getAttribute('data-replace-file'));
@@ -930,7 +841,7 @@
         replacePicker.dataset.replaceIndex = String(idx);
         replacePicker.click();
       });
-      zone.addEventListener('click', (e) => {
+      zoneScope.addEventListener('click', (e) => {
         const removeBtn = e.target.closest('[data-remove-file]');
         if (!removeBtn) return;
         const idx = Number(removeBtn.getAttribute('data-remove-file'));
