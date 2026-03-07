@@ -60,18 +60,18 @@
           <div class="col-12 d-flex flex-wrap gap-2 mt-2 align-items-center">
             <button class="btn btn-primary" type="submit">Simpan</button>
             <a href="{{ route('users.index') }}" class="btn btn-secondary">Batal</a>
-            <form method="POST" action="{{ route('users.reset', $user) }}" onsubmit="return confirm('Reset password untuk {{ $user->name }}?');" class="ms-auto">
+            <form method="POST" action="{{ route('users.reset', $user) }}" data-confirm-form data-confirm-message="Reset password untuk {{ $user->name }}?" class="ms-auto">
               @csrf
               <button type="submit" class="btn btn-warning">Reset Password</button>
             </form>
             @if($user->photo)
-            <form method="POST" action="{{ route('users.photo.destroy', $user) }}" onsubmit="return confirm('Hapus foto untuk {{ $user->name }}?');">
+            <form method="POST" action="{{ route('users.photo.destroy', $user) }}" data-confirm-form data-confirm-message="Hapus foto untuk {{ $user->name }}?">
               @csrf
               @method('DELETE')
               <button type="submit" class="btn btn-outline-secondary">Hapus Foto</button>
             </form>
             @endif
-            <form method="POST" action="{{ route('users.destroy', $user) }}" onsubmit="return confirm('Hapus anggota {{ $user->name }}?');">
+            <form method="POST" action="{{ route('users.destroy', $user) }}" data-confirm-form data-confirm-message="Hapus anggota {{ $user->name }}?">
               @csrf
               @method('DELETE')
               <button type="submit" class="btn btn-danger">Hapus</button>
@@ -82,6 +82,7 @@
     </div>
   </div>
 </div>
+<x-confirm-modal />
 </div>
 </main>
 @endsection

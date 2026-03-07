@@ -269,11 +269,11 @@
         </div>
         <div class="user-actions">
           <a href="{{ route('users.edit', $u) }}" class="btn btn-sm btn-outline-primary">Edit</a>
-          <form method="POST" action="{{ route('users.reset', $u) }}" onsubmit="return confirm('Reset password untuk {{ $u->name }}?');">
+          <form method="POST" action="{{ route('users.reset', $u) }}" data-confirm-form data-confirm-message="Reset password untuk {{ $u->name }}?">
             @csrf
             <button type="submit" class="btn btn-sm btn-outline-warning">Reset</button>
           </form>
-          <form method="POST" action="{{ route('users.destroy', $u) }}" onsubmit="return confirm('Hapus anggota {{ $u->name }}?');">
+          <form method="POST" action="{{ route('users.destroy', $u) }}" data-confirm-form data-confirm-message="Hapus anggota {{ $u->name }}?">
             @csrf
             @method('DELETE')
             <button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button>
@@ -287,6 +287,7 @@
     {{ $users->links() }}
   </div>
 </div>
+<x-confirm-modal />
 </div>
 </main>
 @endsection

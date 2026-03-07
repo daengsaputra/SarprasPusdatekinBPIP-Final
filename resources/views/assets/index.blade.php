@@ -412,7 +412,7 @@
                 <td>
                   <div class="asset-actions">
                     <a class="btn btn-sm btn-outline-primary" href="{{ route('assets.edit', ['asset' => $asset, 'kind' => $isLoanable ? \App\Models\Asset::KIND_LOANABLE : \App\Models\Asset::KIND_INVENTORY]) }}">Edit</a>
-                    <form method="POST" action="{{ route('assets.destroy', $asset) }}" onsubmit="return confirm('Hapus aset ini?')">
+                    <form method="POST" action="{{ route('assets.destroy', $asset) }}" data-confirm-form data-confirm-message="Hapus aset {{ $asset->name }}?">
                       @csrf
                       @method('DELETE')
                       <button class="btn btn-sm btn-outline-danger" type="submit">Hapus</button>
@@ -457,6 +457,7 @@
       <img src="" alt="Foto aset">
     </div>
   </div>
+  <x-confirm-modal default-message="Data aset yang dihapus tidak dapat dikembalikan." />
 @endif
 @if($isAuthenticated)
 </div>
@@ -469,9 +470,11 @@
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const modal = document.querySelector('[data-photo-modal]');
+
     if (modal && modal.parentElement !== document.body) {
       document.body.appendChild(modal);
     }
+
     const closeBtn = modal?.querySelector('[data-photo-close]');
     const labelBox = modal?.querySelector('[data-photo-label]');
     const showPhotoModal = (src, label = '') => {
@@ -499,11 +502,13 @@
       }
     };
     closeBtn?.addEventListener('click', hidePhotoModal);
+
     modal?.addEventListener('click', (event) => {
       if (event.target === modal) {
         hidePhotoModal();
       }
     });
+
     document.addEventListener('keyup', (event) => {
       if (event.key === 'Escape') {
         hidePhotoModal();
