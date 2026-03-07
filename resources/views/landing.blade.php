@@ -561,24 +561,6 @@
   </div>
   </div>
 
-  <div id="stok" class="metrics-row mb-4">
-    <div class="metric-card">
-      <div class="metric-label">Total Sarpras</div>
-      <div class="metric-value">{{ number_format(data_get($summaryData, 'total', 0)) }}</div>
-      <p class="metric-desc mb-0">Unit sarana prasarana terdaftar.</p>
-    </div>
-    <div class="metric-card">
-      <div class="metric-label">Siap Dipinjam</div>
-      <div class="metric-value">{{ number_format(data_get($summaryData, 'available', 0)) }}</div>
-      <p class="metric-desc mb-0">Perangkat yang tersedia saat ini.</p>
-    </div>
-    <div class="metric-card">
-      <div class="metric-label">Sedang Digunakan</div>
-      <div class="metric-value metric-value--warn">{{ number_format(data_get($summaryData, 'in_use', max(data_get($summaryData, 'total', 0) - data_get($summaryData, 'available', 0), 0))) }}</div>
-      <p class="metric-desc mb-0">Unit dalam status peminjaman aktif.</p>
-    </div>
-  </div>
-
   <div class="row g-4 mt-3">
     <div class="col-lg-6">
       <div class="section-panel">

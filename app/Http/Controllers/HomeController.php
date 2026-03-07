@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Asset;
 use App\Models\Loan;
+use App\Models\User;
 use Illuminate\Support\Carbon;
 
 class HomeController extends Controller
@@ -77,6 +78,13 @@ class HomeController extends Controller
             ? (int) round(($totalBarangKembali / $totalDipinjamHistoris) * 100)
             : 0;
 
+        $dashboardMembers = User::query()
+            ->orderByDesc('created_at')
+            ->limit(8)
+            ->get(['id', 'name', 'email', 'role', 'photo', 'created_at']);
+
+        $totalMembers = (int) User::count();
+
         return view('home', compact(
             'totalBarang',
             'totalBarangAset',
@@ -91,7 +99,9 @@ class HomeController extends Controller
             'weeklyReturnTotal',
             'asetPercent',
             'dipinjamPercent',
-            'kembaliPercent'
+            'kembaliPercent',
+            'dashboardMembers',
+            'totalMembers'
         ));
     }
 }

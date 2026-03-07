@@ -78,13 +78,50 @@
   .theme-swatch span {
     flex: 1;
   }
+  .hero-variant-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 0.75rem;
+  }
+  .hero-variant-option {
+    border: 2px solid rgba(148,163,184,0.25);
+    border-radius: 14px;
+    padding: 0.85rem 0.95rem;
+    cursor: pointer;
+    background: #f8fafc;
+    transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .hero-variant-option:hover {
+    transform: translateY(-1px);
+  }
+  .hero-variant-option.selected {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37,99,235,0.12);
+    background: #fff;
+  }
+  .hero-variant-swatch {
+    width: 54px;
+    height: 54px;
+    border-radius: 12px;
+    border: 1px solid rgba(148,163,184,0.32);
+    flex-shrink: 0;
+  }
+  .hero-variant-swatch.is-ocean {
+    background: linear-gradient(125deg, #2563eb, #e0f2fe 68%);
+  }
+  .hero-variant-swatch.is-slate {
+    background: linear-gradient(125deg, #475569, #f1f5f9 68%);
+  }
 </style>
 @endpush
 
 @section('content')
 @php($themeCount = is_countable($themes ?? null) ? count($themes) : 0)
 @php($hasVideo = filled($videoUrl ?? null))
-@php($activeThemeLabel = !empty($themes[$currentTheme]['label']) ? $themes[$currentTheme]['label'] : \\Illuminate\\Support\\Str::headline((string) $currentTheme))
+@php($activeThemeLabel = !empty($themes[$currentTheme]['label']) ? $themes[$currentTheme]['label'] : \Illuminate\Support\Str::headline((string) $currentTheme))
 <main class="content-body">
 <div class="container-fluid">
 <div class="landing-settings-shell">
@@ -177,6 +214,32 @@
       @enderror
     </div>
   @endif
+
+  @php($selectedHeroVariant = old('hero_variant', $currentHeroVariant ?? 'ocean'))
+  <div class="mb-4">
+    <label class="form-label d-block">Varian Header Halaman</label>
+    <div class="hero-variant-grid">
+      <label class="hero-variant-option {{ $selectedHeroVariant === 'ocean' ? 'selected' : '' }}">
+        <input class="form-check-input" type="radio" name="hero_variant" value="ocean" {{ $selectedHeroVariant === 'ocean' ? 'checked' : '' }}>
+        <div class="hero-variant-swatch is-ocean"></div>
+        <div>
+          <div class="fw-semibold">Ocean</div>
+          <div class="text-muted small">Nuansa biru cerah untuk header halaman.</div>
+        </div>
+      </label>
+      <label class="hero-variant-option {{ $selectedHeroVariant === 'slate' ? 'selected' : '' }}">
+        <input class="form-check-input" type="radio" name="hero_variant" value="slate" {{ $selectedHeroVariant === 'slate' ? 'checked' : '' }}>
+        <div class="hero-variant-swatch is-slate"></div>
+        <div>
+          <div class="fw-semibold">Slate</div>
+          <div class="text-muted small">Nuansa abu modern untuk header halaman.</div>
+        </div>
+      </label>
+    </div>
+    @error('hero_variant')
+      <div class="text-danger small mt-2">{{ $message }}</div>
+    @enderror
+  </div>
 
   <div class="d-flex gap-3 mb-0">
     <button type="submit" class="btn btn-primary">Simpan Perubahan</button>

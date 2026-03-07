@@ -369,86 +369,51 @@
             <div class="dropdown d-inline-block">
                 <button type="button" class="btn header-item noti-icon waves-effect"
                     id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
-                    aria-expanded="false">
+                    aria-expanded="false" aria-label="bell">
                     <i class="mdi mdi-bell-outline"></i>
-                    <span class="badge bg-danger rounded-pill">3</span>
+                    @if(($overdueLoanNotificationCount ?? 0) > 0)
+                        <span class="badge bg-danger rounded-pill">{{ $overdueLoanNotificationCount }}</span>
+                    @endif
                 </button>
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
                     aria-labelledby="page-header-notifications-dropdown">
                     <div class="p-3">
                         <div class="row align-items-center">
                             <div class="col">
-                                <h6 class="m-0"> Notifications </h6>
+                                <h6 class="m-0"> Notifikasi Keterlambatan </h6>
                             </div>
                             <div class="col-auto">
-                                <a href="#!" class="small"> View All</a>
+                                <a href="{{ route('loans.index', ['overdue' => 1]) }}" class="small">Lihat Semua</a>
                             </div>
                         </div>
                     </div>
                     <div data-simplebar style="max-height: 230px;">
-                        <a href="" class="text-reset notification-item">
-                            <div class="d-flex align-items-start">
-                                <div class="avatar-xs me-3">
-                                    <span class="avatar-title bg-primary rounded-circle font-size-16">
-                                        <i class="bx bx-cart"></i>
-                                    </span>
-                                </div>
-                                <div class="flex-1">
-                                    <h6 class="mt-0 mb-1">Your order is placed</h6>
-                                    <div class="font-size-12 text-muted">
-                                        <p class="mb-1">If several languages coalesce the grammar</p>
-                                        <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 3 min ago</p>
+                        @forelse(($overdueLoanNotifications ?? []) as $notification)
+                            <a href="{{ route('loans.index', ['overdue' => 1]) }}" class="text-reset notification-item">
+                                <div class="d-flex align-items-start">
+                                    <div class="avatar-xs me-3">
+                                        <span class="avatar-title bg-warning rounded-circle font-size-16">
+                                            <i class="mdi mdi-alert-outline"></i>
+                                        </span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h6 class="mt-0 mb-1">{{ $notification['asset_name'] }}</h6>
+                                        <div class="font-size-12 text-muted">
+                                            <p class="mb-1">{{ $notification['borrower_name'] }}{{ $notification['unit'] ? ' - '.$notification['unit'] : '' }}</p>
+                                            <p class="mb-0"><i class="mdi mdi-clock-outline"></i> Terlambat {{ $notification['late_days'] }} hari (rencana kembali {{ $notification['due_date'] ?? '-' }})</p>
+                                        </div>
                                     </div>
                                 </div>
+                            </a>
+                        @empty
+                            <div class="text-center text-muted px-3 py-4">
+                                Tidak ada pinjaman yang melewati rencana kembali.
                             </div>
-                        </a>
-                        <a href="" class="text-reset notification-item">
-                            <div class="d-flex align-items-start">
-                                <img src="{{ URL::asset('build_admin/images/users/avatar-3.jpg') }}" class="me-3 rounded-circle avatar-xs"
-                                    alt="user-pic">
-                                <div class="flex-1">
-                                    <h6 class="mt-0 mb-1">James Lemire</h6>
-                                    <div class="font-size-12 text-muted">
-                                        <p class="mb-1">It will seem like simplified English.</p>
-                                        <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 1 hours ago</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                        <a href="" class="text-reset notification-item">
-                            <div class="d-flex align-items-start">
-                                <div class="avatar-xs me-3">
-                                    <span class="avatar-title bg-success rounded-circle font-size-16">
-                                        <i class="bx bx-badge-check"></i>
-                                    </span>
-                                </div>
-                                <div class="flex-1">
-                                    <h6 class="mt-0 mb-1">Your item is shipped</h6>
-                                    <div class="font-size-12 text-muted">
-                                        <p class="mb-1">If several languages coalesce the grammar</p>
-                                        <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 3 min ago</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-
-                        <a href="" class="text-reset notification-item">
-                            <div class="d-flex align-items-start">
-                                <img src="{{ URL::asset('build_admin/images/users/avatar-4.jpg') }}" class="me-3 rounded-circle avatar-xs"
-                                    alt="user-pic">
-                                <div class="flex-1">
-                                    <h6 class="mt-0 mb-1">Salena Layfield</h6>
-                                    <div class="font-size-12 text-muted">
-                                        <p class="mb-1">As a skeptical Cambridge friend of mine occidental.</p>
-                                        <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 1 hours ago</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
+                        @endforelse
                     </div>
                     <div class="p-2 border-top d-grid">
-                        <a class="btn btn-sm btn-link font-size-14 btn-block text-center" href="javascript:void(0)">
-                            <i class="mdi mdi-arrow-right-circle me-1"></i> View More..
+                        <a class="btn btn-sm btn-link font-size-14 btn-block text-center" href="{{ route('loans.index', ['overdue' => 1]) }}">
+                            <i class="mdi mdi-arrow-right-circle me-1"></i> Lihat Data Peminjaman
                         </a>
                     </div>
                 </div>

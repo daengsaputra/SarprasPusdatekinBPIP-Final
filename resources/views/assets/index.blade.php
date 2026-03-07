@@ -7,7 +7,8 @@
 @php($exportUrl = route('assets.export', $exportParams))
 @php($importUrl = $isLoanable ? route('assets.import.form', ['kind' => \App\Models\Asset::KIND_LOANABLE]) : route('assets.import.form'))
 @php($createUrl = $isLoanable ? route('assets.create', ['kind' => \App\Models\Asset::KIND_LOANABLE]) : route('assets.create'))
-@extends('layouts.app')
+@php($isAuthenticated = auth()->check())
+@extends($isAuthenticated ? 'layouts.app' : 'layouts.landing')
 
 @push('styles')
 <style>
@@ -20,13 +21,8 @@
   .asset-hero__cta small { color:#64748b; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; }
   .asset-hero__stats { display:flex; flex-wrap:wrap; gap:0.75rem; }
   .asset-summary-card { background:#fff; border-radius:18px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 14px 32px rgba(15,23,42,0.08); padding:0.9rem 1.2rem; min-width:160px; }
-  .asset-summary-label,
-  .asset-summary-value,
-  .asset-summary-card p {
-    font-size: 0.75rem;
-  }
-  .asset-summary-label { text-transform:uppercase; letter-spacing:0.15em; font-size:0.62rem; color:#94a3b8; }
-  .asset-summary-value { font-size:1.35rem; font-weight:700; color:#0f172a; }
+  .asset-summary-label { text-transform:uppercase; letter-spacing:0.13em; font-size:0.76rem; color:#94a3b8; }
+  .asset-summary-value { font-size:1.5rem; font-weight:700; color:#0f172a; }
   .asset-add-btn {
     background: #0ea5e9;
     border-color: #0ea5e9;
@@ -51,53 +47,117 @@
     display:flex;
     gap:0.55rem;
   }
-  body[data-theme="dark"] .asset-filter-card { background:#111827; border-color:rgba(148,163,184,0.24); }
+  body[data-theme="dark"] .asset-filter-card,
+  body[data-theme-version="dark"] .asset-filter-card,
+  body.theme-dark .asset-filter-card { background:#111827; border-color:rgba(148,163,184,0.24); }
   body[data-theme="dark"] .asset-filter-card .form-label,
-  body[data-theme="dark"] .asset-filter-card .form-check-label {
+  body[data-theme-version="dark"] .asset-filter-card .form-label,
+  body.theme-dark .asset-filter-card .form-label,
+  body[data-theme="dark"] .asset-filter-card .form-check-label,
+  body[data-theme-version="dark"] .asset-filter-card .form-check-label,
+  body.theme-dark .asset-filter-card .form-check-label {
     color: #e5e7eb;
   }
   body[data-theme="dark"] .asset-filter-card .form-control,
-  body[data-theme="dark"] .asset-filter-card .form-select {
+  body[data-theme-version="dark"] .asset-filter-card .form-control,
+  body.theme-dark .asset-filter-card .form-control,
+  body[data-theme="dark"] .asset-filter-card .form-select,
+  body[data-theme-version="dark"] .asset-filter-card .form-select,
+  body.theme-dark .asset-filter-card .form-select {
     background: #0b1220;
     border-color: rgba(148,163,184,0.35);
     color: #f8fafc;
+    font-size: 0.96rem;
   }
-  body[data-theme="dark"] .asset-filter-card .form-control::placeholder {
+  body[data-theme="dark"] .asset-filter-card .form-control::placeholder,
+  body[data-theme-version="dark"] .asset-filter-card .form-control::placeholder,
+  body.theme-dark .asset-filter-card .form-control::placeholder {
     color: #94a3b8;
   }
   body[data-theme="dark"] .asset-filter-card .form-control:focus,
-  body[data-theme="dark"] .asset-filter-card .form-select:focus {
+  body[data-theme-version="dark"] .asset-filter-card .form-control:focus,
+  body.theme-dark .asset-filter-card .form-control:focus,
+  body[data-theme="dark"] .asset-filter-card .form-select:focus,
+  body[data-theme-version="dark"] .asset-filter-card .form-select:focus,
+  body.theme-dark .asset-filter-card .form-select:focus {
     border-color: #3b82f6;
     box-shadow: 0 0 0 0.2rem rgba(59,130,246,0.2);
   }
-  body[data-theme="dark"] .asset-filter-card .form-check-input {
+  body[data-theme="dark"] .asset-filter-card .form-check-input,
+  body[data-theme-version="dark"] .asset-filter-card .form-check-input,
+  body.theme-dark .asset-filter-card .form-check-input {
     background-color: #0b1220;
     border-color: rgba(148,163,184,0.45);
   }
-  body[data-theme="dark"] .asset-filter-card .btn-outline-secondary {
+  body[data-theme="dark"] .asset-filter-card .btn-outline-secondary,
+  body[data-theme-version="dark"] .asset-filter-card .btn-outline-secondary,
+  body.theme-dark .asset-filter-card .btn-outline-secondary {
     color: #e5e7eb;
     border-color: rgba(148,163,184,0.45);
   }
-  body[data-theme="dark"] .asset-filter-card .btn-outline-secondary:hover {
+  body[data-theme="dark"] .asset-filter-card .btn-outline-secondary:hover,
+  body[data-theme-version="dark"] .asset-filter-card .btn-outline-secondary:hover,
+  body.theme-dark .asset-filter-card .btn-outline-secondary:hover {
     color: #0f172a;
     background: #cbd5e1;
     border-color: #cbd5e1;
   }
   .asset-table-card { background:#fff; border-radius:20px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 20px 45px rgba(15,23,42,0.08); padding:1.25rem 1.35rem; }
   .asset-table-card table thead th,
-  .asset-table-card table tbody td,
   .asset-table-card .pagination,
   .asset-table-card .pagination a,
   .asset-table-card .pagination span {
-    font-size:0.75rem;
+    font-size:0.86rem;
   }
-  .asset-table-card table thead th { text-transform:uppercase; letter-spacing:0.08em; color:#64748b; }
+  .asset-table-card table tbody td {
+    font-size:0.95rem;
+  }
+  .asset-table-card table thead th { text-transform:uppercase; letter-spacing:0.07em; color:#64748b; }
   .asset-table-card table tbody td { vertical-align:middle; }
+  body[data-theme="dark"] .asset-table-card,
+  body[data-theme-version="dark"] .asset-table-card,
+  body.theme-dark .asset-table-card {
+    background:#0b1220;
+    border-color:rgba(148,163,184,0.28);
+    box-shadow:0 20px 45px rgba(2,6,23,0.45);
+  }
+  body[data-theme="dark"] .asset-table-card table thead th,
+  body[data-theme-version="dark"] .asset-table-card table thead th,
+  body.theme-dark .asset-table-card table thead th {
+    color:#cbd5e1;
+  }
+  body[data-theme="dark"] .asset-table-card table tbody td,
+  body[data-theme-version="dark"] .asset-table-card table tbody td,
+  body.theme-dark .asset-table-card table tbody td,
+  body[data-theme="dark"] .asset-table-card table tbody td a,
+  body[data-theme-version="dark"] .asset-table-card table tbody td a,
+  body.theme-dark .asset-table-card table tbody td a {
+    color:#e5e7eb;
+  }
+  body[data-theme="dark"] .asset-table-card .table > :not(caption) > * > *,
+  body[data-theme-version="dark"] .asset-table-card .table > :not(caption) > * > *,
+  body.theme-dark .asset-table-card .table > :not(caption) > * > * {
+    border-color:rgba(148,163,184,0.22);
+  }
+  body[data-theme="dark"] .asset-table-card .pagination .page-link,
+  body[data-theme-version="dark"] .asset-table-card .pagination .page-link,
+  body.theme-dark .asset-table-card .pagination .page-link {
+    background:#020617;
+    border-color:rgba(148,163,184,0.38);
+    color:#cbd5e1;
+  }
+  body[data-theme="dark"] .asset-table-card .pagination .page-item.active .page-link,
+  body[data-theme-version="dark"] .asset-table-card .pagination .page-item.active .page-link,
+  body.theme-dark .asset-table-card .pagination .page-item.active .page-link {
+    background:#2563eb;
+    border-color:#2563eb;
+    color:#fff;
+  }
   .asset-actions { display:flex; flex-wrap:wrap; gap:0.35rem; }
   .asset-actions .btn {
     border-radius: 12px;
     transition: transform 0.25s cubic-bezier(.17,.67,.45,1.32), box-shadow 0.2s ease;
-    font-size: var(--font-size-small, 0.84rem);
+    font-size: 0.92rem;
     padding: 0.35rem 0.65rem;
     line-height: 1.2;
   }
@@ -198,7 +258,10 @@
     font-size: 1.2rem;
     cursor: pointer;
   }
-  .asset-filter-card .form-label { font-size:0.75rem; }
+  .asset-filter-card .form-label { font-size:0.9rem; }
+  .asset-filter-card .form-control,
+  .asset-filter-card .form-select,
+  .asset-filter-card .form-check-label { font-size:0.96rem; }
   @media (max-width: 992px) {
     .asset-hero { flex-direction:column; }
     .asset-filter-form { grid-template-columns:1fr; }
@@ -214,9 +277,13 @@
 @php($assetTotal = method_exists($assets, 'total') ? $assets->total() : $assets->count())
 @php($assetShown = $assets->count())
 @php($assetPage = method_exists($assets, 'currentPage') ? $assets->currentPage() : 1)
+@php($perPageValue = (int) request('per_page', $perPage ?? 10))
+@if($isAuthenticated)
 <main class="content-body">
 <div class="container-fluid">
+@endif
 <div class="asset-shell">
+  @if($isAuthenticated)
   <section class="asset-hero">
     <div>
       <div class="asset-hero__title">{{ $title }}</div>
@@ -247,13 +314,15 @@
       </div>
     </div>
   </section>
+  @endif
 
   <section class="asset-filter-card">
     <form method="GET" action="{{ route($listRoute) }}" class="asset-filter-form">
       <div>
-        <label class="form-label">Cari</label>
+        <label class="form-label">{{ $isAuthenticated ? 'Cari' : 'Cari Barang' }}</label>
         <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="Kode / nama / deskripsi">
       </div>
+      @if($isAuthenticated)
       <div>
         <label class="form-label">Kategori</label>
         <select name="category" class="form-select">
@@ -277,6 +346,15 @@
           <input class="form-check-input" type="checkbox" name="available" value="1" id="chkAvail" {{ $availableChecked ? 'checked' : '' }}>
           <label class="form-check-label" for="chkAvail">Hanya stok tersedia</label>
         </div>
+      </div>
+      @endif
+      <div>
+        <label class="form-label">Tampilkan</label>
+        <select name="per_page" class="form-select">
+          <option value="10" {{ $perPageValue === 10 ? 'selected' : '' }}>10</option>
+          <option value="50" {{ $perPageValue === 50 ? 'selected' : '' }}>50</option>
+          <option value="100" {{ $perPageValue === 100 ? 'selected' : '' }}>100</option>
+        </select>
       </div>
       <div class="asset-filter-actions">
         <button class="btn btn-primary" type="submit">Terapkan</button>
@@ -314,7 +392,9 @@
               @php($arrow=$s==='status' ? ($d==='asc'?'▲':'▼') : '•')
               <a href="{{ route($listRoute,$q) }}" class="text-decoration-none text-muted">Status <span class="small">{{ $arrow }}</span></a>
             </th>
-            <th>Aksi</th>
+            @if($isAuthenticated)
+              <th>Aksi</th>
+            @endif
           </tr>
         </thead>
         <tbody>
@@ -328,9 +408,9 @@
                 @php($statusLabel = $asset->status === 'active' ? 'Aktif' : ($asset->status === 'inactive' ? 'Tidak aktif' : $asset->status))
                 <span class="badge {{ $asset->status === 'active' ? 'bg-success' : 'bg-secondary' }}">{{ $statusLabel }}</span>
               </td>
-              <td>
-                <div class="asset-actions">
-                  @auth
+              @if($isAuthenticated)
+                <td>
+                  <div class="asset-actions">
                     <a class="btn btn-sm btn-outline-primary" href="{{ route('assets.edit', ['asset' => $asset, 'kind' => $isLoanable ? \App\Models\Asset::KIND_LOANABLE : \App\Models\Asset::KIND_INVENTORY]) }}">Edit</a>
                     <form method="POST" action="{{ route('assets.destroy', $asset) }}" onsubmit="return confirm('Hapus aset ini?')">
                       @csrf
@@ -350,13 +430,13 @@
                     @else
                       <span class="text-muted small">Tidak ada foto</span>
                     @endif
-                  @endauth
-                </div>
-              </td>
+                  </div>
+                </td>
+              @endif
             </tr>
           @empty
             <tr>
-              <td colspan="6" class="text-center text-muted py-4">
+              <td colspan="{{ $isAuthenticated ? 6 : 5 }}" class="text-center text-muted py-4">
                 {{ $isLoanable ? 'Belum ada peralatan peminjaman.' : 'Belum ada data aset.' }}
               </td>
             </tr>
@@ -369,17 +449,22 @@
     </div>
   </section>
 </div>
-<div class="asset-photo-modal" data-photo-modal aria-hidden="true" role="dialog">
-  <div class="asset-photo-panel">
-    <button type="button" class="asset-photo-close" data-photo-close>&times;</button>
-    <div class="asset-photo-label" data-photo-label style="display:none;"></div>
-    <img src="" alt="Foto aset">
+@if($isAuthenticated)
+  <div class="asset-photo-modal" data-photo-modal aria-hidden="true" role="dialog">
+    <div class="asset-photo-panel">
+      <button type="button" class="asset-photo-close" data-photo-close>&times;</button>
+      <div class="asset-photo-label" data-photo-label style="display:none;"></div>
+      <img src="" alt="Foto aset">
+    </div>
   </div>
-</div>
+@endif
+@if($isAuthenticated)
 </div>
 </main>
+@endif
 @endsection
 
+@if($isAuthenticated)
 @push('scripts')
 <script>
   document.addEventListener('DOMContentLoaded', () => {
@@ -442,3 +527,4 @@
   });
 </script>
 @endpush
+@endif

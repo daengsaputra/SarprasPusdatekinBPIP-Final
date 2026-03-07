@@ -23,6 +23,7 @@ class LoanController extends Controller
         $unit = request('unit');
         $from = request('from');
         $to = request('to');
+        $overdueOnly = request()->boolean('overdue');
 
         $query = Loan::with('asset');
         $sort = request('sort');
@@ -47,6 +48,12 @@ class LoanController extends Controller
         }
         if ($to) {
             $query->whereDate('loan_date','<=',$to);
+        }
+        if ($overdueOnly) {
+            $query->whereIn('status', ['borrowed', 'partial'])
+                ->whereNull('return_date_actual')
+                ->whereNotNull('return_date_planned')
+                ->whereDate('return_date_planned', '<', now()->toDateString());
         }
 
         // Sorting
@@ -85,6 +92,7 @@ class LoanController extends Controller
             'unit',
             'from',
             'to',
+            'overdueOnly',
             'sort',
             'dir',
             'totalLoanCount',

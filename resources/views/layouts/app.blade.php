@@ -11,7 +11,8 @@
     @include('layouts.head-css')
     @stack('styles')
 </head>
-<body data-theme-version="light" data-layout="vertical" data-nav-headerbg="color_1" data-headerbg="color_1" data-sidebar-style="full" data-sidebarbg="color_1" data-sidebar-position="fixed" data-header-position="fixed" data-container="wide" direction="ltr">
+@php($heroVariant = $activeHeroVariant ?? 'ocean')
+<body data-theme-version="light" data-layout="vertical" data-nav-headerbg="color_1" data-headerbg="color_1" data-sidebar-style="full" data-sidebarbg="color_1" data-sidebar-position="fixed" data-header-position="fixed" data-container="wide" direction="ltr" data-hero-variant="{{ $heroVariant }}">
     <div id="preloader">
         <div class="sk-three-bounce">
             <div class="sk-child sk-bounce1"></div>
@@ -32,5 +33,37 @@
     @include('layouts.vendor-scripts')
     @stack('scripts')
     @stack('script')
+    <script>
+        (function () {
+            const LANDING_THEME_KEY = 'sarpras-landing-theme';
+
+            const setCookie = (name, value) => {
+                document.cookie = `${name}=${value}; path=/`;
+            };
+
+            const syncTheme = () => {
+                const current = document.body.getAttribute('data-theme-version') === 'dark' ? 'dark' : 'light';
+                setCookie('version', current);
+                try {
+                    localStorage.setItem(LANDING_THEME_KEY, current);
+                } catch (e) {
+                    // ignore storage failures
+                }
+            };
+
+            syncTheme();
+
+            const observer = new MutationObserver((mutations) => {
+                for (const mutation of mutations) {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme-version') {
+                        syncTheme();
+                        break;
+                    }
+                }
+            });
+
+            observer.observe(document.body, { attributes: true });
+        })();
+    </script>
 </body>
 </html>

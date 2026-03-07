@@ -18,6 +18,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 // Rute utama ke landing page
 Route::get('/', [HomeController::class, 'root'])->name('root');
 
+// Public route: daftar barang peminjaman dapat dilihat tanpa login
+Route::get('/assets/loanable', [AssetController::class, 'loanable'])->name('assets.loanable');
+
 Route::middleware('auth')->group(function () {
     // Halaman dashboard
     Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
@@ -26,7 +29,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 
     // Routes aset
-    Route::get('/assets/loanable', [AssetController::class, 'loanable'])->name('assets.loanable');
     Route::get('/assets/export', [AssetController::class, 'exportExcel'])->name('assets.export');
     Route::get('/assets/import', [AssetController::class, 'importForm'])->name('assets.import.form');
     Route::post('/assets/import', [AssetController::class, 'import'])->name('assets.import');

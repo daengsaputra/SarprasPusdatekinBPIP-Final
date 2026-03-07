@@ -6,7 +6,7 @@
 <main class="content-body">
     <div class="container-fluid">
         <div class="row">
-            <div class="col-xl-12 col-xxl-6">
+            <div class="col-12">
                 <div class="row">
                     <div class="col-sm-6">
                         <div class="card overflow-hidden avtivity-card">
@@ -90,7 +90,51 @@
                 </div>
             </div>
 
-            <div class="col-xl-12 col-xxl-6">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-sm-flex justify-content-sm-between d-block pb-0 border-0">
+                        <div class="pb-3 pb-sm-0">
+                            <h4 class="card-title">Daftar Anggota</h4>
+                            <p class="fs-13 mb-0">Anggota terbaru sistem SARPRAS.</p>
+                        </div>
+                        <div class="mb-3 d-flex gap-2 flex-wrap">
+                            <span class="badge light badge-primary">Total: {{ number_format($totalMembers, 0, ',', '.') }} akun</span>
+                            <a href="{{ route('users.index') }}" class="btn btn-outline-primary btn-sm">Lihat Semua</a>
+                            <a href="{{ route('users.create') }}" class="btn btn-outline-success btn-sm">Tambah Anggota</a>
+                        </div>
+                    </div>
+                    <div class="card-body pt-2">
+                        <div class="row g-3">
+                            @forelse($dashboardMembers as $member)
+                                <div class="col-md-6 col-xl-4 col-xxl-3">
+                                    <div class="border rounded-3 p-3 h-100 d-flex align-items-center gap-3">
+                                        <div class="avatar avatar-lg rounded-circle overflow-hidden flex-shrink-0">
+                                            @if($member->photo)
+                                                <img src="{{ asset('storage/' . $member->photo) }}" alt="Foto {{ $member->name }}" class="w-100 h-100" style="object-fit: cover;">
+                                            @else
+                                                <span class="avatar-title rounded-circle bg-primary-subtle text-primary fw-semibold w-100 h-100 d-flex align-items-center justify-content-center">
+                                                    {{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($member->name ?? '?', 0, 1)) }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                        <div class="min-w-0">
+                                            <h6 class="mb-1 text-truncate"><a href="{{ route('users.index') }}" class="text-black">{{ $member->name }}</a></h6>
+                                            <div class="fs-13 text-muted text-truncate">{{ $member->email }}</div>
+                                            <span class="badge light badge-info mt-2">{{ $member->role_label }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="col-12">
+                                    <p class="text-muted mb-0">Belum ada data anggota.</p>
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12">
                 <div class="card">
                     <div class="card-header d-sm-flex justify-content-sm-between d-block pb-0 border-0">
                         <div class="pb-3 pb-sm-0">
@@ -110,98 +154,6 @@
                             data-returns='@json($weeklyReturnSeries)'
                         ></div>
                         <div id="chartBar" class="d-none" aria-hidden="true"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-xl-8 col-xxl-9">
-                <div class="card">
-                    <div class="card-header d-sm-flex d-block pb-0 border-0">
-                        <div class="me-auto pe-3">
-                            <h4 class="card-title">Recomended Trainer for You</h4>
-                            <p class="fs-13 mb-0">Lorem ipsum dolor sit amet, consectetur</p>
-                        </div>
-                        <div class="clearfix">
-                            <a href="{{ route('assets.loanable') }}" class="btn btn-primary rounded d-none d-md-block">View More</a>
-                        </div>
-                    </div>
-                    <div class="card-body pt-2">
-                        <div class="testimonial-one owl-carousel">
-                            @foreach ([7,5,3,1] as $avatar)
-                                <div class="text-center">
-                                    <div class="my-4">
-                                        <div class="avatar avatar-xl rounded-circle mb-2">
-                                            <img src="{{ asset('evanto/assets/images/avatar/large/avatar'.$avatar.'.webp') }}" alt="trainer">
-                                        </div>
-                                        <h5 class="fs-16 mb-1"><a href="javascript:void(0)" class="text-black">Trainer {{ $avatar }}</a></h5>
-                                        <p class="fs-14">Body Building Trainer</p>
-                                        <div class="d-flex gap-2 align-items-center justify-content-center">
-                                            <i class="fa fa-star text-warning"></i>
-                                            <span class="fs-14 d-block pe-2 border-end text-black">4.4</span>
-                                            <a href="javascript:void(0)" class="btn-link fs-14">Send Request</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header d-sm-flex justify-content-sm-between d-block pb-0 border-0">
-                        <div class="pb-3 pb-sm-0">
-                            <h4 class="card-title">Calories Chart</h4>
-                            <p class="fs-13 mb-0">Lorem ipsum dolor sit amet, consectetur</p>
-                        </div>
-                        <div class="clearfix">
-                            <select class="selectpicker form-select">
-                                <option>Monthly</option>
-                                <option>Weekly</option>
-                                <option>Daily</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="card-body px-3 pb-0">
-                        <div id="chartTimeline"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-xl-4 col-xxl-3">
-                <div class="card featuredMenu">
-                    <div class="card-header border-0">
-                        <h4 class="card-title">Featured Diet Menu</h4>
-                    </div>
-                    <div class="card-body loadmore-content height700 dz-scroll pt-0" id="FeaturedMenusContent">
-                        <div class="d-flex mb-4">
-                            <img src="{{ asset('evanto/assets/images/menus/1.avif') }}" alt="menus" class="avatar avatar-lg rounded me-3">
-                            <div>
-                                <h5><a href="javascript:void(0)" class="text-black fs-16">Chinese Orange Fruit With Avocado Salad</a></h5>
-                                <span class="fs-14 text-primary">Kevin Ignis</span>
-                            </div>
-                        </div>
-                        <ul class="d-flex flex-wrap pb-2 border-bottom mb-3 justify-content-between">
-                            <li class="me-3 mb-2"><i class="las la-clock scale5 me-2"></i><span class="fs-14 text-black">8-9 mins</span></li>
-                            <li class="mb-2"><i class="fa-regular fa-star me-2 scale1 text-warning"></i><span class="fs-14 text-black">189 Reviews</span></li>
-                        </ul>
-                        <div class="d-flex mb-4">
-                            <img src="{{ asset('evanto/assets/images/menus/2.avif') }}" alt="menus" class="avatar avatar-lg rounded me-3">
-                            <div>
-                                <h5><a href="javascript:void(0)" class="text-black fs-16">Fresh or Frozen (No Sugar Added) Fruits</a></h5>
-                                <span class="fs-14 text-primary">Olivia Johanson</span>
-                            </div>
-                        </div>
-                        <ul class="d-flex flex-wrap pb-2 border-bottom mb-3 justify-content-between">
-                            <li class="me-3 mb-2"><i class="las la-clock scale5 me-2"></i><span class="fs-14 text-black">4-6 mins</span></li>
-                            <li class="mb-2"><i class="fa-regular fa-star me-2 scale1 text-warning"></i><span class="fs-14 text-black">156 Reviews</span></li>
-                        </ul>
-                    </div>
-                    <div class="card-footer bg-transparent border-0 pt-0">
-                        <div class="d-grid gap-2">
-                            <a href="{{ route('assets.index') }}" class="btn btn-outline-primary btn-sm">Data Aset</a>
-                            <a href="{{ route('assets.import.form') }}" class="btn btn-outline-success btn-sm">Import Aset</a>
-                            <a href="{{ route('assets.export') }}" class="btn btn-outline-info btn-sm">Export Aset</a>
-                        </div>
                     </div>
                 </div>
             </div>

@@ -36,6 +36,7 @@ class SettingController extends Controller
             'videoPath' => $videoMeta['path'],
             'themes' => $this->themes,
             'currentTheme' => SiteSetting::landingTheme(),
+            'currentHeroVariant' => SiteSetting::dashboardHeroVariant(),
         ]);
     }
 
@@ -52,6 +53,7 @@ class SettingController extends Controller
             'landing_video' => ['nullable', 'file', 'mimes:' . $allowedMimes, 'max:' . $maxKb],
             'remove_video' => ['nullable', 'boolean'],
             'theme' => ['nullable', Rule::in($themeOptions)],
+            'hero_variant' => ['nullable', Rule::in(['ocean', 'slate'])],
         ]);
 
         $currentPath = SiteSetting::getValue('landing_video_path');
@@ -81,6 +83,13 @@ class SettingController extends Controller
         if ($selectedTheme && $selectedTheme !== $currentTheme) {
             SiteSetting::updateValue('landing_theme', $selectedTheme);
             $messages[] = 'Tema landing berhasil diperbarui.';
+        }
+
+        $selectedHeroVariant = $validated['hero_variant'] ?? null;
+        $currentHeroVariant = SiteSetting::dashboardHeroVariant();
+        if ($selectedHeroVariant && $selectedHeroVariant !== $currentHeroVariant) {
+            SiteSetting::updateValue('dashboard_hero_variant', $selectedHeroVariant);
+            $messages[] = 'Varian header halaman berhasil diperbarui.';
         }
 
         if (!$messages) {

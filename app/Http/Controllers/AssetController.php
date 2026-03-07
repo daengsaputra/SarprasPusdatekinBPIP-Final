@@ -45,6 +45,10 @@ class AssetController extends Controller
         $availableOnly = $request->input('available') === '1';
         $sort = $request->input('sort');
         $dir = $request->input('dir', 'asc') === 'desc' ? 'desc' : 'asc';
+        $perPage = (int) $request->input('per_page', 10);
+        if (!in_array($perPage, [10, 50, 100], true)) {
+            $perPage = 10;
+        }
         $kind = $options['kind'] ?? $request->input('kind');
 
         if (array_key_exists('kind', $options)) {
@@ -93,7 +97,7 @@ class AssetController extends Controller
             $query->orderBy('name');
         }
 
-        $assets = $query->paginate(10)->withQueryString();
+        $assets = $query->paginate($perPage)->withQueryString();
 
         $append = [];
         if ($availableOnly) {
@@ -108,6 +112,7 @@ class AssetController extends Controller
         if ($append) {
             $assets->appends($append);
         }
+        $assets->appends(['per_page' => $perPage]);
 
         $categoriesQuery = Asset::whereNotNull('category');
         if ($kind) {
@@ -132,6 +137,7 @@ class AssetController extends Controller
             'availableOnly' => $availableOnly,
             'sort' => $sort,
             'dir' => $dir,
+            'perPage' => $perPage,
             'context' => $options['context'] ?? 'inventory',
             'kind' => $kind,
             'totalAssets' => $totalAssets,

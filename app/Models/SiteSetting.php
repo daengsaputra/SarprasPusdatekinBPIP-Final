@@ -124,4 +124,19 @@ class SiteSetting extends Model
 
         return array_merge($defaults, array_filter($surfaces));
     }
+
+    /**
+     * Resolve global dashboard/page header variant.
+     */
+    public static function dashboardHeroVariant(string $default = 'ocean'): string
+    {
+        $stored = static::getValue('dashboard_hero_variant');
+        if (is_string($stored) && in_array($stored, ['ocean', 'slate'], true)) {
+            return $stored;
+        }
+
+        // Backward-compatible fallback: infer from landing theme when no explicit setting exists.
+        $theme = static::landingTheme();
+        return $theme === 'aurora' ? 'ocean' : 'slate';
+    }
 }

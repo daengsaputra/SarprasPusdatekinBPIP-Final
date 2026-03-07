@@ -408,11 +408,12 @@ function getUrlParams(dParam){
 	"use strict"
 	
 	var direction = getCookie('direction') || getUrlParams('dir') || 'ltr';
+    var savedVersion = getCookie('version') || getUrlParams('theme_version') || body.attr('data-theme-version') || 'light';
 	
 	dzSettingsOptions = {
 		language: "en_GB",
 		typography: "poppins",
-		version: "light",
+        version: savedVersion,
 		layout: "vertical",
 		primary: "color_1",
 		headerBg: "color_1",
@@ -463,8 +464,10 @@ function getUrlParams(dParam){
 	});
 	
 	jQuery(window).on('resize',function(){
+        dzSettingsOptions.version = body.attr('data-theme-version') || dzSettingsOptions.version || 'light';
 		dzSettingsOptions.containerLayout = $('#container_layout').val();
         new dzSettings(dzSettingsOptions);
+        setCookie('version', dzSettingsOptions.version);
 	});
 	
 	if(direction == 'rtl' || body.attr('direction') == 'rtl'){

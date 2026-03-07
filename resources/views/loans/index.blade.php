@@ -25,7 +25,7 @@
   .loan-summary-card { background:#fff; border-radius:18px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 14px 32px rgba(15,23,42,0.08); padding:0.9rem 1.2rem; min-width:160px; }
   .loan-summary-label { text-transform:uppercase; letter-spacing:0.15em; font-size:0.62rem; color:#94a3b8; }
   .loan-summary-value { font-size:1.35rem; font-weight:700; color:#0f172a; }
-  .loan-filter-card, .loan-table-card { background:#fff; border-radius:28px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 20px 45px rgba(15,23,42,0.08); padding:1.5rem 1.7rem; }
+  .loan-filter-card, .loan-table-card { background:#fff; border-radius:28px; border:1px solid rgba(148,163,184,0.16); box-shadow:0 20px 45px rgba(15,23,42,0.08); padding:1.5rem 1.7rem; font-size:0.96rem; }
   .loan-filter-form {
     display: grid;
     grid-template-columns: minmax(230px, 1.4fr) repeat(4, minmax(150px, 1fr)) auto;
@@ -65,7 +65,7 @@
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
-    font-size:0.95rem;
+    font-size:1rem;
     font-weight:700;
     color:#0f172a;
   }
@@ -78,7 +78,7 @@
   .loan-alert.alert-success { border-color:rgba(16,185,129,0.35); background:rgba(209,250,229,0.9); }
   .letter-spacing-wide { letter-spacing:0.22em; }
   .loan-table-card table { width:100%; border-collapse:separate; border-spacing:0; table-layout:fixed; }
-  .loan-table-card table thead th { text-transform:uppercase; letter-spacing:0.08em; color:#64748b; font-size:0.76rem; white-space:nowrap; }
+  .loan-table-card table thead th { text-transform:uppercase; letter-spacing:0.08em; color:#64748b; font-size:0.86rem; white-space:nowrap; }
   .loan-table-card table th,
   .loan-table-card table td { padding:0.65rem 0.75rem; }
   .loan-table-card table tbody td { vertical-align:top; }

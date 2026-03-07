@@ -49,6 +49,12 @@
             --bs-warning-bg-subtle: rgba(250, 204, 21, 0.16);
             --bs-warning-border-subtle: rgba(250, 204, 21, 0.28);
             --bs-warning-text-emphasis: #92400e;
+            --nav-bg: rgba(248, 250, 252, 0.9);
+            --nav-bg-scrolled: rgba(255, 255, 255, 0.95);
+            --nav-border: rgba(15, 23, 42, 0.08);
+            --nav-border-scrolled: rgba(15, 23, 42, 0.14);
+            --footer-bg: rgba(248, 250, 252, 0.95);
+            --footer-border: rgba(15, 23, 42, 0.1);
         }
         body {
             min-height: 100vh;
@@ -56,31 +62,84 @@
             color: var(--text-primary);
             transition: background .35s ease, color .35s ease;
         }
+        body.theme-dark {
+            --surface-1: linear-gradient(160deg, #020617 0%, #0b1220 45%, #111827 100%);
+            --surface-2: rgba(15, 23, 42, 0.92);
+            --surface-3: rgba(30, 41, 59, 0.78);
+            --border-soft: rgba(148, 163, 184, 0.24);
+            --text-primary: #f8fafc;
+            --text-secondary: rgba(226, 232, 240, 0.82);
+            --text-muted: rgba(148, 163, 184, 0.82);
+            --brand-cyan: #7dd3fc;
+            --nav-bg: rgba(15, 23, 42, 0.86);
+            --nav-bg-scrolled: rgba(2, 6, 23, 0.9);
+            --nav-border: rgba(148, 163, 184, 0.22);
+            --nav-border-scrolled: rgba(148, 163, 184, 0.3);
+            --footer-bg: rgba(2, 6, 23, 0.88);
+            --footer-border: rgba(148, 163, 184, 0.22);
+        }
         .text-muted {
             color: var(--text-muted) !important;
         }
         a { color: var(--brand-cyan); }
         a:hover { color: #7dd3fc; }
         .landing-navbar {
-            background: rgba(248, 250, 252, 0.9);
+            background: var(--nav-bg);
             backdrop-filter: blur(6px);
-            border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+            border-bottom: 1px solid var(--nav-border);
             position: sticky;
             top: 0;
             z-index: 1200;
             transition: background .3s ease, border-color .3s ease, box-shadow .3s ease;
         }
         .landing-navbar.is-scrolled {
-            background: rgba(255, 255, 255, 0.95);
-            border-bottom-color: rgba(15, 23, 42, 0.14);
+            background: var(--nav-bg-scrolled);
+            border-bottom-color: var(--nav-border-scrolled);
             box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
         }
         .navbar-brand {
             color: var(--text-primary) !important;
             letter-spacing: 0.18em;
         }
-        .nav-link { color: var(--text-secondary) !important; }
-        .nav-link:hover, .nav-link:focus { color: var(--text-primary) !important; }
+        .navbar-nav .nav-link {
+            color: var(--text-secondary) !important;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 0.45rem 0.9rem !important;
+            transition: color .25s ease, background-color .25s ease, transform .25s ease, padding .25s ease;
+        }
+        .navbar-nav .nav-link::after {
+            content: "";
+            position: absolute;
+            left: 0.9rem;
+            right: 0.9rem;
+            bottom: 0.28rem;
+            height: 2px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, var(--brand-blue), var(--brand-cyan));
+            transform: scaleX(0);
+            transform-origin: center;
+            transition: transform .25s ease;
+        }
+        .navbar-nav .nav-link:hover,
+        .navbar-nav .nav-link:focus {
+            color: var(--text-primary) !important;
+            background-color: rgba(37, 99, 235, 0.08);
+            transform: translateY(-1px);
+        }
+        .navbar-nav .nav-link:hover::after,
+        .navbar-nav .nav-link:focus::after {
+            transform: scaleX(1);
+        }
+        @media (min-width: 992px) {
+            .navbar-nav .nav-link:hover,
+            .navbar-nav .nav-link:focus {
+                padding-left: 1.2rem !important;
+                padding-right: 1.2rem !important;
+            }
+        }
         .btn-cta {
             background: linear-gradient(120deg, var(--brand-blue), var(--brand-blue-dark));
             border: none;
@@ -90,14 +149,164 @@
         .btn-cta:hover {
             background: linear-gradient(120deg, var(--brand-blue-dark), #1d4ed8);
         }
+        .btn-theme-toggle {
+            width: 42px;
+            height: 42px;
+            border-radius: 999px;
+            border: 1px solid var(--nav-border-scrolled);
+            color: var(--text-primary);
+            background: color-mix(in srgb, var(--surface-2) 92%, transparent);
+            padding: 0;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-theme-toggle:hover,
+        .btn-theme-toggle:focus {
+            color: var(--text-primary);
+            border-color: color-mix(in srgb, var(--brand-cyan) 60%, var(--nav-border-scrolled));
+        }
+        .btn-theme-toggle .theme-icon-sun,
+        .btn-theme-toggle .theme-icon-moon {
+            width: 18px;
+            height: 18px;
+            display: none;
+            fill: currentColor;
+        }
+        .btn-theme-toggle .theme-icon-sun {
+            display: inline-block;
+        }
+        .btn-theme-toggle.active .theme-icon-sun {
+            display: none;
+        }
+        .btn-theme-toggle.active .theme-icon-moon {
+            display: inline-block;
+        }
         main.container {
             padding-top: 4rem;
             padding-bottom: 5rem;
         }
         footer {
-            background: rgba(248, 250, 252, 0.95);
-            border-top: 1px solid rgba(15, 23, 42, 0.1);
+            background: var(--footer-bg);
+            border-top: 1px solid var(--footer-border);
             color: var(--text-muted);
+        }
+        .modal.fade .modal-dialog {
+            transform: scale(0.7);
+            opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+        }
+        .modal.show .modal-dialog {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .modal-login .modal-content {
+            background: var(--surface-2);
+            border: 1px solid color-mix(in srgb, var(--text-secondary) 20%, transparent);
+            border-radius: 16px;
+            box-shadow: 0 20px 40px color-mix(in srgb, var(--brand-blue) 25%, transparent);
+        }
+
+        .modal-login .modal-header {
+            padding: 1.5rem 2rem 1rem;
+            border-bottom: 1px solid color-mix(in srgb, var(--text-secondary) 15%, transparent);
+        }
+
+        .modal-login .modal-header img {
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-login .modal-title {
+            color: var(--text-primary);
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin-top: 0.5rem;
+        }
+
+        .modal-login .btn-close {
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+        }
+
+        .modal-login .btn-close:hover {
+            opacity: 1;
+        }
+
+        .modal-login .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-login .form-label {
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-bottom: 0.6rem;
+        }
+
+        .modal-login .form-control {
+            background: var(--surface-2);
+            border-radius: 12px;
+            border-color: color-mix(in srgb, var(--text-primary) 14%, transparent);
+            background: var(--surface-3);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .modal-login .form-control:focus {
+            background: var(--surface-2);
+            border-color: var(--brand-blue);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-blue) 20%, transparent);
+            color: var(--text-primary);
+        }
+
+        .modal-login .form-control::placeholder {
+            color: var(--text-muted);
+        }
+
+        .modal-login .btn {
+            border-radius: 10px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .modal-login .btn-primary {
+            background: var(--brand-blue);
+            border-color: var(--brand-blue);
+        }
+
+        .modal-login .btn-primary:hover {
+            background: color-mix(in srgb, var(--brand-blue) 90%, black);
+            border-color: color-mix(in srgb, var(--brand-blue) 90%, black);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px color-mix(in srgb, var(--brand-blue) 35%, transparent);
+        }
+
+        .modal-login .alert {
+            border-radius: 10px;
+            border: none;
+        }
+
+        .show-pass {
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+        }
+
+        .show-pass .hide {
+            display: none;
+        }
+
+        .show-pass:hover {
+            opacity: 1;
+        }
+
+        .modal-backdrop.show {
+            backdrop-filter: blur(7px);
+            background-color: rgba(15, 23, 42, 0.5);
         }
     </style>
     @stack('styles')
@@ -112,9 +321,18 @@
         <div class="collapse navbar-collapse" id="landingNav">
             <ul class="navbar-nav ms-auto gap-2 align-items-lg-center">
                 <li class="nav-item"><a class="nav-link" href="#fitur">Fitur</a></li>
-                <li class="nav-item"><a class="nav-link" href="#stok">Stok</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('assets.loanable') }}">Data Barang</a></li>
-                <li class="nav-item"><button class="btn btn-cta px-4" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button></li>
+                <li class="nav-item">
+                    <button class="btn btn-sm btn-theme-toggle" id="landingThemeToggle" type="button" aria-pressed="false" aria-label="Aktifkan mode gelap" title="Ganti mode">
+                        <svg class="theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 4a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V5a1 1 0 0 1 1-1zm0 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm8-6a1 1 0 0 1 0 2h-1a1 1 0 1 1 0-2h1zM6 12a1 1 0 0 1-1 1H4a1 1 0 1 1 0-2h1a1 1 0 0 1 1 1zm10.95-5.536a1 1 0 0 1 1.414 0l.707.707a1 1 0 0 1-1.414 1.414l-.707-.707a1 1 0 0 1 0-1.414zM5.93 17.364a1 1 0 0 1 1.414 0l.707.707A1 1 0 0 1 6.637 19.485l-.707-.707a1 1 0 0 1 0-1.414zm12.142 1.414a1 1 0 0 1-1.414 0l-.707-.707a1 1 0 0 1 1.414-1.414l.707.707a1 1 0 0 1 0 1.414zM7.344 8.586a1 1 0 1 1-1.414-1.414l.707-.707a1 1 0 1 1 1.414 1.414l-.707.707z"/>
+                        </svg>
+                        <svg class="theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M14.53 3.54a1 1 0 0 1 .99 1.27A7.5 7.5 0 1 0 19.2 14.5a1 1 0 0 1 1.27.99A9.5 9.5 0 1 1 13.54 2.8a1 1 0 0 1 .99.74z"/>
+                        </svg>
+                    </button>
+                </li>
+                <li class="nav-item"><button class="btn btn-cta px-4" type="button" data-login-trigger>Login</button></li>
             </ul>
         </div>
     </div>
@@ -128,9 +346,209 @@
     &copy; {{ now()->year }} SARPRAS PUSDATEKIN &ndash; Sarana Prasarana BPIP.
 </footer>
 
+<div class="modal fade modal-login" id="loginModalFallback" tabindex="-1" aria-labelledby="loginModalFallbackLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
+        <div class="modal-content">
+            <div class="modal-header border-0 position-relative text-center py-0" style="flex-direction: column;">
+                <button type="button" class="btn-close position-absolute end-0 top-0" data-bs-dismiss="modal" aria-label="Close" style="margin: 1.5rem;"></button>
+                <img src="{{ asset('evanto/assets/images/Logo Baju Pusdatin.png') }}" alt="SARPRAS" class="img-fluid" style="max-height:60px;" onerror="this.style.display='none'">
+                <h5 class="modal-title" id="loginModalFallbackLabel">Masuk Dashboard</h5>
+            </div>
+            <form method="POST" action="{{ route('login') }}" class="sarpras-login-form">
+                <div class="modal-body">
+                    @csrf
+
+                    @if (session('status'))
+                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                            {{ session('status') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    @if ($errors->any())
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <strong>Login Gagal!</strong>
+                            <ul class="mb-0 mt-2">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    <div class="mb-3">
+                        <label for="fallbackLogin" class="form-label"><strong>Email / Username</strong></label>
+                        <input id="fallbackLogin" type="text" name="login" class="form-control dz-username" placeholder="Masukkan username atau email anda" required autocomplete="username" autofocus>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fallbackPassword" class="form-label"><strong>Password</strong></label>
+                        <div class="position-relative">
+                            <input id="fallbackPassword" type="password" name="password" class="form-control dz-password" placeholder="Masukkan password anda" required autocomplete="current-password">
+                            <span class="show-pass position-absolute top-50 end-0 me-2 translate-middle-y" style="cursor: pointer;">
+                                <span class="show"><i class="fa fa-eye-slash"></i></span>
+                                <span class="hide"><i class="fa fa-eye"></i></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="remember" id="fallbackRemember">
+                        <label class="form-check-label" for="fallbackRemember">Ingat preferensi saya</label>
+                    </div>
+                </div>
+                <div class="px-4 pb-4 text-center">
+                    <button type="submit" class="btn btn-primary w-100 btn-lg mb-2">Masuk Sekarang</button>
+                    @if (Route::has('password.request'))
+                        <button type="button" class="btn btn-link small" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#forgotPasswordModalFallback">Lupa password?</button>
+                    @endif
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade modal-login" id="forgotPasswordModalFallback" tabindex="-1" aria-labelledby="forgotPasswordModalFallbackLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
+        <div class="modal-content">
+            <div class="modal-header border-0 position-relative text-center py-0" style="flex-direction: column;">
+                <button type="button" class="btn-close position-absolute end-0 top-0" data-bs-dismiss="modal" aria-label="Close" style="margin: 1.5rem;"></button>
+                <img src="{{ asset('evanto/assets/images/Logo Baju Pusdatin.png') }}" alt="SARPRAS" class="img-fluid" style="max-height:60px;" onerror="this.style.display='none'">
+                <h5 class="modal-title" id="forgotPasswordModalFallbackLabel">Lupa Password</h5>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-4">Masukkan email untuk menerima tautan reset password.</p>
+
+                @if (session('status'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ session('status') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                @if ($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Terjadi Kesalahan!</strong>
+                        <ul class="mb-0 mt-2">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                <form method="POST" action="{{ route('password.email') }}">
+                    @csrf
+                    <div class="form-group mb-4">
+                        <label class="form-label"><strong>Email</strong></label>
+                        <input id="fallbackEmail" type="email" class="form-control @error('email') is-invalid @enderror"
+                               name="email" value="{{ old('email') }}" required autofocus placeholder="Masukkan email anda">
+                        @error('email')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 btn-lg mb-2">Kirim Tautan Reset</button>
+                    <div class="text-center">
+                        <button type="button" class="btn btn-link small" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#loginModalFallback">Kembali ke login</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     (function () {
+        const THEME_KEY = 'sarpras-landing-theme';
+        const themeToggle = document.getElementById('landingThemeToggle');
+
+        const getCookie = (name) => {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) {
+                return parts.pop().split(';').shift();
+            }
+            return null;
+        };
+
+        const setTheme = (theme) => {
+            const isDark = theme === 'dark';
+            document.body.classList.toggle('theme-dark', isDark);
+            document.body.setAttribute('data-theme-version', isDark ? 'dark' : 'light');
+            if (themeToggle) {
+                themeToggle.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+                themeToggle.classList.toggle('active', isDark);
+                themeToggle.setAttribute('aria-label', isDark ? 'Aktifkan mode terang' : 'Aktifkan mode gelap');
+                themeToggle.setAttribute('title', isDark ? 'Mode terang' : 'Mode gelap');
+            }
+        };
+
+        let initialTheme = 'light';
+        try {
+            initialTheme = localStorage.getItem(THEME_KEY) || null;
+        } catch (e) {
+            initialTheme = null;
+        }
+        if (!initialTheme) {
+            const cookieTheme = getCookie('version');
+            initialTheme = cookieTheme === 'dark' ? 'dark' : 'light';
+        }
+        setTheme(initialTheme);
+
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const nextTheme = document.body.classList.contains('theme-dark') ? 'light' : 'dark';
+                setTheme(nextTheme);
+                try {
+                    localStorage.setItem(THEME_KEY, nextTheme);
+                } catch (e) {
+                    // ignore storage failures
+                }
+                document.cookie = `version=${nextTheme}; path=/`;
+            });
+        }
+
+        const loginTrigger = document.querySelector('[data-login-trigger]');
+        const fallbackLoginModalEl = document.getElementById('loginModalFallback');
+        const fallbackModalInstance = (fallbackLoginModalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal)
+            ? bootstrap.Modal.getOrCreateInstance(fallbackLoginModalEl)
+            : null;
+
+        if (loginTrigger) {
+            loginTrigger.addEventListener('click', () => {
+                const loginModal = document.getElementById('loginModal');
+                if (loginModal && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    const modal = bootstrap.Modal.getOrCreateInstance(loginModal);
+                    modal.show();
+                    return;
+                }
+                if (fallbackModalInstance) {
+                    fallbackModalInstance.show();
+                }
+            });
+        }
+
+        document.querySelectorAll('.show-pass').forEach((el) => {
+            el.addEventListener('click', function () {
+                const passwordInput = this.closest('.position-relative')?.querySelector('input');
+                if (!passwordInput) {
+                    return;
+                }
+                const show = this.querySelector('.show');
+                const hide = this.querySelector('.hide');
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    if (show) show.style.display = 'none';
+                    if (hide) hide.style.display = 'inline';
+                } else {
+                    passwordInput.type = 'password';
+                    if (show) show.style.display = 'inline';
+                    if (hide) hide.style.display = 'none';
+                }
+            });
+        });
+
         const landingNav = document.querySelector('.landing-navbar');
         const handleScroll = () => {
             if (!landingNav) {
