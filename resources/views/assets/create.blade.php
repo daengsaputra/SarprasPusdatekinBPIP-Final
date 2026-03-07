@@ -54,6 +54,8 @@
 @endpush
 
 @section('content')
+<main class="content-body">
+<div class="container-fluid">
 <div class="d-flex justify-content-between align-items-start mb-4">
   <div>
     <p class="text-uppercase text-muted small mb-1" style="letter-spacing:0.25em;">Form Aset</p>
@@ -132,6 +134,8 @@
     <a href="{{ $cancelRoute }}" class="btn btn-light border">Batal</a>
   </div>
 </form>
+</div>
+</main>
 @endsection
 
 @push('scripts')
