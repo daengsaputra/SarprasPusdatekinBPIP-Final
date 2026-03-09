@@ -26,7 +26,7 @@
     <div style="font-size:11px">SARPRAS PUSDATEKIN</div>
     <img src="{{ public_path('images/logo-sarpras.svg') }}" alt="Logo" style="height:72px; margin:6px 0">
     <h1>BUKTI PEMINJAMAN BARANG</h1>
-    <h2>SARANA PRASARANA ASET PUSDATeKIN</h2>
+    <h2>SARANA PRASARANA ASET PUSDATEKIN</h2>
   </div>
 
   <table class="meta">

@@ -54,6 +54,10 @@
 
 @push('styles')
 <style>
+  body {
+    font-family: "Poppins", var(--bs-body-font-family, sans-serif);
+  }
+
   .hero-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -75,15 +79,21 @@
     border: 1px solid color-mix(in srgb, var(--brand-blue) 45%, transparent);
   }
   .hero-heading {
-    font-size: clamp(2.4rem, 5vw, 3.4rem);
+    font-size: clamp(1.9rem, 4vw, 2.7rem);
     font-weight: 700;
     color: var(--text-primary);
     letter-spacing: 0.02em;
+    line-height: 1.2;
   }
   .hero-subtext {
     color: var(--text-secondary);
     max-width: 520px;
-    font-size: 1.05rem;
+    font-size: 0.96rem;
+    line-height: 1.65;
+  }
+  .hero-grid .btn.btn-lg {
+    font-size: 0.95rem;
+    padding: 0.6rem 1.15rem !important;
   }
   .hero-image {
     position: relative;
@@ -141,30 +151,36 @@
     color: var(--text-secondary);
   }
   .badge-accent {
-    background: color-mix(in srgb, var(--brand-blue) 18%, transparent);
-    color: var(--brand-blue);
-    border: 1px solid color-mix(in srgb, var(--brand-blue) 35%, transparent);
+    background: color-mix(in srgb, var(--brand-blue) 14%, transparent);
+    color: color-mix(in srgb, var(--brand-blue) 78%, #1e293b);
+    border: 1px solid color-mix(in srgb, var(--brand-blue) 26%, transparent);
   }
 
   .section-panel {
-    background: var(--surface-2);
-    border: 1px solid color-mix(in srgb, var(--text-primary) 12%, transparent);
-    border-radius: 24px;
-    padding: 1.6rem;
-    box-shadow: 0 16px 40px color-mix(in srgb, var(--brand-blue) 14%, transparent);
+    background: linear-gradient(160deg, color-mix(in srgb, var(--surface-2) 96%, #ffffff) 0%, color-mix(in srgb, var(--surface-3) 86%, #ffffff) 100%);
+    border: 1px solid color-mix(in srgb, var(--text-primary) 10%, transparent);
+    border-radius: 20px;
+    padding: 1.3rem;
+    box-shadow: 0 14px 32px color-mix(in srgb, var(--brand-blue) 12%, transparent);
     height: 100%;
     color: var(--text-primary);
+    font-family: "Poppins", var(--bs-body-font-family, sans-serif);
   }
   .section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 0.8rem;
+  }
+  .section-header h5 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 0;
   }
   .scroll-list {
-    max-height: 340px;
+    max-height: 380px;
     overflow-y: auto;
-    padding-right: 0.5rem;
+    padding-right: 0.35rem;
   }
   .scroll-list::-webkit-scrollbar {
     width: 6px;
@@ -177,16 +193,17 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid color-mix(in srgb, var(--text-secondary) 35%, transparent);
+    gap: 0.75rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--text-secondary) 25%, transparent);
   }
   .asset-item:last-child {
     border-bottom: none;
   }
   .asset-thumb {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
     border: 1px solid color-mix(in srgb, var(--text-secondary) 30%, transparent);
     background: var(--surface-3);
     color: var(--brand-cyan);
@@ -209,54 +226,52 @@
   .asset-name {
     font-weight: 600;
     color: var(--text-primary);
+    font-size: 0.96rem;
+    line-height: 1.35;
   }
   .asset-meta {
     color: var(--text-secondary);
-    font-size: 0.9rem;
+    font-size: 0.84rem;
+    line-height: 1.45;
   }
   .asset-quantity {
-    background: rgba(34, 197, 94, 0.18);
-    color: #047857;
+    background: color-mix(in srgb, #22c55e 16%, transparent);
+    color: #166534;
     border-radius: 999px;
-    padding: 0.2rem 0.75rem;
+    padding: 0.28rem 0.8rem;
     font-weight: 600;
+    font-size: 0.88rem;
     white-space: nowrap;
   }
 
   .loan-card {
-    background: linear-gradient(
-      145deg,
-      color-mix(in srgb, var(--surface-2) 92%, transparent),
-      color-mix(in srgb, var(--surface-3) 80%, transparent)
-    );
-    border: 1px solid color-mix(in srgb, var(--brand-blue) 25%, transparent);
-    border-radius: 28px;
-    padding: 1.8rem;
-    box-shadow: 0 30px 60px color-mix(in srgb, var(--brand-blue) 16%, transparent);
+    background: linear-gradient(155deg, color-mix(in srgb, #ffffff 86%, var(--surface-2)) 0%, color-mix(in srgb, #f5f7fb 88%, var(--surface-3)) 100%);
+    border: 1px solid color-mix(in srgb, var(--brand-blue) 18%, transparent);
+    border-radius: 18px;
+    padding: 1rem;
+    box-shadow: 0 10px 26px color-mix(in srgb, var(--brand-blue) 11%, transparent);
     display: flex;
     flex-direction: column;
-    gap: 1.2rem;
+    gap: 0.85rem;
     position: relative;
     overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   }
-  .loan-card::after {
-    content: '';
-    position: absolute;
-    inset: 18px;
-    border-radius: 24px;
-    background: radial-gradient(
-      190px circle at top right,
-      color-mix(in srgb, var(--brand-cyan) 35%, transparent),
-      transparent 60%
-    );
-    pointer-events: none;
+  .loan-card:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--brand-blue) 34%, transparent);
+    box-shadow: 0 14px 30px color-mix(in srgb, var(--brand-blue) 14%, transparent);
   }
   .loan-card__header {
     display: flex;
     justify-content: space-between;
-    gap: 1.5rem;
+    gap: 0.9rem;
     position: relative;
     z-index: 1;
+    align-items: flex-start;
+  }
+  .loan-card__header > div:first-child {
+    min-width: 0;
   }
   .loan-card__borrower {
     display: flex;
@@ -271,28 +286,29 @@
     margin-top: 0.4rem;
   }
   .loan-label-inline {
-    font-size: 0.68rem;
+    font-size: 0.66rem;
     text-transform: uppercase;
     letter-spacing: 0.18em;
     color: color-mix(in srgb, var(--text-secondary) 85%, transparent);
     font-weight: 700;
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.32rem;
     display: inline-block;
   }
   .loan-title {
-    font-size: clamp(1.35rem, 2vw, 1.65rem);
+    font-size: clamp(1.05rem, 1.6vw, 1.2rem);
     font-weight: 700;
     color: var(--text-primary);
+    line-height: 1.3;
   }
   .loan-context-pill {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    padding: 0.45rem 1rem;
+    padding: 0.35rem 0.8rem;
     background: color-mix(in srgb, var(--brand-blue) 14%, transparent);
     color: var(--brand-blue);
     border-radius: 999px;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 600;
     max-width: 100%;
     white-space: nowrap;
@@ -304,32 +320,33 @@
     color: var(--brand-blue);
     border-radius: 999px;
     padding: 0.2rem 0.8rem;
-    font-size: 0.78rem;
+    font-size: 0.74rem;
     font-weight: 600;
   }
   .loan-head-stats {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 0.5rem;
+    gap: 0.4rem;
+    flex-shrink: 0;
   }
   .loan-quantity {
     background: color-mix(in srgb, var(--brand-cyan) 22%, transparent);
     color: color-mix(in srgb, var(--brand-blue) 75%, var(--text-primary));
     border-radius: 999px;
-    padding: 0.35rem 1.2rem;
+    padding: 0.32rem 0.95rem;
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     white-space: nowrap;
   }
   .loan-status-chip {
-    font-size: 0.65rem;
+    font-size: 0.76rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     border-radius: 999px;
-    padding: 0.25rem 1rem;
+    padding: 0.3rem 0.9rem;
     font-weight: 700;
-    background: rgba(16, 185, 129, 0.18);
+    background: color-mix(in srgb, #10b981 20%, transparent);
     color: #047857;
     white-space: nowrap;
   }
@@ -339,27 +356,40 @@
   }
   .loan-metadata-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 0.7rem;
     position: relative;
     z-index: 1;
   }
+  .loan-metadata-grid > div {
+    min-width: 0;
+  }
   .loan-label {
-    font-size: 0.74rem;
+    font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 0.16em;
     color: color-mix(in srgb, var(--text-secondary) 80%, transparent);
     font-weight: 700;
     display: block;
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.25rem;
   }
   .loan-value {
     color: var(--text-primary);
-    font-size: 1rem;
+    font-size: 0.96rem;
     font-weight: 700;
+    line-height: 1.45;
   }
   .loan-value--compact {
-    font-size: 0.9rem;
+    font-size: 0.84rem;
+    font-weight: 600;
+    line-height: 1.45;
+    display: block;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+  .loan-value--compact strong {
+    font-family: inherit;
     font-weight: 600;
   }
   .loan-muted {
@@ -372,21 +402,51 @@
     background: rgba(248, 113, 113, 0.15);
     color: #b91c1c;
     font-weight: 600;
-    font-size: 0.8rem;
+    font-size: 0.82rem;
     position: relative;
     z-index: 1;
+  }
+  .loan-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    position: relative;
+    z-index: 1;
+  }
+  .loan-proof-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.38rem 0.85rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--brand-blue) 35%, transparent);
+    background: color-mix(in srgb, var(--brand-blue) 10%, transparent);
+    color: color-mix(in srgb, var(--brand-blue) 78%, #1e293b);
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  .loan-proof-btn:hover,
+  .loan-proof-btn:focus {
+    background: color-mix(in srgb, var(--brand-blue) 18%, transparent);
+    border-color: color-mix(in srgb, var(--brand-blue) 50%, transparent);
+    color: var(--brand-blue-dark);
+    text-decoration: none;
   }
   .loan-meta-inline__dates {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
     align-items: center;
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     color: var(--text-primary);
   }
   .loan-meta-inline__dates span {
     display: inline-flex;
     align-items: baseline;
+    flex-wrap: wrap;
   }
   .loan-meta-inline__dates .loan-meta-sep {
     opacity: 0.45;
@@ -399,20 +459,148 @@
   .feature-card {
     background: var(--surface-2);
     border: 1px solid color-mix(in srgb, var(--text-primary) 12%, transparent);
-    border-radius: 18px;
-    padding: 1.6rem;
+    border-radius: 16px;
+    padding: 1.2rem;
     height: 100%;
     box-shadow: 0 16px 40px color-mix(in srgb, var(--brand-blue) 14%, transparent);
     display: flex;
     flex-direction: column;
-    gap: 0.8rem;
+    gap: 0.6rem;
   }
   .feature-title {
     font-weight: 700;
     color: var(--text-primary);
+    font-size: 1.02rem;
+    line-height: 1.35;
   }
   .feature-desc {
     color: var(--text-secondary);
+    font-size: 0.88rem;
+    line-height: 1.55;
+  }
+
+  body.theme-dark .section-panel {
+    background: linear-gradient(165deg, rgba(15, 23, 42, 0.94) 0%, rgba(17, 24, 39, 0.9) 100%);
+    border-color: rgba(148, 163, 184, 0.26);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.34);
+  }
+
+  body.theme-dark .section-header h5,
+  body.theme-dark .asset-name,
+  body.theme-dark .loan-title,
+  body.theme-dark .loan-value,
+  body.theme-dark .feature-title {
+    color: #f8fafc;
+  }
+
+  body.theme-dark .asset-meta,
+  body.theme-dark .feature-desc,
+  body.theme-dark .loan-meta-inline__dates,
+  body.theme-dark .loan-label,
+  body.theme-dark .loan-label-inline {
+    color: #94a3b8;
+  }
+
+  body.theme-dark .asset-item {
+    border-bottom-color: rgba(148, 163, 184, 0.18);
+  }
+
+  body.theme-dark .loan-card {
+    background: linear-gradient(155deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 41, 59, 0.86) 100%);
+    border-color: rgba(125, 211, 252, 0.24);
+    box-shadow: 0 12px 30px rgba(2, 6, 23, 0.42);
+  }
+
+  body.theme-dark .loan-card:hover {
+    border-color: rgba(125, 211, 252, 0.38);
+    box-shadow: 0 16px 34px rgba(2, 6, 23, 0.5);
+  }
+
+  body.theme-dark .loan-context-pill,
+  body.theme-dark .loan-unit,
+  body.theme-dark .loan-quantity,
+  body.theme-dark .badge-accent {
+    color: #bfdbfe;
+    background: rgba(59, 130, 246, 0.2);
+    border-color: rgba(96, 165, 250, 0.3);
+  }
+
+  body.theme-dark .asset-quantity {
+    color: #bbf7d0;
+    background: rgba(34, 197, 94, 0.22);
+  }
+
+  body.theme-dark .loan-status-chip {
+    color: #bbf7d0;
+    background: rgba(16, 185, 129, 0.24);
+  }
+
+  body.theme-dark .loan-status-chip.is-overdue {
+    color: #fecaca;
+    background: rgba(248, 113, 113, 0.24);
+  }
+
+  body.theme-dark .loan-proof-btn {
+    color: #bfdbfe;
+    background: rgba(59, 130, 246, 0.14);
+    border-color: rgba(96, 165, 250, 0.36);
+  }
+
+  body.theme-dark .loan-proof-btn:hover,
+  body.theme-dark .loan-proof-btn:focus {
+    color: #dbeafe;
+    background: rgba(59, 130, 246, 0.24);
+    border-color: rgba(147, 197, 253, 0.44);
+  }
+
+  body.theme-dark .feature-card {
+    background: rgba(15, 23, 42, 0.9);
+    border-color: rgba(148, 163, 184, 0.24);
+    box-shadow: 0 14px 32px rgba(2, 6, 23, 0.36);
+  }
+
+  @media (max-width: 991.98px) {
+    .section-panel {
+      padding: 1rem;
+    }
+
+    .loan-card {
+      padding: 0.85rem;
+      gap: 0.72rem;
+    }
+
+    .loan-card__header {
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+
+    .loan-head-stats {
+      align-items: flex-start;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+    }
+
+    .loan-meta-inline__dates {
+      font-size: 0.86rem;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .loan-value--compact {
+      font-size: 0.76rem;
+      line-height: 1.42;
+    }
+
+    .loan-meta-inline__dates {
+      font-size: 0.72rem;
+      gap: 0.35rem;
+    }
+
+    .loan-label {
+      font-size: 0.64rem;
+      letter-spacing: 0.12em;
+    }
   }
 
   /* Modal Login Styles */
@@ -539,7 +727,7 @@
 @section('content')
   <div class="hero-grid mb-5">
     <div>
-      <h1 class="hero-heading mt-3">Sarana Prasarana Pusdatekin BPIP</h1>
+      <h1 class="hero-heading mt-3">Sarpras Pusdatekin BPIP</h1>
       <p class="hero-subtext mt-3">
         Kelola kebutuhan sarana prasarana dengan cepat dan terarah. Pantau ketersediaan, ajukan peminjaman,
         dan dukung setiap kegiatan dengan fasilitas yang selalu siap digunakan.
@@ -618,13 +806,13 @@
                   @if(!empty($loan->activity))
                     <div class="loan-context">
                       <span class="loan-label-inline">Nama Kegiatan</span>
-                      <span class="loan-context-pill">{{ \Illuminate\Support\Str::limit($loan->activity, 140) }}</span>
+                      <span class="loan-context-pill">{{ \Illuminate\Support\Str::limit($loan->activity, 40) }}</span>
                     </div>
                   @endif
                 </div>
                 <div class="loan-head-stats">
                   <span class="loan-quantity">{{ (int) ($loan->total_quantity ?? 0) }} unit</span>
-                  <span class="loan-status-chip {{ $overdue ? 'is-overdue' : '' }}">{{ $overdue ? 'Perlu perhatian' : 'On track' }}</span>
+                  <span class="loan-status-chip {{ $overdue ? 'is-overdue' : '' }}">{{ $overdue ? 'Perlu perhatian' : 'Sedang Dipinjam' }}</span>
                 </div>
               </div>
               <div class="loan-metadata-grid">
@@ -642,6 +830,13 @@
               </div>
               @if($loan->late_days > 0)
                 <div class="loan-alert">Terlambat {{ $loan->late_days }} hari</div>
+              @endif
+              @if(!empty($loan->batch_code))
+                <div class="loan-actions">
+                  <a href="{{ route('loans.receipt', ['batch' => $loan->batch_code, 'preview' => 1]) }}" target="_blank" rel="noopener" class="loan-proof-btn">
+                    Bukti Pinjam
+                  </a>
+                </div>
               @endif
             </article>
           @empty

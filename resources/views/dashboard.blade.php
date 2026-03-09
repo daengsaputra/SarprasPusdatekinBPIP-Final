@@ -683,7 +683,7 @@
             <div class="dashboard-welcome row g-3 align-items-center">
                 <div class="col-lg-8 col-xl-8">
                     <div class="dashboard-welcome__title">Selamat Datang, {{ auth()->user()->name ?? 'User' }}!</div>
-                    <div class="dashboard-welcome__subtitle">Sistem Sarana dan Prasarana Pusdatekin BPIP (SARPRAS PUSDATEKIN BPIP) - Dashboard Utama</div>
+                    <div class="dashboard-welcome__subtitle">Sistem SARPRAS PUSDATEKIN BPIP</div>
                     <div class="dashboard-welcome__hint">
                         <i class="fas fa-bolt"></i>
                         Ringkasan cepat aktivitas sarpras

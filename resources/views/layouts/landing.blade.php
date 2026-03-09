@@ -149,39 +149,85 @@
         .btn-cta:hover {
             background: linear-gradient(120deg, var(--brand-blue-dark), #1d4ed8);
         }
-        .btn-theme-toggle {
-            width: 42px;
-            height: 42px;
+        .landing-theme-toggle {
+            align-items: center;
+            background: linear-gradient(180deg, #f9fbff 0%, #e9edf6 100%);
+            border: 1px solid rgba(148, 163, 184, 0.45);
             border-radius: 999px;
-            border: 1px solid var(--nav-border-scrolled);
-            color: var(--text-primary);
-            background: color-mix(in srgb, var(--surface-2) 92%, transparent);
-            padding: 0;
-            line-height: 1;
+            color: #111827 !important;
+            display: inline-flex;
+            height: 42px;
+            justify-content: center;
+            padding: 0 !important;
+            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            transition: background-color .25s ease, color .25s ease, border-color .25s ease, box-shadow .25s ease;
+            width: 42px;
+        }
+        .landing-theme-toggle::after {
+            display: none !important;
+        }
+        .landing-theme-toggle:hover,
+        .landing-theme-toggle:focus {
+            background: linear-gradient(180deg, #ffffff 0%, #eef2f9 100%);
+            border-color: rgba(125, 211, 252, 0.55);
+            box-shadow: 0 6px 14px rgba(37, 99, 235, 0.2);
+            color: #111827 !important;
+            transform: none;
+        }
+        .landing-theme-toggle #icon-light,
+        .landing-theme-toggle #icon-dark {
             display: inline-flex;
             align-items: center;
             justify-content: center;
         }
-        .btn-theme-toggle:hover,
-        .btn-theme-toggle:focus {
-            color: var(--text-primary);
-            border-color: color-mix(in srgb, var(--brand-cyan) 60%, var(--nav-border-scrolled));
-        }
-        .btn-theme-toggle .theme-icon-sun,
-        .btn-theme-toggle .theme-icon-moon {
-            width: 18px;
-            height: 18px;
+        .landing-theme-toggle #icon-dark {
             display: none;
+        }
+        .landing-theme-toggle.active {
+            background: linear-gradient(180deg, #1f2937 0%, #111827 100%);
+            border-color: rgba(148, 163, 184, 0.3);
+            box-shadow: 0 6px 14px rgba(2, 6, 23, 0.35), inset 0 1px 0 rgba(148, 163, 184, 0.2);
+            color: #ffffff !important;
+        }
+
+        .landing-theme-toggle.active:hover,
+        .landing-theme-toggle.active:focus {
+            background: linear-gradient(180deg, #374151 0%, #1f2937 100%);
+            color: #ffffff !important;
+        }
+        .landing-theme-toggle.active #icon-light {
+            display: none;
+        }
+        .landing-theme-toggle.active #icon-dark {
+            display: inline-flex;
+        }
+        .landing-theme-toggle svg {
             fill: currentColor;
+            height: 18px;
+            width: 18px;
         }
-        .btn-theme-toggle .theme-icon-sun {
-            display: inline-block;
+        .landing-nav-menu {
+            column-gap: 0;
         }
-        .btn-theme-toggle.active .theme-icon-sun {
-            display: none;
+        .landing-nav-item-main + .landing-nav-item-main {
+            margin-inline-start: 0.1rem;
         }
-        .btn-theme-toggle.active .theme-icon-moon {
-            display: inline-block;
+        .landing-nav-item-main .nav-link {
+            padding-left: 0.72rem !important;
+            padding-right: 0.72rem !important;
+        }
+        .landing-nav-item-toggle {
+            margin-inline-start: 0.3rem;
+        }
+        .landing-nav-item-login {
+            margin-inline-start: 1.05rem;
+        }
+        @media (max-width: 991.98px) {
+            .landing-nav-item-main + .landing-nav-item-main,
+            .landing-nav-item-toggle,
+            .landing-nav-item-login {
+                margin-inline-start: 0;
+            }
         }
         main.container {
             padding-top: 4rem;
@@ -319,20 +365,24 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="landingNav">
-            <ul class="navbar-nav ms-auto gap-2 align-items-lg-center">
-                <li class="nav-item"><a class="nav-link" href="#fitur">Fitur</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ route('assets.loanable') }}">Data Barang</a></li>
-                <li class="nav-item">
-                    <button class="btn btn-sm btn-theme-toggle" id="landingThemeToggle" type="button" aria-pressed="false" aria-label="Aktifkan mode gelap" title="Ganti mode">
-                        <svg class="theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M12 4a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V5a1 1 0 0 1 1-1zm0 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm8-6a1 1 0 0 1 0 2h-1a1 1 0 1 1 0-2h1zM6 12a1 1 0 0 1-1 1H4a1 1 0 1 1 0-2h1a1 1 0 0 1 1 1zm10.95-5.536a1 1 0 0 1 1.414 0l.707.707a1 1 0 0 1-1.414 1.414l-.707-.707a1 1 0 0 1 0-1.414zM5.93 17.364a1 1 0 0 1 1.414 0l.707.707A1 1 0 0 1 6.637 19.485l-.707-.707a1 1 0 0 1 0-1.414zm12.142 1.414a1 1 0 0 1-1.414 0l-.707-.707a1 1 0 0 1 1.414-1.414l.707.707a1 1 0 0 1 0 1.414zM7.344 8.586a1 1 0 1 1-1.414-1.414l.707-.707a1 1 0 1 1 1.414 1.414l-.707.707z"/>
-                        </svg>
-                        <svg class="theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M14.53 3.54a1 1 0 0 1 .99 1.27A7.5 7.5 0 1 0 19.2 14.5a1 1 0 0 1 1.27.99A9.5 9.5 0 1 1 13.54 2.8a1 1 0 0 1 .99.74z"/>
-                        </svg>
-                    </button>
+            <ul class="navbar-nav ms-auto align-items-lg-center landing-nav-menu">
+                <li class="nav-item landing-nav-item-main"><a class="nav-link" href="#fitur">Fitur</a></li>
+                <li class="nav-item landing-nav-item-main"><a class="nav-link" href="{{ route('assets.loanable') }}">Data Barang</a></li>
+                <li class="nav-item landing-nav-item-toggle">
+                    <a class="nav-link bell dz-theme-mode landing-theme-toggle" id="landingThemeToggle" href="javascript:void(0);" aria-pressed="false" aria-label="Aktifkan mode gelap" title="Ganti mode">
+                        <span id="icon-light" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 4a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V5a1 1 0 0 1 1-1zm0 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm8-6a1 1 0 0 1 0 2h-1a1 1 0 1 1 0-2h1zM6 12a1 1 0 0 1-1 1H4a1 1 0 1 1 0-2h1a1 1 0 0 1 1 1zm10.95-5.536a1 1 0 0 1 1.414 0l.707.707a1 1 0 0 1-1.414 1.414l-.707-.707a1 1 0 0 1 0-1.414zM5.93 17.364a1 1 0 0 1 1.414 0l.707.707A1 1 0 0 1 6.637 19.485l-.707-.707a1 1 0 0 1 0-1.414zm12.142 1.414a1 1 0 0 1-1.414 0l-.707-.707a1 1 0 0 1 1.414-1.414l.707.707a1 1 0 0 1 0 1.414zM7.344 8.586a1 1 0 1 1-1.414-1.414l.707-.707a1 1 0 1 1 1.414 1.414l-.707.707z"/>
+                            </svg>
+                        </span>
+                        <span id="icon-dark" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M14.53 3.54a1 1 0 0 1 .99 1.27A7.5 7.5 0 1 0 19.2 14.5a1 1 0 0 1 1.27.99A9.5 9.5 0 1 1 13.54 2.8a1 1 0 0 1 .99.74z"/>
+                            </svg>
+                        </span>
+                    </a>
                 </li>
-                <li class="nav-item"><button class="btn btn-cta px-4" type="button" data-login-trigger>Login</button></li>
+                <li class="nav-item landing-nav-item-login"><button class="btn btn-cta px-4" type="button" data-login-trigger>Login</button></li>
             </ul>
         </div>
     </div>
