@@ -25,6 +25,11 @@ Route::get('/assets/loanable', [AssetController::class, 'loanable'])
     ->middleware('page.enabled:assets_loanable')
     ->name('assets.loanable');
 
+// Public route: bukti peminjaman dapat dilihat dari halaman utama tanpa login
+Route::get('/loans/receipt/{batch}', [LoanController::class, 'receipt'])
+    ->middleware('page.enabled:loans')
+    ->name('loans.receipt');
+
 Route::middleware('auth')->group(function () {
     // Halaman dashboard
     Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
@@ -50,7 +55,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/loans/{loan}', [LoanController::class, 'destroy'])->middleware('page.enabled:loans')->name('loans.destroy');
     Route::get('/loans/{loan}/return', [LoanController::class, 'returnForm'])->middleware('page.enabled:loans')->name('loans.return.form');
     Route::put('/loans/{loan}/return', [LoanController::class, 'returnUpdate'])->middleware('page.enabled:loans')->name('loans.return.update');
-    Route::get('/loans/receipt/{batch}', [LoanController::class, 'receipt'])->middleware('page.enabled:loans')->name('loans.receipt');
     Route::get('/loans/{loan}/return-receipt', [LoanController::class, 'returnReceipt'])->middleware('page.enabled:loans')->name('loans.return.receipt');
 
     // Routes laporan (gabungan)

@@ -322,16 +322,17 @@ class LoanController extends Controller
             'return_date_actual' => 'required|date|after_or_equal:' . $loan->loan_date->format('Y-m-d'),
             'return_quantity' => 'required|integer|min:1|max:' . $maxReturnable,
             'notes' => 'nullable|string',
-            'return_photo' => array_merge(['required'], $this->attachmentItemRule()),
+            'return_photo' => $this->attachmentArrayRule(true),
+            'return_photo.*' => $this->attachmentItemRule(),
         ]);
 
-        $returnPhotoPath = null;
+        $returnPhotoPaths = [];
         $previousReturnPhoto = $loan->return_photo_path;
 
         try {
-            $returnPhotoPath = $this->storeAttachment($request->file('return_photo'), 'loan-returns');
+            $returnPhotoPaths = $this->storeAttachments($request->file('return_photo'), 'loan-returns');
 
-            DB::transaction(function () use ($loan, $validated, $returnPhotoPath) {
+            DB::transaction(function () use ($loan, $validated, $returnPhotoPaths) {
             $loan->refresh();
             $outs = $loan->quantity_remaining;
             if ($outs <= 0) {
@@ -347,7 +348,7 @@ class LoanController extends Controller
                 'status' => $remaining === 0 ? 'returned' : 'partial',
                 'return_date_actual' => $remaining === 0 ? $validated['return_date_actual'] : $loan->return_date_actual,
                 'notes' => $validated['notes'] ?? $loan->notes,
-                'return_photo_path' => $returnPhotoPath ?? $loan->return_photo_path,
+                'return_photo_path' => !empty($returnPhotoPaths) ? json_encode($returnPhotoPaths) : $loan->return_photo_path,
             ]);
 
             $asset = Asset::whereKey($loan->asset_id)->lockForUpdate()->first();
@@ -359,11 +360,11 @@ class LoanController extends Controller
             }
         });
         } catch (\Throwable $e) {
-            $this->deleteAttachment($returnPhotoPath);
+            $this->deleteAttachment($returnPhotoPaths);
             throw $e;
         }
 
-        if ($returnPhotoPath && $previousReturnPhoto && $previousReturnPhoto !== $returnPhotoPath) {
+        if (!empty($returnPhotoPaths) && $previousReturnPhoto) {
             $this->deleteAttachment($previousReturnPhoto);
         }
 
@@ -384,9 +385,9 @@ class LoanController extends Controller
 
         $first = $items->first();
         $attachments = [
-            'ND / Helpdesk' => $this->parseAttachmentPaths($first->request_photo_path)[0] ?? null,
-            'Serah Terima' => $this->parseAttachmentPaths($first->loan_photo_path)[0] ?? null,
-            'Pengembalian' => $this->parseAttachmentPaths($first->return_photo_path)[0] ?? null,
+            'ND / Helpdesk' => $this->parseAttachmentPaths($first->request_photo_path),
+            'Serah Terima' => $this->parseAttachmentPaths($first->loan_photo_path),
+            'Pengembalian' => $this->parseAttachmentPaths($first->return_photo_path),
         ];
 
         $data = [
