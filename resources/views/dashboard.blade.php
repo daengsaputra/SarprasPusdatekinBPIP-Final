@@ -671,13 +671,124 @@
             max-width: 50%;
         }
     }
+    .dashboard-refresh-toast {
+        position: fixed;
+        right: 18px;
+        bottom: 18px;
+        z-index: 1090;
+        border-radius: 10px;
+        padding: 0.6rem 0.8rem;
+        font-size: 0.83rem;
+        font-weight: 600;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+        opacity: 0;
+        transform: translateY(10px);
+        pointer-events: none;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        max-width: min(360px, calc(100vw - 32px));
+    }
+    .dashboard-refresh-toast.is-success {
+        background: #dcfce7;
+        color: #166534;
+        border: 1px solid #86efac;
+    }
+    .dashboard-refresh-toast.is-error {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fca5a5;
+    }
+    .dashboard-refresh-toast.is-show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    body[data-theme="dark"] .dashboard-refresh-toast,
+    body[data-theme-version="dark"] .dashboard-refresh-toast,
+    body.theme-dark .dashboard-refresh-toast {
+        box-shadow: 0 10px 24px rgba(2, 6, 23, 0.5);
+    }
+    body[data-theme="dark"] .dashboard-refresh-toast.is-success,
+    body[data-theme-version="dark"] .dashboard-refresh-toast.is-success,
+    body.theme-dark .dashboard-refresh-toast.is-success {
+        background: rgba(20, 83, 45, 0.92);
+        color: #bbf7d0;
+        border-color: rgba(74, 222, 128, 0.5);
+    }
+    body[data-theme="dark"] .dashboard-refresh-toast.is-error,
+    body[data-theme-version="dark"] .dashboard-refresh-toast.is-error,
+    body.theme-dark .dashboard-refresh-toast.is-error {
+        background: rgba(127, 29, 29, 0.92);
+        color: #fecaca;
+        border-color: rgba(248, 113, 113, 0.5);
+    }
 </style>
 @endpush
 
 @section('title', 'Dashboard')
 
 @section('content')
+@php
+    $periodStart = now()->copy()->startOfMonth();
+    $periodEnd = now()->copy()->endOfDay();
+
+    $dayKeys = collect(range(0, $periodStart->diffInDays($periodEnd)))
+        ->map(fn ($offset) => $periodStart->copy()->addDays($offset)->format('Y-m-d'));
+
+    $dayLabels = $dayKeys
+        ->map(function ($key) {
+            try {
+                return \Carbon\Carbon::createFromFormat('Y-m-d', $key)->translatedFormat('d M');
+            } catch (\Throwable $e) {
+                return $key;
+            }
+        })
+        ->values();
+
+    $petugasNames = \App\Models\User::query()
+        ->where('role', \App\Models\User::ROLE_PETUGAS)
+        ->pluck('name')
+        ->filter(fn ($name) => !empty($name))
+        ->values();
+
+    $petugasLoanRows = \App\Models\Loan::query()
+        ->selectRaw("DATE(loan_date) as day_key, borrower_name, COUNT(*) as total")
+        ->whereBetween('loan_date', [$periodStart->toDateString(), $periodEnd->toDateString()])
+        ->whereNotNull('borrower_name')
+        ->when($petugasNames->isNotEmpty(), fn ($query) => $query->whereIn('borrower_name', $petugasNames))
+        ->groupBy('day_key', 'borrower_name')
+        ->get();
+
+    $topPetugas = $petugasLoanRows
+        ->groupBy('borrower_name')
+        ->map(fn ($rows) => (int) $rows->sum('total'))
+        ->sortDesc()
+        ->keys()
+        ->take(6)
+        ->values();
+
+    if ($topPetugas->isEmpty() && $petugasNames->isNotEmpty()) {
+        $topPetugas = $petugasNames->take(6)->values();
+    }
+
+    $petugasMonthlySeries = $topPetugas->map(function ($petugas) use ($dayKeys, $petugasLoanRows) {
+        return [
+            'name' => $petugas,
+            'data' => $dayKeys
+                ->map(function ($dayKey) use ($petugas, $petugasLoanRows) {
+                    $row = $petugasLoanRows->first(function ($item) use ($petugas, $dayKey) {
+                        return $item->borrower_name === $petugas && $item->day_key === $dayKey;
+                    });
+
+                    return (int) ($row->total ?? 0);
+                })
+                ->values()
+                ->all(),
+        ];
+    })->values();
+
+    $petugasMonthlyGrandTotal = (int) $petugasLoanRows->sum('total');
+@endphp
 <main class="content-body">
+    <div id="petugasMonthlyToast" class="dashboard-refresh-toast" aria-live="polite" role="status"></div>
     <div class="container-fluid">
         <div class="dashboard-shell">
             <div class="dashboard-welcome row g-3 align-items-center">
@@ -871,6 +982,36 @@
 
             <!-- Content Row -->
             <div class="row dashboard-content-row">
+            <div class="col-12">
+                <div class="card dashboard-panel">
+                    <div class="card-header d-sm-flex d-block pb-0 border-0">
+                        <div class="me-auto pe-3 mb-sm-0 mb-3">
+                            <h4 class="text-black fs-20 font-w600">Grafik Peminjaman Petugas (Bulan Berjalan)</h4>
+                            <p class="fs-13 mb-0">Periode {{ $periodStart->translatedFormat('d M Y') }} - {{ $periodEnd->translatedFormat('d M Y') }}.</p>
+                        </div>
+                        <div class="mb-3 d-flex gap-2 flex-wrap">
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="petugasMonthlyRefreshBtn">
+                                <i class="fas fa-rotate-right me-1"></i> Refresh
+                            </button>
+                            <span class="badge light badge-primary" id="petugasMonthlyTotalBadge">Total: {{ number_format($petugasMonthlyGrandTotal, 0, ',', '.') }}</span>
+                            <span class="badge light badge-info" id="petugasMonthlyCountBadge">Petugas tampil: {{ $petugasMonthlySeries->count() }}</span>
+                            <span class="badge light badge-secondary" id="petugasMonthlyUpdatedBadge">Update: -</span>
+                        </div>
+                    </div>
+                    <div class="card-body pt-0">
+                        @if($petugasMonthlySeries->isEmpty())
+                            <p class="text-muted mb-0">Belum ada data peminjaman petugas pada periode ini.</p>
+                        @else
+                            <div
+                                id="chartPetugasMonthlyLoan"
+                                data-labels='@json($dayLabels)'
+                                data-series='@json($petugasMonthlySeries)'
+                                data-endpoint="{{ route('dashboard.chart.petugas-monthly') }}"
+                            ></div>
+                        @endif
+                    </div>
+                </div>
+            </div>
             <div class="col-lg-6 col-xl-6 col-xxl-6 dashboard-side-col">
                 <div class="card dashboard-panel dashboard-panel--menu">
                     <div class="card-header border-0 pb-0">
@@ -997,6 +1138,243 @@
                 viewport.scrollBy({ left: dir * scrollAmount, behavior: 'smooth' });
             });
         });
+    })();
+
+    (function () {
+        const chartEl = document.getElementById('chartPetugasMonthlyLoan');
+        if (!chartEl || typeof ApexCharts === 'undefined') return;
+
+        const totalBadgeEl = document.getElementById('petugasMonthlyTotalBadge');
+        const countBadgeEl = document.getElementById('petugasMonthlyCountBadge');
+        const updatedBadgeEl = document.getElementById('petugasMonthlyUpdatedBadge');
+        const refreshBtnEl = document.getElementById('petugasMonthlyRefreshBtn');
+        const refreshToastEl = document.getElementById('petugasMonthlyToast');
+        const endpoint = chartEl.dataset.endpoint || '';
+        const refreshIntervalMs = 30000;
+
+        const idFormatter = new Intl.NumberFormat('id-ID');
+        const updatedAtFormatter = new Intl.DateTimeFormat('id-ID', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false,
+        });
+
+        let labels = [];
+        let series = [];
+        let refreshToastTimer = null;
+
+        try {
+            labels = JSON.parse(chartEl.dataset.labels || '[]');
+            series = JSON.parse(chartEl.dataset.series || '[]');
+        } catch (e) {
+            labels = [];
+            series = [];
+        }
+
+        if (!Array.isArray(labels) || !labels.length || !Array.isArray(series) || !series.length) return;
+
+        chartEl.innerHTML = '';
+
+        if (window.petugasMonthlyLoanChart && typeof window.petugasMonthlyLoanChart.destroy === 'function') {
+            window.petugasMonthlyLoanChart.destroy();
+        }
+
+        window.petugasMonthlyLoanChart = new ApexCharts(chartEl, {
+            series: series,
+            chart: {
+                type: 'bar',
+                height: 330,
+                stacked: false,
+                toolbar: { show: false },
+                zoom: { enabled: false }
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: '52%',
+                    borderRadius: 4,
+                }
+            },
+            dataLabels: { enabled: false },
+            stroke: {
+                show: true,
+                width: 1,
+                colors: ['transparent']
+            },
+            xaxis: {
+                categories: labels,
+            },
+            yaxis: {
+                min: 0,
+                forceNiceScale: true,
+                labels: {
+                    formatter: function (val) { return Math.round(val); }
+                }
+            },
+            legend: {
+                position: 'top',
+                horizontalAlign: 'left'
+            },
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                        return val + ' ticket';
+                    }
+                }
+            },
+            grid: {
+                borderColor: '#e2e8f0',
+                strokeDashArray: 4,
+            }
+        });
+
+        window.petugasMonthlyLoanChart.render();
+
+        function applyBadgeTotals(payload) {
+            if (totalBadgeEl && typeof payload.grand_total === 'number') {
+                totalBadgeEl.textContent = 'Total: ' + idFormatter.format(payload.grand_total);
+            }
+
+            if (countBadgeEl && typeof payload.officer_count === 'number') {
+                countBadgeEl.textContent = 'Petugas tampil: ' + idFormatter.format(payload.officer_count);
+            }
+
+            if (updatedBadgeEl) {
+                if (payload.generated_at) {
+                    const generatedAtDate = new Date(payload.generated_at);
+                    if (!Number.isNaN(generatedAtDate.getTime())) {
+                        updatedBadgeEl.textContent = 'Update: ' + updatedAtFormatter.format(generatedAtDate).replace('.', ':');
+                    }
+                }
+            }
+        }
+
+        function isValidPayload(payload) {
+            return payload
+                && Array.isArray(payload.labels)
+                && Array.isArray(payload.series)
+                && payload.labels.length > 0
+                && payload.series.length > 0;
+        }
+
+        function showRefreshToast(message, type) {
+            if (!refreshToastEl) return;
+
+            refreshToastEl.textContent = message;
+            refreshToastEl.classList.remove('is-success', 'is-error', 'is-show');
+            refreshToastEl.classList.add(type === 'error' ? 'is-error' : 'is-success');
+
+            requestAnimationFrame(function () {
+                refreshToastEl.classList.add('is-show');
+            });
+
+            if (refreshToastTimer) {
+                clearTimeout(refreshToastTimer);
+            }
+
+            refreshToastTimer = setTimeout(function () {
+                refreshToastEl.classList.remove('is-show');
+            }, 2600);
+        }
+
+        async function refreshChartData(options) {
+            if (!endpoint) return;
+
+            const opts = Object.assign({
+                manual: false,
+                notify: false,
+            }, options || {});
+
+            if (refreshBtnEl && opts.manual) {
+                refreshBtnEl.disabled = true;
+                refreshBtnEl.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Memuat...';
+            }
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'same-origin',
+                    cache: 'no-store'
+                });
+
+                if (!response.ok) {
+                    if (opts.notify) {
+                        showRefreshToast('Gagal memperbarui grafik. Coba lagi.', 'error');
+                    }
+                    return;
+                }
+
+                const payload = await response.json();
+                if (!isValidPayload(payload)) {
+                    if (opts.notify) {
+                        showRefreshToast('Data grafik tidak valid.', 'error');
+                    }
+                    return;
+                }
+
+                if (window.petugasMonthlyLoanChart && typeof window.petugasMonthlyLoanChart.updateOptions === 'function') {
+                    window.petugasMonthlyLoanChart.updateOptions({ xaxis: { categories: payload.labels } }, false, true);
+                }
+
+                if (window.petugasMonthlyLoanChart && typeof window.petugasMonthlyLoanChart.updateSeries === 'function') {
+                    window.petugasMonthlyLoanChart.updateSeries(payload.series, true);
+                }
+
+                applyBadgeTotals(payload);
+
+                if (opts.notify) {
+                    showRefreshToast('Grafik berhasil diperbarui.', 'success');
+                }
+            } catch (e) {
+                if (opts.notify) {
+                    showRefreshToast('Terjadi kendala saat memperbarui grafik.', 'error');
+                }
+            } finally {
+                if (refreshBtnEl && opts.manual) {
+                    refreshBtnEl.disabled = false;
+                    refreshBtnEl.innerHTML = '<i class="fas fa-rotate-right me-1"></i> Refresh';
+                }
+            }
+        }
+
+        let refreshTimer = null;
+
+        function startPolling() {
+            if (refreshTimer !== null) return;
+            refreshTimer = setInterval(refreshChartData, refreshIntervalMs);
+        }
+
+        function stopPolling() {
+            if (refreshTimer === null) return;
+            clearInterval(refreshTimer);
+            refreshTimer = null;
+        }
+
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden) {
+                stopPolling();
+            } else {
+                refreshChartData();
+                startPolling();
+            }
+        });
+
+        if (refreshBtnEl) {
+            refreshBtnEl.addEventListener('click', function () {
+                refreshChartData({ manual: true, notify: true });
+            });
+        }
+
+        refreshChartData();
+        startPolling();
     })();
 </script>
 @endpush

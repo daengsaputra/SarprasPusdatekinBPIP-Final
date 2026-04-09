@@ -21,6 +21,10 @@
 @push('styles')
 <style>
   .super-admin-shell { display:flex; flex-direction:column; gap:1rem; }
+  .super-admin-page {
+    --sa-surface:#ffffff;
+    --sa-surface-soft:#f8fafc;
+  }
   .super-admin-card {
     background:#fff;
     border:1px solid rgba(148,163,184,0.18);
@@ -147,13 +151,107 @@
   }
   .hero-variant-swatch.is-ocean { background: linear-gradient(125deg, #2563eb, #e0f2fe 68%); }
   .hero-variant-swatch.is-slate { background: linear-gradient(125deg, #475569, #f1f5f9 68%); }
+  body[data-theme="dark"] .super-admin-page,
+  body[data-theme-version="dark"] .super-admin-page,
+  body.theme-dark .super-admin-page {
+    --sa-surface:rgba(15, 23, 42, 0.88);
+    --sa-surface-soft:rgba(15, 23, 42, 0.64);
+  }
+  body[data-theme="dark"] .super-admin-card,
+  body[data-theme-version="dark"] .super-admin-card,
+  body.theme-dark .super-admin-card {
+    background:var(--sa-surface);
+    border-color:rgba(71, 85, 105, 0.55);
+    box-shadow:0 18px 38px rgba(2, 6, 23, 0.42);
+  }
+  body[data-theme="dark"] .super-admin-card h4,
+  body[data-theme-version="dark"] .super-admin-card h4,
+  body.theme-dark .super-admin-card h4,
+  body[data-theme="dark"] .super-admin-card h5,
+  body[data-theme-version="dark"] .super-admin-card h5,
+  body.theme-dark .super-admin-card h5,
+  body[data-theme="dark"] .super-admin-card .form-label,
+  body[data-theme-version="dark"] .super-admin-card .form-label,
+  body.theme-dark .super-admin-card .form-label,
+  body[data-theme="dark"] .super-admin-card .fw-semibold,
+  body[data-theme-version="dark"] .super-admin-card .fw-semibold,
+  body.theme-dark .super-admin-card .fw-semibold,
+  body[data-theme="dark"] .role-access-table thead th,
+  body[data-theme-version="dark"] .role-access-table thead th,
+  body.theme-dark .role-access-table thead th,
+  body[data-theme="dark"] .role-access-table tbody td,
+  body[data-theme-version="dark"] .role-access-table tbody td,
+  body.theme-dark .role-access-table tbody td {
+    color:#e2e8f0 !important;
+  }
+  body[data-theme="dark"] .super-admin-card .text-muted,
+  body[data-theme-version="dark"] .super-admin-card .text-muted,
+  body.theme-dark .super-admin-card .text-muted,
+  body[data-theme="dark"] .super-admin-card .form-text,
+  body[data-theme-version="dark"] .super-admin-card .form-text,
+  body.theme-dark .super-admin-card .form-text,
+  body[data-theme="dark"] .super-admin-card .small,
+  body[data-theme-version="dark"] .super-admin-card .small,
+  body.theme-dark .super-admin-card .small {
+    color:#94a3b8 !important;
+  }
+  body[data-theme="dark"] .toggle-item,
+  body[data-theme-version="dark"] .toggle-item,
+  body.theme-dark .toggle-item,
+  body[data-theme="dark"] .hero-variant-option,
+  body[data-theme-version="dark"] .hero-variant-option,
+  body.theme-dark .hero-variant-option,
+  body[data-theme="dark"] .role-access-wrap,
+  body[data-theme-version="dark"] .role-access-wrap,
+  body.theme-dark .role-access-wrap,
+  body[data-theme="dark"] .landing-preview,
+  body[data-theme-version="dark"] .landing-preview,
+  body.theme-dark .landing-preview {
+    background:var(--sa-surface-soft);
+    border-color:rgba(71, 85, 105, 0.55);
+  }
+  body[data-theme="dark"] .hero-variant-option.selected,
+  body[data-theme-version="dark"] .hero-variant-option.selected,
+  body.theme-dark .hero-variant-option.selected {
+    background:rgba(30, 41, 59, 0.95);
+    box-shadow:0 0 0 3px rgba(59, 130, 246, 0.22);
+  }
+  body[data-theme="dark"] .role-access-table thead th,
+  body[data-theme-version="dark"] .role-access-table thead th,
+  body.theme-dark .role-access-table thead th {
+    background:rgba(30, 41, 59, 0.96);
+    border-bottom-color:rgba(71, 85, 105, 0.5);
+  }
+  body[data-theme="dark"] .role-access-table tbody td,
+  body[data-theme-version="dark"] .role-access-table tbody td,
+  body.theme-dark .role-access-table tbody td {
+    background:transparent;
+    border-color:rgba(51, 65, 85, 0.85);
+  }
+  body[data-theme="dark"] .super-admin-card .form-control,
+  body[data-theme-version="dark"] .super-admin-card .form-control,
+  body.theme-dark .super-admin-card .form-control {
+    background:rgba(2, 6, 23, 0.55);
+    border-color:rgba(71, 85, 105, 0.65);
+    color:#e2e8f0;
+  }
+  body[data-theme="dark"] .super-admin-card .form-control::placeholder,
+  body[data-theme-version="dark"] .super-admin-card .form-control::placeholder,
+  body.theme-dark .super-admin-card .form-control::placeholder {
+    color:#64748b;
+  }
+  body[data-theme="dark"] .super-admin-card hr,
+  body[data-theme-version="dark"] .super-admin-card hr,
+  body.theme-dark .super-admin-card hr {
+    border-color:rgba(51, 65, 85, 0.85);
+  }
 </style>
 @endpush
 
 @section('content')
 <main class="content-body">
   <div class="container-fluid">
-    <div class="super-admin-shell">
+    <div class="super-admin-shell super-admin-page">
       @if(session('status'))
         <div class="alert alert-success">{{ session('status') }}</div>
       @endif

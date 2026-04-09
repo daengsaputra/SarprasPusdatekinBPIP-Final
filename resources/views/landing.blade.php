@@ -57,7 +57,18 @@
   body {
     font-family: "Poppins", var(--bs-body-font-family, sans-serif);
   }
-
+.btn-sound {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10;
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 50%;
+    cursor: pointer;
+}
   .hero-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -737,16 +748,24 @@
         <button class="btn btn-lg btn-outline-primary px-4" data-bs-toggle="modal" data-bs-target="#loginModal">Masuk Dashboard</button>
       </div>
     </div>
-  <div class="hero-image {{ $hasHeroVideo ? 'hero-image--has-video' : '' }}">
-    @if($hasHeroVideo)
-      <video class="hero-video" autoplay muted loop playsinline preload="metadata" poster="{{ asset('images/hero-sarpras.jpg') }}">
-        <source src="{{ $landingVideoUrl }}" @if($landingVideoMime) type="{{ $landingVideoMime }}" @endif>
-        Browser Anda tidak mendukung pemutaran video.
-      </video>
-    @else
-      <img src="{{ asset('images/hero-sarpras.jpg') }}" alt="Ilustrasi sarpras" onerror="this.style.display='none';" />
-    @endif
-  </div>
+      <div class="hero-image {{ $hasHeroVideo ? 'hero-image--has-video' : '' }}">
+        @if($hasHeroVideo)
+          <video
+            id="heroVideo"
+            class="hero-video"
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="metadata"
+          >
+            <source src="{{ $landingVideoUrl }}" @if($landingVideoMime) type="{{ $landingVideoMime }}" @endif>
+            Browser Anda tidak mendukung pemutaran video.
+          </video>
+        @else
+          <div class="hero-video" aria-hidden="true"></div>
+        @endif
+      </div>
   </div>
 
   <div class="row g-4 mt-3">
@@ -1038,5 +1057,25 @@
       });
     });
   </script>
+  <script>
+function toggleSound() {
+    const video = document.getElementById('heroVideo');
+    const btn = document.getElementById('btnSound');
+
+    if (!video || !btn) {
+        return;
+    }
+
+    video.muted = !video.muted;
+
+    if (video.muted) {
+        btn.innerHTML = '🔇';
+    } else {
+        btn.innerHTML = '🔊';
+        video.play(); // penting biar suara aktif
+    }
+}
+</script>
+
 
 @endsection

@@ -33,6 +33,7 @@ Route::get('/loans/receipt/{batch}', [LoanController::class, 'receipt'])
 Route::middleware('auth')->group(function () {
     // Halaman dashboard
     Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/chart/petugas-monthly', [HomeController::class, 'petugasMonthlyChart'])->name('dashboard.chart.petugas-monthly');
     Route::get('/profile', function () {
         return view('profile.show');
     })->name('profile.show');

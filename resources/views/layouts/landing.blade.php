@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+@php($heroVariant = $activeHeroVariant ?? 'ocean')
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -77,6 +78,42 @@
             --nav-border-scrolled: rgba(148, 163, 184, 0.3);
             --footer-bg: rgba(2, 6, 23, 0.88);
             --footer-border: rgba(148, 163, 184, 0.22);
+        }
+        body[data-hero-variant="slate"] {
+            --brand-blue: #475569;
+            --brand-blue-dark: #334155;
+            --brand-cyan: #94a3b8;
+            --surface-1: linear-gradient(160deg, #f8fafc 0%, #e2e8f0 42%, #cbd5e1 100%);
+            --surface-2: rgba(248, 250, 252, 0.92);
+            --surface-3: rgba(226, 232, 240, 0.82);
+            --border-soft: rgba(51, 65, 85, 0.12);
+            --text-primary: #0f172a;
+            --text-secondary: rgba(51, 65, 85, 0.78);
+            --text-muted: rgba(71, 85, 105, 0.72);
+            --nav-bg: rgba(248, 250, 252, 0.9);
+            --nav-bg-scrolled: rgba(255, 255, 255, 0.94);
+            --nav-border: rgba(71, 85, 105, 0.12);
+            --nav-border-scrolled: rgba(71, 85, 105, 0.18);
+            --footer-bg: rgba(241, 245, 249, 0.95);
+            --footer-border: rgba(71, 85, 105, 0.14);
+        }
+        body.theme-dark[data-hero-variant="slate"] {
+            --brand-blue: #64748b;
+            --brand-blue-dark: #475569;
+            --brand-cyan: #cbd5e1;
+            --surface-1: linear-gradient(160deg, #020617 0%, #111827 46%, #1f2937 100%);
+            --surface-2: rgba(17, 24, 39, 0.92);
+            --surface-3: rgba(31, 41, 55, 0.8);
+            --border-soft: rgba(148, 163, 184, 0.22);
+            --text-primary: #f8fafc;
+            --text-secondary: rgba(226, 232, 240, 0.82);
+            --text-muted: rgba(148, 163, 184, 0.78);
+            --nav-bg: rgba(17, 24, 39, 0.88);
+            --nav-bg-scrolled: rgba(2, 6, 23, 0.92);
+            --nav-border: rgba(148, 163, 184, 0.2);
+            --nav-border-scrolled: rgba(148, 163, 184, 0.3);
+            --footer-bg: rgba(3, 7, 18, 0.9);
+            --footer-border: rgba(148, 163, 184, 0.2);
         }
         .text-muted {
             color: var(--text-muted) !important;
@@ -357,7 +394,7 @@
     </style>
     @stack('styles')
 </head>
-<body>
+<body data-hero-variant="{{ $heroVariant }}">
 <nav class="navbar landing-navbar navbar-expand-lg py-3">
     <div class="container">
         <a class="navbar-brand fw-semibold text-uppercase" href="{{ url('/') }}">SARPRAS PUSDATEKIN</a>
